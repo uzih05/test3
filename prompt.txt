@@ -1,0 +1,47 @@
+---
+**Role:** You are an expert UI/UX designer specializing in creating modern, futuristic, and high-fidelity web dashboards.
+
+**Goal:** Design a professional dashboard interface that precisely matches the aesthetic described below.
+
+**1. Design Aesthetic & Style Definition:**
+* **Style Name:** Futuristic Neon Dark Mode UI with Soft UI elements.
+* **Overall Vibe:** Sleek, high-tech, clean, premium, and data-driven. It should feel immersive with depth.
+* **Background:** Deep charcoal and matte black gradients. Not pure flat black. It should have a subtle texture or soft lighting vignette.
+* **Lighting & Depth:** The UI cards should have soft, diffused shadows (drop shadows) that make them appear slightly elevated from the dark background. Use subtle inner glows on active elements to create a "neon" effect.
+
+**2. Color Palette (Strict adherence required):**
+* **Primary Background:** #121212 (Deep dark grey) to #000000 (Black).
+* **Primary Accent (Hero Color):** Vibrant Neon Lime Green / Electric Yellow (e.g., #DFFF00 or #CCFF00). This is used for primary buttons, active states, key metrics highlights, and main progress bars.
+* **Secondary Accent:** Cyan / Teal (e.g., #00FFCC) for positive growth trends or secondary indicators.
+* **Typography Colors:** Pure White (#FFFFFF) for primary headings. Light Grey (#B0B0B0) for body text and labels to reduce eye strain.
+
+**3. Typography & Shape Language:**
+* **Font:** Modern, clean Sans-serif font (e.g., Inter, SF Pro Display, Roboto).
+* **Corner Radius:** Heavily rounded corners on all cards, buttons, and input fields (approx. 20px - 30px radius). It should feel very soft and friendly despite the dark theme.
+
+**4. UI Components & Visualizations:**
+* **Cards/Widgets:** Modular card-based layout. Cards have dark gray backgrounds (slightly lighter than the main background) with soft borders or subtle gradients.
+* **Data Viz:** Charts (bar, line, donut) must use the Neon Lime and Cyan accent colors. They should look glowing and clean.
+* **Imagery:** Integrate high-quality 3D product renders (if applicable to the content) directly into the cards, making them feel part of the UI.
+* **Icons:** Minimalist, thin-line icons in white or neon accent colors.
+
+**5. Layout Structure:**
+* **Navigation:** A clean sidebar navigation on the left (dark background) and a top utility bar (search, profile, notifications).
+* **Grid:** A flexible grid system allowing for widgets of various sizes (small square stats, wide trend graphs, tall lists).
+
+---
+**[여기에 기능명세서의 구체적인 내용 입력]**
+
+*(작성 예시:)*
+**6. Specific Content Requirements (Based on Functional Spec):**
+* **Page Title:** "Sales Overview"
+* **Top Key Metrics (4 cards):**
+    1.  Total Revenue: $125,000 (Highlight in Neon Lime)
+    2.  Active Users: 8,500 (Trend up 12% in Cyan)
+    3.  New Orders: 320
+    4.  Conversion Rate: 3.5%
+* **Main Chart Section:** A large wide card showing "Monthly Revenue Trend" for the last 6 months using a glowing line chart.
+* **Sidebar Section:** A "Top Selling Products" list showing product image, name, and sales price.
+---
+
+**Output Quality:** High-fidelity UI mockup, 4K resolution, professional Dribbble/Behance showcase standard.

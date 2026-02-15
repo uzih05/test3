@@ -1,0 +1,146 @@
+{
+  "nav": {
+    "overview": "개요",
+    "executions": "실행 로그",
+    "traces": "트레이스",
+    "functions": "함수",
+    "errors": "에러",
+    "healer": "힐러",
+    "cache": "캐시",
+    "golden": "골든",
+    "github": "GitHub",
+    "projects": "프로젝트",
+    "settings": "설정"
+  },
+  "auth": {
+    "login": "로그인",
+    "signup": "회원가입",
+    "logout": "로그아웃",
+    "email": "이메일",
+    "password": "비밀번호",
+    "displayName": "표시 이름",
+    "noAccount": "계정이 없으신가요?",
+    "hasAccount": "이미 계정이 있으신가요?",
+    "loginFailed": "로그인 실패",
+    "signupFailed": "회원가입 실패"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "addWidget": "위젯 추가",
+    "editMode": "편집",
+    "done": "완료",
+    "refresh": "새로고침",
+    "kpi": {
+      "total": "총 실행",
+      "successRate": "성공률",
+      "errors": "에러",
+      "cacheHit": "캐시 히트율",
+      "avgDuration": "평균 소요시간"
+    },
+    "timeRange": "시간 범위"
+  },
+  "executions": {
+    "title": "실행 로그",
+    "slowest": "가장 느린 실행",
+    "all": "전체",
+    "success": "성공",
+    "error": "에러",
+    "cacheHit": "캐시 히트",
+    "search": "함수 검색...",
+    "viewTrace": "트레이스 보기",
+    "noData": "실행 데이터가 없습니다"
+  },
+  "traces": {
+    "title": "트레이스",
+    "tree": "트리 뷰",
+    "waterfall": "워터폴",
+    "analyze": "AI 분석",
+    "spans": "스팬"
+  },
+  "functions": {
+    "title": "함수",
+    "semantic": "시맨틱",
+    "hybrid": "하이브리드",
+    "grid": "그리드",
+    "treeView": "트리",
+    "ask": "AI 질문",
+    "viewExecutions": "실행 보기",
+    "viewErrors": "에러 보기"
+  },
+  "errors": {
+    "title": "에러",
+    "summary": "에러 요약",
+    "trends": "추세",
+    "search": "에러 검색..."
+  },
+  "healer": {
+    "title": "AI 힐러",
+    "single": "단일",
+    "batch": "일괄",
+    "diagnose": "진단 & 치유",
+    "batchDiagnose": "일괄 진단",
+    "suggestedFix": "수정 제안",
+    "noOpenaiKey": "AI 기능을 사용하려면 OpenAI API 키가 필요합니다"
+  },
+  "cache": {
+    "title": "캐시",
+    "analytics": "분석",
+    "drift": "드리프트",
+    "hitRate": "히트율",
+    "timeSaved": "절감 시간",
+    "simulate": "시뮬레이션"
+  },
+  "golden": {
+    "title": "골든 데이터셋",
+    "records": "레코드",
+    "register": "등록",
+    "registerNew": "새 골든 레코드 등록",
+    "recommend": "추천",
+    "recommendTitle": "골든 추천",
+    "noRecords": "골든 레코드가 없습니다",
+    "delete": "삭제",
+    "stats": "통계"
+  },
+  "github": {
+    "title": "GitHub",
+    "connect": "연결",
+    "disconnect": "연결 해제",
+    "selectRepo": "저장소 선택",
+    "prs": "풀 리퀘스트",
+    "open": "열림",
+    "closed": "닫힘"
+  },
+  "settings": {
+    "title": "설정",
+    "appearance": "외관",
+    "connections": "연결 관리",
+    "aiSettings": "AI 설정",
+    "stats": "상태 개요",
+    "theme": {
+      "light": "라이트",
+      "dark": "다크",
+      "system": "시스템"
+    }
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "confirm": "확인",
+    "close": "닫기",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "noData": "데이터가 없습니다",
+    "copy": "복사"
+  },
+  "projects": {
+    "title": "프로젝트",
+    "newConnection": "새 연결",
+    "testConnection": "연결 테스트",
+    "activate": "활성화",
+    "selfHosted": "셀프 호스팅",
+    "wcsCloud": "WCS 클라우드"
+  }
+}

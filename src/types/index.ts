@@ -1,0 +1,261 @@
+// === Auth ===
+export interface User {
+  id: string;
+  email: string;
+  display_name: string;
+  created_at: string;
+  has_openai_key: boolean;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
+// === Connection ===
+export interface WeaviateConnection {
+  id: string;
+  name: string;
+  connection_type: 'self_hosted' | 'wcs_cloud';
+  host: string;
+  port: number;
+  grpc_port: number;
+  api_key: string | null;
+  is_active: boolean;
+  vectorizer_type: 'openai' | 'huggingface' | null;
+  vectorizer_model: string | null;
+  created_at: string;
+  has_openai_key: boolean;
+}
+
+// === Execution ===
+export interface Execution {
+  span_id: string;
+  trace_id: string;
+  function_name: string;
+  status: 'SUCCESS' | 'ERROR' | 'CACHE_HIT';
+  duration_ms: number;
+  timestamp_utc: string;
+  team?: string;
+  error_code?: string;
+  error_message?: string;
+  input_preview?: string;
+  output_preview?: string;
+  return_value?: Record<string, unknown>;
+  uuid: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+// === Trace ===
+export interface TraceListItem {
+  trace_id: string;
+  root_function: string;
+  status: 'SUCCESS' | 'ERROR' | 'PARTIAL';
+  total_duration_ms: number;
+  span_count: number;
+  start_time: string;
+}
+
+export interface Span {
+  span_id: string;
+  parent_span_id: string | null;
+  function_name: string;
+  status: 'SUCCESS' | 'ERROR' | 'CACHE_HIT';
+  duration_ms: number;
+  timestamp_utc: string;
+  error_code?: string;
+  error_message?: string;
+  attributes?: Record<string, unknown>;
+  children?: Span[];
+}
+
+export interface TraceDetail {
+  trace_id: string;
+  spans: Span[];
+  span_count: number;
+  total_duration_ms: number;
+  start_time: string;
+  status: 'SUCCESS' | 'ERROR' | 'PARTIAL';
+}
+
+export interface TraceTree {
+  trace_id: string;
+  tree: Span[];
+  total_duration_ms: number;
+  status: string;
+}
+
+// === Function ===
+export interface FunctionInfo {
+  function_name: string;
+  module?: string;
+  file_path?: string;
+  description?: string;
+  docstring?: string;
+  source_code?: string;
+  team?: string;
+  execution_count?: number;
+  avg_duration_ms?: number;
+  error_rate?: number;
+}
+
+// === Cache ===
+export interface CacheAnalytics {
+  total_executions: number;
+  cache_hit_count: number;
+  cache_hit_rate: number;
+  golden_hit_count: number;
+  standard_hit_count: number;
+  golden_ratio: number;
+  time_saved_ms: number;
+  avg_cached_duration_ms: number;
+  time_range_minutes: number;
+  has_data: boolean;
+}
+
+export interface DriftItem {
+  function_name: string;
+  status: 'ANOMALY' | 'NORMAL' | 'INSUFFICIENT_DATA' | 'NO_VECTOR';
+  avg_distance: number;
+  sample_count: number;
+  threshold: number;
+}
+
+export interface DriftSimulationResult {
+  is_drift: boolean;
+  avg_distance: number;
+  function_name: string;
+  threshold: number;
+  neighbors: {
+    span_id: string;
+    distance: number;
+    return_value: Record<string, unknown>;
+    timestamp_utc: string;
+  }[];
+}
+
+export interface GoldenRecord {
+  uuid: string;
+  execution_uuid: string;
+  function_name: string;
+  note: string;
+  tags: string[];
+  created_at: string;
+}
+
+// === Healer ===
+export interface HealableFunction {
+  function_name: string;
+  error_count: number;
+  last_error: string;
+  error_codes: string[];
+}
+
+export interface DiagnosisResult {
+  function_name: string;
+  diagnosis: string;
+  suggested_fix: string | null;
+  lookback_minutes: number;
+  status: 'success' | 'error' | 'no_errors';
+}
+
+// === GitHub ===
+export interface GitHubPR {
+  number: number;
+  title: string;
+  state: 'open' | 'closed' | 'merged';
+  draft: boolean;
+  author: string;
+  author_avatar: string;
+  created_at: string;
+  updated_at: string;
+  merged_at: string | null;
+  labels: { name: string; color: string }[];
+  reviewers: string[];
+  html_url: string;
+  body?: string;
+}
+
+export interface GitHubPRDetail extends GitHubPR {
+  changed_files: number;
+  additions: number;
+  deletions: number;
+}
+
+export interface GitHubRepo {
+  full_name: string;
+  name: string;
+  owner: string;
+  private: boolean;
+  description: string;
+  language: string;
+  updated_at: string;
+}
+
+// === Widget ===
+export interface Widget {
+  id: string;
+  widget_type: string;
+  position_order: number;
+  size: 'S' | 'M' | 'L';
+}
+
+export interface WidgetCatalogItem {
+  type: string;
+  name: string;
+  sizes: string[];
+  default_size: string;
+}
+
+// === Analytics ===
+export interface KpiData {
+  total_executions: number;
+  success_count: number;
+  error_count: number;
+  cache_hit_count: number;
+  success_rate: number;
+  avg_duration_ms: number;
+  time_range_minutes: number;
+}
+
+export interface TokenUsage {
+  total_tokens: number;
+  by_category: Record<string, number>;
+}
+
+export interface TimelineEntry {
+  timestamp: string;
+  success: number;
+  error: number;
+  cache_hit: number;
+}
+
+export interface SystemStatus {
+  db_connected: boolean;
+  registered_functions_count: number;
+  last_checked: string;
+}
+
+export interface ErrorSummary {
+  total_errors: number;
+  unique_error_codes: number;
+  most_common_errors: {
+    error_code: string;
+    count: number;
+    percentage: number;
+  }[];
+  time_range_minutes: number;
+}
+
+export interface ErrorTrend {
+  timestamp: string;
+  error_count: number;
+  unique_error_codes: number;
+}

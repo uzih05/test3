@@ -1,0 +1,148 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { useTranslation } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
+
+export default function SignupPage() {
+  const router = useRouter();
+  const { signup, isLoading, error, clearError } = useAuthStore();
+  const { t } = useTranslation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signup(email, password, displayName || undefined);
+      router.push('/projects');
+    } catch {
+      // error is set in store
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg-primary p-4">
+      {/* Background glow */}
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-cyan/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-neon-lime mb-4">
+            <span className="text-text-inverse font-black text-xl">VS</span>
+          </div>
+          <h1 className="text-2xl font-bold text-text-primary">VectorSurfer Extream</h1>
+          <p className="text-text-muted text-sm mt-1">Create your account</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-bg-card border border-border-default rounded-[20px] p-8 card-shadow">
+          <h2 className="text-xl font-semibold text-text-primary mb-6">{t('auth.signup')}</h2>
+
+          {error && (
+            <div className="mb-4 px-4 py-3 bg-neon-red-dim border border-neon-red/30 rounded-[12px] text-sm text-neon-red">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">{t('auth.email')}</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); clearError(); }}
+                placeholder="you@example.com"
+                required
+                className={cn(
+                  'w-full px-4 py-3 bg-bg-input border border-border-default rounded-[12px]',
+                  'text-sm text-text-primary placeholder:text-text-muted',
+                  'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                )}
+              />
+            </div>
+
+            {/* Display Name */}
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">
+                {t('auth.displayName')}
+                <span className="text-text-muted ml-1">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your name"
+                className={cn(
+                  'w-full px-4 py-3 bg-bg-input border border-border-default rounded-[12px]',
+                  'text-sm text-text-primary placeholder:text-text-muted',
+                  'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                )}
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">{t('auth.password')}</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); clearError(); }}
+                  placeholder="••••••••"
+                  required
+                  className={cn(
+                    'w-full px-4 py-3 pr-11 bg-bg-input border border-border-default rounded-[12px]',
+                    'text-sm text-text-primary placeholder:text-text-muted',
+                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={cn(
+                'w-full py-3 rounded-[14px] text-sm font-semibold transition-all duration-200',
+                'bg-neon-lime text-text-inverse hover:brightness-110 active:scale-[0.98]',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
+                'neon-glow'
+              )}
+            >
+              {isLoading ? (
+                <Loader2 size={18} className="animate-spin mx-auto" />
+              ) : (
+                t('auth.signup')
+              )}
+            </button>
+          </form>
+
+          {/* Login link */}
+          <p className="mt-6 text-center text-sm text-text-muted">
+            {t('auth.hasAccount')}{' '}
+            <Link href="/login" className="text-neon-lime hover:underline font-medium">
+              {t('auth.login')}
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

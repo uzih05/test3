@@ -1,0 +1,146 @@
+{
+  "nav": {
+    "overview": "概要",
+    "executions": "実行ログ",
+    "traces": "トレース",
+    "functions": "関数",
+    "errors": "エラー",
+    "healer": "ヒーラー",
+    "cache": "キャッシュ",
+    "golden": "ゴールデン",
+    "github": "GitHub",
+    "projects": "プロジェクト",
+    "settings": "設定"
+  },
+  "auth": {
+    "login": "ログイン",
+    "signup": "サインアップ",
+    "logout": "ログアウト",
+    "email": "メール",
+    "password": "パスワード",
+    "displayName": "表示名",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "hasAccount": "既にアカウントをお持ちですか？",
+    "loginFailed": "ログイン失敗",
+    "signupFailed": "サインアップ失敗"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "addWidget": "ウィジェット追加",
+    "editMode": "編集",
+    "done": "完了",
+    "refresh": "更新",
+    "kpi": {
+      "total": "総実行数",
+      "successRate": "成功率",
+      "errors": "エラー",
+      "cacheHit": "キャッシュヒット率",
+      "avgDuration": "平均所要時間"
+    },
+    "timeRange": "時間範囲"
+  },
+  "executions": {
+    "title": "実行ログ",
+    "slowest": "最も遅い実行",
+    "all": "全て",
+    "success": "成功",
+    "error": "エラー",
+    "cacheHit": "キャッシュヒット",
+    "search": "関数を検索...",
+    "viewTrace": "トレースを見る",
+    "noData": "実行データがありません"
+  },
+  "traces": {
+    "title": "トレース",
+    "tree": "ツリービュー",
+    "waterfall": "ウォーターフォール",
+    "analyze": "AI分析",
+    "spans": "スパン"
+  },
+  "functions": {
+    "title": "関数",
+    "semantic": "セマンティック",
+    "hybrid": "ハイブリッド",
+    "grid": "グリッド",
+    "treeView": "ツリー",
+    "ask": "AIに質問",
+    "viewExecutions": "実行を見る",
+    "viewErrors": "エラーを見る"
+  },
+  "errors": {
+    "title": "エラー",
+    "summary": "エラー概要",
+    "trends": "トレンド",
+    "search": "エラーを検索..."
+  },
+  "healer": {
+    "title": "AIヒーラー",
+    "single": "単一",
+    "batch": "一括",
+    "diagnose": "診断＆修復",
+    "batchDiagnose": "一括診断",
+    "suggestedFix": "修正提案",
+    "noOpenaiKey": "AI機能にはOpenAI APIキーが必要です"
+  },
+  "cache": {
+    "title": "キャッシュ",
+    "analytics": "分析",
+    "drift": "ドリフト",
+    "hitRate": "ヒット率",
+    "timeSaved": "節約時間",
+    "simulate": "シミュレーション"
+  },
+  "golden": {
+    "title": "ゴールデンデータセット",
+    "records": "レコード",
+    "register": "登録",
+    "registerNew": "新しいゴールデンレコードを登録",
+    "recommend": "推薦",
+    "recommendTitle": "ゴールデン推薦",
+    "noRecords": "ゴールデンレコードがありません",
+    "delete": "削除",
+    "stats": "統計"
+  },
+  "github": {
+    "title": "GitHub",
+    "connect": "接続",
+    "disconnect": "切断",
+    "selectRepo": "リポジトリ選択",
+    "prs": "プルリクエスト",
+    "open": "オープン",
+    "closed": "クローズド"
+  },
+  "settings": {
+    "title": "設定",
+    "appearance": "外観",
+    "connections": "接続管理",
+    "aiSettings": "AI設定",
+    "stats": "ステータス概要",
+    "theme": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム"
+    }
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "confirm": "確認",
+    "close": "閉じる",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "noData": "データがありません",
+    "copy": "コピー"
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "newConnection": "新しい接続",
+    "testConnection": "接続テスト",
+    "activate": "アクティベート",
+    "selfHosted": "セルフホスト",
+    "wcsCloud": "WCSクラウド"
+  }
+}

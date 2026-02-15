@@ -1,0 +1,146 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "executions": "Executions",
+    "traces": "Traces",
+    "functions": "Functions",
+    "errors": "Errors",
+    "healer": "Healer",
+    "cache": "Cache",
+    "golden": "Golden",
+    "github": "GitHub",
+    "projects": "Projects",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display Name",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginFailed": "Login failed",
+    "signupFailed": "Signup failed"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "addWidget": "Add Widget",
+    "editMode": "Edit",
+    "done": "Done",
+    "refresh": "Refresh",
+    "kpi": {
+      "total": "Total Executions",
+      "successRate": "Success Rate",
+      "errors": "Errors",
+      "cacheHit": "Cache Hit Rate",
+      "avgDuration": "Avg Duration"
+    },
+    "timeRange": "Time Range"
+  },
+  "executions": {
+    "title": "Executions",
+    "slowest": "Slowest Executions",
+    "all": "All",
+    "success": "Success",
+    "error": "Error",
+    "cacheHit": "Cache Hit",
+    "search": "Search functions...",
+    "viewTrace": "View Trace",
+    "noData": "No executions found"
+  },
+  "traces": {
+    "title": "Traces",
+    "tree": "Tree View",
+    "waterfall": "Waterfall",
+    "analyze": "AI Analyze",
+    "spans": "spans"
+  },
+  "functions": {
+    "title": "Functions",
+    "semantic": "Semantic",
+    "hybrid": "Hybrid",
+    "grid": "Grid",
+    "treeView": "Tree",
+    "ask": "Ask AI",
+    "viewExecutions": "View Executions",
+    "viewErrors": "View Errors"
+  },
+  "errors": {
+    "title": "Errors",
+    "summary": "Error Summary",
+    "trends": "Trends",
+    "search": "Search errors..."
+  },
+  "healer": {
+    "title": "AI Healer",
+    "single": "Single",
+    "batch": "Batch",
+    "diagnose": "Diagnose & Heal",
+    "batchDiagnose": "Batch Diagnose",
+    "suggestedFix": "Suggested Fix",
+    "noOpenaiKey": "OpenAI API key required for AI features"
+  },
+  "cache": {
+    "title": "Cache",
+    "analytics": "Analytics",
+    "drift": "Drift",
+    "hitRate": "Hit Rate",
+    "timeSaved": "Time Saved",
+    "simulate": "Simulate"
+  },
+  "golden": {
+    "title": "Golden Dataset",
+    "records": "Records",
+    "register": "Register",
+    "registerNew": "Register New Golden Record",
+    "recommend": "Recommendations",
+    "recommendTitle": "Golden Recommendations",
+    "noRecords": "No golden records found",
+    "delete": "Delete",
+    "stats": "Stats"
+  },
+  "github": {
+    "title": "GitHub",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "selectRepo": "Select Repository",
+    "prs": "Pull Requests",
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "connections": "Connections",
+    "aiSettings": "AI Settings",
+    "stats": "Stats Overview",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "noData": "No data available",
+    "copy": "Copy"
+  },
+  "projects": {
+    "title": "Projects",
+    "newConnection": "New Connection",
+    "testConnection": "Test Connection",
+    "activate": "Activate",
+    "selfHosted": "Self Hosted",
+    "wcsCloud": "WCS Cloud"
+  }
+}

@@ -1,65 +1,182 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Pencil, Check, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { widgetsService } from '@/services/widgets';
+import { useTranslation } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
+
+import { WidgetCard } from '@/components/dashboard/WidgetCard';
+import { WidgetPicker } from '@/components/dashboard/WidgetPicker';
+import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
+import { FillModeSelector } from '@/components/dashboard/FillModeSelector';
+
+import { KpiOverview } from '@/components/dashboard/widgets/KpiOverview';
+import { TokenUsage } from '@/components/dashboard/widgets/TokenUsage';
+import { CacheHitRate } from '@/components/dashboard/widgets/CacheHitRate';
+import { ErrorRate } from '@/components/dashboard/widgets/ErrorRate';
+import { ExecutionTimeline } from '@/components/dashboard/widgets/ExecutionTimeline';
+import { FunctionDistribution } from '@/components/dashboard/widgets/FunctionDistribution';
+import { RecentErrors } from '@/components/dashboard/widgets/RecentErrors';
+import { SystemStatus } from '@/components/dashboard/widgets/SystemStatus';
+
+const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
+  kpi_overview: KpiOverview,
+  token_usage: TokenUsage,
+  cache_hit: CacheHitRate,
+  error_rate: ErrorRate,
+  execution_timeline: ExecutionTimeline,
+  function_distribution: FunctionDistribution,
+  recent_errors: RecentErrors,
+  system_status: SystemStatus,
+};
+
+const WIDGET_TITLES: Record<string, string> = {
+  kpi_overview: 'KPI Overview',
+  token_usage: 'Token Usage',
+  cache_hit: 'Cache Hit Rate',
+  error_rate: 'Error Rate',
+  execution_timeline: 'Execution Timeline',
+  function_distribution: 'Function Distribution',
+  recent_errors: 'Recent Errors',
+  system_status: 'System Status',
+};
+
+export default function DashboardPage() {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const { data: widgetData, isLoading } = useQuery({
+    queryKey: ['widgets'],
+    queryFn: () => widgetsService.list(),
+  });
+
+  const widgets = widgetData?.items || [];
+
+  const addWidget = useMutation({
+    mutationFn: ({ type, size }: { type: string; size: string }) =>
+      widgetsService.add(type, size),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+  });
+
+  const removeWidget = useMutation({
+    mutationFn: (id: string) => widgetsService.remove(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+  });
+
+  const updateWidget = useMutation({
+    mutationFn: ({ id, size }: { id: string; size: string }) =>
+      widgetsService.update(id, size),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+  });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries();
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div>
+      {/* Header bar */}
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <h1 className="text-xl font-bold text-text-primary">{t('dashboard.title')}</h1>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <FillModeSelector />
+          <TimeRangeSelector />
+
+          <button
+            onClick={handleRefresh}
+            className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card"
+            title={t('dashboard.refresh')}
+          >
+            <RefreshCw size={16} />
+          </button>
+
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm font-medium transition-all',
+              isEditing
+                ? 'bg-neon-lime text-text-inverse'
+                : 'bg-bg-card border border-border-default text-text-secondary hover:text-text-primary'
+            )}
+          >
+            {isEditing ? <Check size={14} /> : <Pencil size={14} />}
+            {isEditing ? t('dashboard.done') : t('dashboard.editMode')}
+          </button>
+        </div>
+      </div>
+
+      {/* Widget grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-bg-card rounded-[20px] h-48 animate-pulse card-shadow col-span-1 sm:col-span-2" />
+          ))}
+        </div>
+      ) : widgets.length === 0 ? (
+        /* Empty state */
+        <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-neon-lime-dim flex items-center justify-center">
+            <Plus size={24} className="text-neon-lime" />
+          </div>
+          <h3 className="text-lg font-medium text-text-primary mb-2">No widgets yet</h3>
+          <p className="text-sm text-text-muted mb-4">Add widgets to customize your dashboard</p>
+          <button
+            onClick={() => setShowPicker(true)}
+            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-all neon-glow"
+          >
+            {t('dashboard.addWidget')}
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {widgets
+            .sort((a, b) => a.position_order - b.position_order)
+            .map((widget) => {
+              const Component = WIDGET_COMPONENTS[widget.widget_type];
+              if (!Component) return null;
+              return (
+                <WidgetCard
+                  key={widget.id}
+                  title={WIDGET_TITLES[widget.widget_type] || widget.widget_type}
+                  size={widget.size}
+                  isEditing={isEditing}
+                  onRemove={() => removeWidget.mutate(widget.id)}
+                  onResize={(size) => updateWidget.mutate({ id: widget.id, size })}
+                >
+                  <Component />
+                </WidgetCard>
+              );
+            })}
+
+          {/* Add widget button (in grid) */}
+          {isEditing && (
+            <button
+              onClick={() => setShowPicker(true)}
+              className="col-span-1 flex flex-col items-center justify-center gap-2 py-8 border border-dashed border-border-default rounded-[20px] text-text-muted hover:text-neon-lime hover:border-neon-lime/30 transition-colors"
+            >
+              <Plus size={24} />
+              <span className="text-sm">{t('dashboard.addWidget')}</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Widget picker modal */}
+      {showPicker && (
+        <WidgetPicker
+          existingTypes={widgets.map((w) => w.widget_type)}
+          onAdd={(type, size) => {
+            addWidget.mutate({ type, size });
+            setShowPicker(false);
+          }}
+          onClose={() => setShowPicker(false)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
