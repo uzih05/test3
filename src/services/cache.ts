@@ -32,6 +32,7 @@ export const cacheService = {
     api.get<{
       function_name: string;
       candidates: {
+        uuid: string;
         span_id: string;
         trace_id: string;
         function_name: string;

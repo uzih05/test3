@@ -6,6 +6,7 @@
     "functions": "関数",
     "errors": "エラー",
     "healer": "ヒーラー",
+    "analysis": "分析",
     "cache": "キャッシュ",
     "golden": "ゴールデン",
     "github": "GitHub",
@@ -81,6 +82,24 @@
     "batchDiagnose": "一括診断",
     "suggestedFix": "修正提案",
     "noOpenaiKey": "AI機能にはOpenAI APIキーが必要です"
+  },
+  "analysis": {
+    "title": "分析",
+    "cacheReport": "キャッシュレポート",
+    "costSavings": "コスト削減",
+    "functionInsights": "関数インサイト",
+    "drift": "ドリフト",
+    "tokensSaved": "節約トークン",
+    "costSaved": "節約コスト",
+    "timeSaved": "節約時間",
+    "hitRate": "ヒット率",
+    "underusedFunctions": "低使用関数",
+    "needsAttention": "件の関数に注意が必要",
+    "executionCount": "実行回数",
+    "avgRatio": "平均比",
+    "noData": "分析データがありません",
+    "blendedRate": "ブレンドレート",
+    "basedOn": "OpenAI GPT-4o価格基準"
   },
   "cache": {
     "title": "キャッシュ",

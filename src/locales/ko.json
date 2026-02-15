@@ -6,6 +6,7 @@
     "functions": "함수",
     "errors": "에러",
     "healer": "힐러",
+    "analysis": "분석",
     "cache": "캐시",
     "golden": "골든",
     "github": "GitHub",
@@ -81,6 +82,24 @@
     "batchDiagnose": "일괄 진단",
     "suggestedFix": "수정 제안",
     "noOpenaiKey": "AI 기능을 사용하려면 OpenAI API 키가 필요합니다"
+  },
+  "analysis": {
+    "title": "분석",
+    "cacheReport": "캐시 리포트",
+    "costSavings": "비용 절감",
+    "functionInsights": "함수 인사이트",
+    "drift": "드리프트",
+    "tokensSaved": "절약 토큰",
+    "costSaved": "절약 비용",
+    "timeSaved": "절약 시간",
+    "hitRate": "히트율",
+    "underusedFunctions": "저사용 함수",
+    "needsAttention": "개 함수에 주의 필요",
+    "executionCount": "실행 횟수",
+    "avgRatio": "평균 대비",
+    "noData": "분석 데이터가 없습니다",
+    "blendedRate": "혼합 단가",
+    "basedOn": "OpenAI GPT-4o 기준 가격"
   },
   "cache": {
     "title": "캐시",

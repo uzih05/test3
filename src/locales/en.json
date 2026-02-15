@@ -6,6 +6,7 @@
     "functions": "Functions",
     "errors": "Errors",
     "healer": "Healer",
+    "analysis": "Analysis",
     "cache": "Cache",
     "golden": "Golden",
     "github": "GitHub",
@@ -81,6 +82,24 @@
     "batchDiagnose": "Batch Diagnose",
     "suggestedFix": "Suggested Fix",
     "noOpenaiKey": "OpenAI API key required for AI features"
+  },
+  "analysis": {
+    "title": "Analysis",
+    "cacheReport": "Cache Report",
+    "costSavings": "Cost Savings",
+    "functionInsights": "Function Insights",
+    "drift": "Drift",
+    "tokensSaved": "Tokens Saved",
+    "costSaved": "Cost Saved",
+    "timeSaved": "Time Saved",
+    "hitRate": "Hit Rate",
+    "underusedFunctions": "Underused Functions",
+    "needsAttention": "functions need attention",
+    "executionCount": "Executions",
+    "avgRatio": "vs Average",
+    "noData": "No analysis data available",
+    "blendedRate": "Blended Rate",
+    "basedOn": "Based on OpenAI GPT-4o pricing"
   },
   "cache": {
     "title": "Cache",

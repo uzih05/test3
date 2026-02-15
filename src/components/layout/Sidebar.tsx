@@ -9,7 +9,7 @@ import {
   Code2,
   AlertTriangle,
   Sparkles,
-  Database,
+  BarChart3,
   Star,
   GitPullRequest,
   FolderOpen,
@@ -28,7 +28,7 @@ const NAV_ITEMS_TOP = [
   { key: 'functions', path: '/functions', icon: Code2 },
   { key: 'errors', path: '/errors', icon: AlertTriangle },
   { key: 'healer', path: '/healer', icon: Sparkles },
-  { key: 'cache', path: '/cache', icon: Database },
+  { key: 'analysis', path: '/analysis', icon: BarChart3 },
   { key: 'golden', path: '/golden', icon: Star },
   { key: 'github', path: '/github', icon: GitPullRequest },
 ];

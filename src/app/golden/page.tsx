@@ -13,6 +13,7 @@ import {
   Sparkles,
   Tag,
   BarChart3,
+  CheckCircle2,
 } from 'lucide-react';
 import { cacheService } from '@/services/cache';
 import { useTranslation } from '@/lib/i18n';
@@ -35,6 +36,7 @@ export default function GoldenPage() {
 
   // Recommend
   const [recFn, setRecFn] = useState('');
+  const [registeredUuids, setRegisteredUuids] = useState<Set<string>>(new Set());
 
   // Golden records
   const { data: goldenData, isLoading: loadingGolden } = useQuery({
@@ -71,6 +73,16 @@ export default function GoldenPage() {
       setRegUuid('');
       setRegNote('');
       setRegTags('');
+    },
+  });
+
+  // Quick register from recommend tab
+  const quickRegisterMutation = useMutation({
+    mutationFn: (uuid: string) => cacheService.goldenRegister(uuid),
+    onSuccess: (_data, uuid) => {
+      setRegisteredUuids((prev) => new Set(prev).add(uuid));
+      queryClient.invalidateQueries({ queryKey: ['golden'] });
+      queryClient.invalidateQueries({ queryKey: ['goldenStats'] });
     },
   });
 
@@ -303,6 +315,7 @@ export default function GoldenPage() {
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Score</th>
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
+                      <th className="text-center px-5 py-3 text-xs font-medium text-text-muted">{t('golden.register')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -332,6 +345,20 @@ export default function GoldenPage() {
                           </div>
                         </td>
                         <td className="px-5 py-3.5 text-xs text-text-muted">{timeAgo(c.timestamp_utc)}</td>
+                        <td className="px-5 py-3.5 text-center">
+                          {registeredUuids.has(c.uuid) ? (
+                            <CheckCircle2 size={16} className="inline text-neon-lime" />
+                          ) : (
+                            <button
+                              onClick={() => quickRegisterMutation.mutate(c.uuid)}
+                              disabled={quickRegisterMutation.isPending}
+                              className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40"
+                              title={t('golden.register')}
+                            >
+                              <Plus size={14} />
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
