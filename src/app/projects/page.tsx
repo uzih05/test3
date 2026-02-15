@@ -12,7 +12,7 @@ import {
   WifiOff,
   Loader2,
   ArrowRight,
-  BookOpen,
+  Rocket,
   X,
   Globe,
   LogOut,
@@ -457,35 +457,49 @@ export default function ProjectsPage() {
 
       {/* Floating Quick Start banner */}
       {bannerVisible && (
-        <div className="fixed bottom-6 right-6 z-50 bg-bg-card border border-border-default rounded-[20px] card-shadow p-4 max-w-xs">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-[12px] bg-neon-lime-dim flex items-center justify-center shrink-0">
-              <BookOpen size={18} className="text-neon-lime" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-text-primary">{t('projects.quickStartBanner')}</p>
-              <div className="flex items-center gap-3 mt-3">
+        <div
+          className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-3rem)] max-w-lg"
+          style={{ animation: 'banner-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+        >
+          <div
+            className="bg-bg-card border-2 rounded-[20px] card-shadow p-5 relative overflow-hidden"
+            style={{ animation: 'banner-pulse-border 3s ease-in-out infinite, banner-glow 3s ease-in-out infinite', borderColor: 'rgba(0, 255, 204, 0.3)' }}
+          >
+            {/* Gradient accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #00FFCC, #DFFF00, transparent)' }} />
+
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[14px] bg-neon-cyan-dim flex items-center justify-center shrink-0">
+                <Rocket size={22} className="text-neon-cyan" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-text-primary">{t('projects.quickStartBannerTitle')}</p>
+                <p className="text-xs text-text-muted mt-0.5">{t('projects.quickStartBannerDesc')}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href="/projects/quickstart"
-                  className="px-4 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-semibold hover:brightness-110 transition-[opacity,filter]"
+                  className="px-5 py-2 bg-neon-cyan text-text-inverse rounded-[12px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] neon-glow-cyan"
                 >
                   {t('projects.quickStartBannerAction')}
                 </Link>
                 <button
-                  onClick={dismissBannerForever}
-                  className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+                  onClick={dismissBanner}
+                  className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-bg-elevated transition-colors"
+                  aria-label={t('accessibility.close')}
                 >
-                  {t('projects.quickStartDontShow')}
+                  <X size={16} />
                 </button>
               </div>
             </div>
-            <button
-              onClick={dismissBanner}
-              className="p-0.5 text-text-muted hover:text-text-primary shrink-0"
-              aria-label={t('accessibility.close')}
-            >
-              <X size={14} />
-            </button>
+            <div className="mt-2 text-right">
+              <button
+                onClick={dismissBannerForever}
+                className="text-[11px] text-text-muted hover:text-text-secondary transition-colors"
+              >
+                {t('projects.quickStartDontShow')}
+              </button>
+            </div>
           </div>
         </div>
       )}

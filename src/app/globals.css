@@ -104,3 +104,26 @@ body {
 .transition-smooth {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* === Onboarding animations === */
+@keyframes onboarding-float {
+  0%, 100% { transform: translate(-50%, 0) scale(1); }
+  50% { transform: translate(-50%, -10px) scale(1.05); }
+}
+@keyframes onboarding-drift {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(15px, -8px); }
+  66% { transform: translate(-10px, 5px); }
+}
+@keyframes banner-slide-up {
+  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes banner-pulse-border {
+  0%, 100% { border-color: rgba(0, 255, 204, 0.3); }
+  50% { border-color: rgba(0, 255, 204, 0.7); }
+}
+@keyframes banner-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(0,255,204,0.15), 0 0 30px rgba(0,255,204,0.05); }
+  50% { box-shadow: 0 0 20px rgba(0,255,204,0.3), 0 0 40px rgba(0,255,204,0.1); }
+}
