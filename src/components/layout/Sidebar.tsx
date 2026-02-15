@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
+import { planService } from '@/services/plan';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS_TOP = [
@@ -49,7 +50,7 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
+  const { user, logout, checkAuth } = useAuthStore();
   const { t } = useTranslation();
 
   const isActive = (path: string) => {
@@ -60,6 +61,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const handleLogout = () => {
     logout();
     window.location.href = '/login';
+  };
+
+  const handlePlanToggle = async () => {
+    if (!user) return;
+    const newPlan = user.plan === 'pro' ? 'free' : 'pro';
+    try {
+      await planService.update(newPlan);
+      await checkAuth();
+    } catch {
+      // ignore
+    }
   };
 
   return (
@@ -165,14 +177,18 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 <span className="text-xs text-text-secondary truncate lg:hidden">
                   {user.display_name || user.email}
                 </span>
-                <span className={cn(
-                  'text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider',
-                  user.plan === 'pro'
-                    ? 'bg-neon-lime-dim text-neon-lime'
-                    : 'bg-bg-card text-text-muted'
-                )}>
+                <button
+                  onClick={handlePlanToggle}
+                  className={cn(
+                    'text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider cursor-pointer transition-colors',
+                    user.plan === 'pro'
+                      ? 'bg-neon-lime-dim text-neon-lime hover:bg-neon-lime/30'
+                      : 'bg-bg-card text-text-muted hover:bg-bg-card/80'
+                  )}
+                  title="Click to toggle plan (demo)"
+                >
                   {user.plan || 'free'}
-                </span>
+                </button>
               </div>
               <button
                 onClick={handleLogout}

@@ -41,6 +41,8 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
+          // Fetch full user data (has_openai_key, plan, etc.)
+          get().checkAuth();
         } catch (e) {
           const msg = e instanceof ApiError ? e.message : 'Login failed';
           set({ isLoading: false, error: msg });
@@ -61,6 +63,8 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
+          // Fetch full user data (has_openai_key, plan, etc.)
+          get().checkAuth();
         } catch (e) {
           const msg = e instanceof ApiError ? e.message : 'Signup failed';
           set({ isLoading: false, error: msg });
