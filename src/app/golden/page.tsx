@@ -14,19 +14,21 @@ import {
   Tag,
   BarChart3,
   CheckCircle2,
+  Map,
 } from 'lucide-react';
 import { cacheService } from '@/services/cache';
+import { semanticService } from '@/services/semantic';
 import { functionsService } from '@/services/functions';
 import { useTranslation } from '@/lib/i18n';
-import { formatNumber, timeAgo, cn } from '@/lib/utils';
-import type { GoldenRecord } from '@/types';
+import { formatNumber, formatPercentage, timeAgo, cn } from '@/lib/utils';
+import type { GoldenRecord, ScatterPoint, CoverageResult } from '@/types';
 
 export default function GoldenPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [functionFilter, setFunctionFilter] = useState('');
-  const [activeTab, setActiveTab] = useState<'records' | 'recommend'>('records');
+  const [activeTab, setActiveTab] = useState<'records' | 'recommend' | 'coverage'>('records');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Register form
@@ -39,11 +41,11 @@ export default function GoldenPage() {
   const [recFn, setRecFn] = useState('');
   const [registeredUuids, setRegisteredUuids] = useState<Set<string>>(new Set());
 
-  // Functions list for recommend tab
+  // Functions list for recommend/coverage tab
   const { data: fnListData } = useQuery({
     queryKey: ['functions'],
     queryFn: () => functionsService.list(),
-    enabled: activeTab === 'recommend',
+    enabled: activeTab === 'recommend' || activeTab === 'coverage',
   });
 
   // Auto-select first function when list loads
@@ -51,11 +53,31 @@ export default function GoldenPage() {
     .filter((f) => (f.execution_count ?? 0) > 0)
     .map((f) => f.function_name);
 
+  // Coverage state
+  const [coverageFn, setCoverageFn] = useState('');
+
   useEffect(() => {
     if (activeTab === 'recommend' && fnNames.length > 0 && !recFn) {
       setRecFn(fnNames[0]);
     }
+    if (activeTab === 'coverage' && fnNames.length > 0 && !coverageFn) {
+      setCoverageFn(fnNames[0]);
+    }
   }, [activeTab, fnNames.length]);
+
+  // Coverage
+  const { data: coverageData, isLoading: loadingCoverage } = useQuery({
+    queryKey: ['goldenCoverage', coverageFn],
+    queryFn: () => semanticService.coverage(coverageFn || undefined),
+    enabled: activeTab === 'coverage',
+  });
+
+  // Enhanced Recommend (with diversity)
+  const { data: diverseRecData, isLoading: loadingDiverseRec } = useQuery({
+    queryKey: ['semanticRecommend', recFn],
+    queryFn: () => semanticService.recommend(recFn, 10),
+    enabled: activeTab === 'recommend' && recFn.length > 0,
+  });
 
   // Golden records
   const { data: goldenData, isLoading: loadingGolden } = useQuery({
@@ -68,13 +90,6 @@ export default function GoldenPage() {
   const { data: statsData } = useQuery({
     queryKey: ['goldenStats'],
     queryFn: () => cacheService.goldenStats(),
-  });
-
-  // Recommend
-  const { data: recData, isLoading: loadingRec } = useQuery({
-    queryKey: ['goldenRecommend', recFn],
-    queryFn: () => cacheService.goldenRecommend(recFn, 10),
-    enabled: activeTab === 'recommend' && recFn.length > 0,
   });
 
   // Register mutation
@@ -124,7 +139,7 @@ export default function GoldenPage() {
         <div className="flex items-center gap-2">
           {/* Tab toggle */}
           <div className="flex gap-1 bg-bg-card rounded-[12px] p-1 border border-border-default">
-            {(['records', 'recommend'] as const).map((tab) => (
+            {(['records', 'recommend', 'coverage'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -246,10 +261,9 @@ export default function GoldenPage() {
         </div>
       )}
 
-      {activeTab === 'records' ? (
-        /* === Records tab === */
+      {/* === Records tab === */}
+      {activeTab === 'records' && (
         <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
-          {/* Search */}
           <div className="px-5 py-3 border-b border-border-default">
             <div className="relative max-w-sm">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -291,10 +305,11 @@ export default function GoldenPage() {
             </div>
           )}
         </div>
-      ) : (
-        /* === Recommend tab === */
+      )}
+
+      {/* === Recommend tab (with Discovery/Steady) === */}
+      {activeTab === 'recommend' && (
         <div className="space-y-4">
-          {/* Function selector chips */}
           {fnNames.length > 0 && (
             <div className="flex gap-2 overflow-x-auto pb-1">
               {fnNames.map((fn) => (
@@ -314,15 +329,15 @@ export default function GoldenPage() {
             </div>
           )}
 
-          {loadingRec ? (
+          {loadingDiverseRec ? (
             <div className="flex justify-center py-12">
               <Loader2 size={20} className="animate-spin text-neon-lime" />
             </div>
-          ) : recData && recData.candidates.length > 0 ? (
+          ) : diverseRecData && diverseRecData.candidates.length > 0 ? (
             <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
               <div className="px-5 py-3 border-b border-border-default">
                 <h3 className="text-sm font-medium text-text-secondary">
-                  Candidates for <span className="text-neon-lime">{recData.function_name}</span>
+                  Candidates for <span className="text-neon-lime">{diverseRecData.function_name}</span>
                 </h3>
               </div>
               <div className="overflow-x-auto">
@@ -330,25 +345,26 @@ export default function GoldenPage() {
                   <thead>
                     <tr className="border-b border-border-default">
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Span ID</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
+                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Type</th>
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Score</th>
+                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.diversityScore')}</th>
+                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.distanceToGolden')}</th>
                       <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
                       <th className="text-center px-5 py-3 text-xs font-medium text-text-muted">{t('golden.register')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {recData.candidates.map((c) => (
-                      <tr key={c.span_id} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
-                        <td className="px-5 py-3.5 text-sm text-text-primary font-mono">{c.span_id.slice(0, 12)}...</td>
+                    {diverseRecData.candidates.map((c) => (
+                      <tr key={c.uuid} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
+                        <td className="px-5 py-3.5 text-sm text-text-primary font-mono">{(c.span_id || c.uuid).slice(0, 12)}...</td>
                         <td className="px-5 py-3.5">
                           <span className={cn(
                             'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
-                            c.status === 'SUCCESS' ? 'bg-neon-cyan-dim text-neon-cyan'
-                              : c.status === 'CACHE_HIT' ? 'bg-neon-lime-dim text-neon-lime'
-                              : 'bg-neon-red-dim text-neon-red'
+                            c.candidate_type === 'DISCOVERY'
+                              ? 'bg-[rgba(255,159,67,0.15)] text-neon-orange'
+                              : 'bg-neon-cyan-dim text-neon-cyan'
                           )}>
-                            {c.status}
+                            {c.candidate_type === 'DISCOVERY' ? t('analysis.discovery') : t('analysis.steady')}
                           </span>
                         </td>
                         <td className="px-5 py-3.5 text-sm text-text-secondary">{c.duration_ms}ms</td>
@@ -356,13 +372,17 @@ export default function GoldenPage() {
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-neon-lime rounded-full"
+                                className={cn(
+                                  'h-full rounded-full',
+                                  c.candidate_type === 'DISCOVERY' ? 'bg-neon-orange' : 'bg-neon-cyan'
+                                )}
                                 style={{ width: `${Math.min(c.score * 100, 100)}%` }}
                               />
                             </div>
-                            <span className="text-xs text-neon-lime font-mono">{(c.score * 100).toFixed(0)}%</span>
+                            <span className="text-xs text-text-muted font-mono">{(c.score * 100).toFixed(0)}%</span>
                           </div>
                         </td>
+                        <td className="px-5 py-3.5 text-xs text-text-muted font-mono">{c.distance_to_nearest_golden.toFixed(4)}</td>
                         <td className="px-5 py-3.5 text-xs text-text-muted">{timeAgo(c.timestamp_utc)}</td>
                         <td className="px-5 py-3.5 text-center">
                           {registeredUuids.has(c.uuid) ? (
@@ -384,18 +404,214 @@ export default function GoldenPage() {
                 </table>
               </div>
             </div>
-          ) : recFn && !loadingRec ? (
+          ) : recFn && !loadingDiverseRec ? (
             <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
               <BarChart3 size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
               <p className="text-sm text-text-muted">No candidates found for <span className="text-text-primary">{recFn}</span></p>
             </div>
-          ) : fnNames.length === 0 && !loadingRec ? (
+          ) : fnNames.length === 0 && !loadingDiverseRec ? (
             <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
               <Sparkles size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
               <p className="text-sm text-text-muted">No functions with executions found</p>
             </div>
           ) : null}
         </div>
+      )}
+
+      {/* === Coverage tab === */}
+      {activeTab === 'coverage' && (
+        <CoverageTab
+          data={coverageData}
+          loading={loadingCoverage}
+          fnNames={fnNames}
+          coverageFn={coverageFn}
+          setCoverageFn={setCoverageFn}
+        />
+      )}
+    </div>
+  );
+}
+
+// ========================
+// Coverage Tab (D14)
+// ========================
+const COVERAGE_COLORS = {
+  golden: '#DFFF00',
+  execution: '#00FFCC',
+};
+
+function CoverageTab({
+  data,
+  loading,
+  fnNames,
+  coverageFn,
+  setCoverageFn,
+}: {
+  data: CoverageResult | undefined;
+  loading: boolean;
+  fnNames: string[];
+  coverageFn: string;
+  setCoverageFn: (v: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [hovered, setHovered] = useState<ScatterPoint | null>(null);
+
+  return (
+    <div className="space-y-4">
+      {/* Function filter */}
+      {fnNames.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => setCoverageFn('')}
+            className={cn(
+              'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
+              !coverageFn
+                ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
+                : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
+            )}
+          >
+            All
+          </button>
+          {fnNames.map((fn) => (
+            <button
+              key={fn}
+              onClick={() => setCoverageFn(fn)}
+              className={cn(
+                'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
+                coverageFn === fn
+                  ? 'bg-neon-cyan-dim border-neon-cyan/30 text-neon-cyan'
+                  : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
+              )}
+            >
+              {fn}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 size={28} className="animate-spin text-neon-lime" />
+        </div>
+      ) : !data ? (
+        <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
+          <Map size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+          <p className="text-sm text-text-muted">{t('analysis.noData')}</p>
+        </div>
+      ) : (
+        <>
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
+              <p className="text-xs text-text-muted mb-1">{t('analysis.coverageScore')}</p>
+              <div className="flex items-center gap-3">
+                <div className="relative w-14 h-14 shrink-0">
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e1e" strokeWidth="8" />
+                    <circle
+                      cx="50" cy="50" r="42" fill="none" stroke="#DFFF00" strokeWidth="8" strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 42}`}
+                      strokeDashoffset={`${2 * Math.PI * 42 * (1 - data.coverage_score)}`}
+                      className="transition-all duration-700"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-bold text-neon-lime">{formatPercentage(data.coverage_score * 100)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
+              <p className="text-xs text-text-muted mb-1">Total Executions</p>
+              <p className="text-xl font-bold text-neon-cyan">{formatNumber(data.total_executions)}</p>
+            </div>
+            <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
+              <p className="text-xs text-text-muted mb-1">Golden Count</p>
+              <p className="text-xl font-bold text-neon-lime">{formatNumber(data.golden_count)}</p>
+            </div>
+          </div>
+
+          {/* Scatter plot */}
+          {data.scatter.length > 0 && (() => {
+            const xVals = data.scatter.map((d) => d.x);
+            const yVals = data.scatter.map((d) => d.y);
+            const xMin = Math.min(...xVals);
+            const xMax = Math.max(...xVals);
+            const yMin = Math.min(...yVals);
+            const yMax = Math.max(...yVals);
+            const xRange = xMax - xMin || 1;
+            const yRange = yMax - yMin || 1;
+            const pad = 30;
+            const w = 600;
+            const h = 400;
+
+            return (
+              <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
+                <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.coverage')}</h3>
+                <div className="relative">
+                  <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ maxHeight: 420 }}>
+                    {/* Grid */}
+                    {[0.25, 0.5, 0.75].map((pct) => (
+                      <line key={`h-${pct}`} x1={pad} y1={pad + pct * (h - 2 * pad)} x2={w - pad} y2={pad + pct * (h - 2 * pad)} stroke="#222" strokeWidth="0.5" />
+                    ))}
+                    {/* Execution points (circles) */}
+                    {data.scatter.filter((p) => !p.is_golden).map((pt, i) => {
+                      const cx = pad + ((pt.x - xMin) / xRange) * (w - 2 * pad);
+                      const cy = pad + ((pt.y - yMin) / yRange) * (h - 2 * pad);
+                      return (
+                        <circle
+                          key={`e-${i}`}
+                          cx={cx} cy={cy} r={3.5}
+                          fill={COVERAGE_COLORS.execution} fillOpacity={0.5}
+                          stroke={hovered?.span_id === pt.span_id ? '#fff' : 'none'}
+                          strokeWidth={1}
+                          onMouseEnter={() => setHovered(pt)}
+                          onMouseLeave={() => setHovered(null)}
+                          className="cursor-pointer"
+                        />
+                      );
+                    })}
+                    {/* Golden points (stars as larger circles with different style) */}
+                    {data.scatter.filter((p) => p.is_golden).map((pt, i) => {
+                      const cx = pad + ((pt.x - xMin) / xRange) * (w - 2 * pad);
+                      const cy = pad + ((pt.y - yMin) / yRange) * (h - 2 * pad);
+                      return (
+                        <g key={`g-${i}`}>
+                          <circle
+                            cx={cx} cy={cy} r={6}
+                            fill={COVERAGE_COLORS.golden} fillOpacity={0.8}
+                            stroke="#fff" strokeWidth={1}
+                            onMouseEnter={() => setHovered(pt)}
+                            onMouseLeave={() => setHovered(null)}
+                            className="cursor-pointer"
+                          />
+                          <text x={cx} y={cy + 1} textAnchor="middle" fontSize="7" fill="#111" fontWeight="bold">G</text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                  {hovered && (
+                    <div className="absolute top-2 right-2 bg-bg-elevated border border-border-default rounded-[12px] px-4 py-3 text-xs space-y-1 pointer-events-none">
+                      <p className="font-medium text-text-primary">{hovered.is_golden ? 'Golden' : 'Execution'}</p>
+                      <p className="text-text-muted">{hovered.function_name}</p>
+                      <p className="text-text-muted">ID: {hovered.span_id.slice(0, 16)}...</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-4 mt-4 justify-center">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: COVERAGE_COLORS.execution }} />
+                    <span className="text-[10px] text-text-muted">Execution</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: COVERAGE_COLORS.golden }} />
+                    <span className="text-[10px] text-text-muted">Golden</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </>
       )}
     </div>
   );

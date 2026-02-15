@@ -99,7 +99,20 @@
     "avgRatio": "平均比",
     "noData": "分析データがありません",
     "blendedRate": "ブレンドレート",
-    "basedOn": "OpenAI GPT-4o価格基準"
+    "basedOn": "OpenAI GPT-4o価格基準",
+    "inputScatter": "入力分布",
+    "bottleneck": "ボトルネック",
+    "errorClusters": "エラークラスター",
+    "coverage": "カバレッジ",
+    "coverageScore": "カバレッジスコア",
+    "hallucinations": "異常候補",
+    "discovery": "ディスカバリー",
+    "steady": "ステディ",
+    "clusterCount": "クラスター",
+    "representativeError": "代表エラー",
+    "distanceToGolden": "ゴールデン距離",
+    "diversityScore": "多様性スコア",
+    "isBottleneck": "ボトルネック"
   },
   "cache": {
     "title": "キャッシュ",
@@ -118,7 +131,8 @@
     "recommendTitle": "ゴールデン推薦",
     "noRecords": "ゴールデンレコードがありません",
     "delete": "削除",
-    "stats": "統計"
+    "stats": "統計",
+    "coverage": "カバレッジ"
   },
   "github": {
     "title": "GitHub",

@@ -14,6 +14,7 @@ from .healer import HealerService
 from .cache import CacheService
 from .golden_dataset import GoldenDatasetService
 from .drift import DriftService
+from .semantic_analysis import SemanticAnalysisService
 
 __all__ = [
     'DashboardOverviewService',
@@ -25,4 +26,5 @@ __all__ = [
     'CacheService',
     'GoldenDatasetService',
     'DriftService',
+    'SemanticAnalysisService',
 ]

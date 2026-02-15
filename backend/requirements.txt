@@ -31,3 +31,7 @@ cryptography>=42.0.0
 
 # [GitHub Integration] Async HTTP client
 httpx>=0.27.0
+
+# [Semantic Analysis] Vector analytics
+numpy>=1.24.0
+scikit-learn>=1.3.0

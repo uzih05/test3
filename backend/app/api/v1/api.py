@@ -18,6 +18,7 @@ from app.api.v1.endpoints import (
     cache,
     widgets,
     github,
+    semantic,
 )
 
 api_router = APIRouter()
@@ -88,4 +89,10 @@ api_router.include_router(
     github.router,
     prefix="/github",
     tags=["GitHub"]
+)
+
+api_router.include_router(
+    semantic.router,
+    prefix="/semantic",
+    tags=["Semantic Analysis"]
 )

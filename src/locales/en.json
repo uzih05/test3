@@ -99,7 +99,20 @@
     "avgRatio": "vs Average",
     "noData": "No analysis data available",
     "blendedRate": "Blended Rate",
-    "basedOn": "Based on OpenAI GPT-4o pricing"
+    "basedOn": "Based on OpenAI GPT-4o pricing",
+    "inputScatter": "Input Scatter",
+    "bottleneck": "Bottleneck",
+    "errorClusters": "Error Clusters",
+    "coverage": "Coverage",
+    "coverageScore": "Coverage Score",
+    "hallucinations": "Anomaly Candidates",
+    "discovery": "Discovery",
+    "steady": "Steady",
+    "clusterCount": "Clusters",
+    "representativeError": "Representative Error",
+    "distanceToGolden": "Distance to Golden",
+    "diversityScore": "Diversity Score",
+    "isBottleneck": "Bottleneck"
   },
   "cache": {
     "title": "Cache",
@@ -118,7 +131,8 @@
     "recommendTitle": "Golden Recommendations",
     "noRecords": "No golden records found",
     "delete": "Delete",
-    "stats": "Stats"
+    "stats": "Stats",
+    "coverage": "Coverage"
   },
   "github": {
     "title": "GitHub",

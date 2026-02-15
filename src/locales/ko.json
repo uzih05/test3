@@ -99,7 +99,20 @@
     "avgRatio": "평균 대비",
     "noData": "분석 데이터가 없습니다",
     "blendedRate": "혼합 단가",
-    "basedOn": "OpenAI GPT-4o 기준 가격"
+    "basedOn": "OpenAI GPT-4o 기준 가격",
+    "inputScatter": "입력 분포",
+    "bottleneck": "병목 분석",
+    "errorClusters": "에러 클러스터",
+    "coverage": "커버리지",
+    "coverageScore": "커버리지 점수",
+    "hallucinations": "이상 후보",
+    "discovery": "탐색",
+    "steady": "안정",
+    "clusterCount": "클러스터",
+    "representativeError": "대표 에러",
+    "distanceToGolden": "골든 거리",
+    "diversityScore": "다양성 점수",
+    "isBottleneck": "병목"
   },
   "cache": {
     "title": "캐시",
@@ -118,7 +131,8 @@
     "recommendTitle": "골든 추천",
     "noRecords": "골든 레코드가 없습니다",
     "delete": "삭제",
-    "stats": "통계"
+    "stats": "통계",
+    "coverage": "커버리지"
   },
   "github": {
     "title": "GitHub",

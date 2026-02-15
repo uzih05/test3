@@ -13,18 +13,20 @@ import {
   TrendingUp,
   Star,
   DollarSign,
-  Activity,
+  ScatterChart,
+  Timer,
+  Layers,
 } from 'lucide-react';
 import { cacheService } from '@/services/cache';
 import { analyticsService } from '@/services/analytics';
-import { functionsService } from '@/services/functions';
+import { semanticService } from '@/services/semantic';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTranslation } from '@/lib/i18n';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
-import type { DriftSimulationResult, FunctionInfo } from '@/types';
+import type { DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
 
-type TabKey = 'cacheReport' | 'costSavings' | 'functionInsights' | 'drift';
+type TabKey = 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
 
 const DRIFT_COLORS: Record<string, { bg: string; text: string }> = {
   ANOMALY: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
@@ -44,6 +46,8 @@ export default function AnalysisPage() {
   const [simFn, setSimFn] = useState('');
   const [simText, setSimText] = useState('');
   const [simResult, setSimResult] = useState<DriftSimulationResult | null>(null);
+  const [scatterFnFilter, setScatterFnFilter] = useState<string>('');
+  const [bottleneckFnFilter, setBottleneckFnFilter] = useState<string>('');
 
   // Cache analytics
   const { data: analytics, isLoading: loadingAnalytics } = useQuery({
@@ -65,13 +69,6 @@ export default function AnalysisPage() {
     enabled: activeTab === 'costSavings',
   });
 
-  // Functions
-  const { data: functionsData, isLoading: loadingFunctions } = useQuery({
-    queryKey: ['functions'],
-    queryFn: () => functionsService.list(),
-    enabled: activeTab === 'functionInsights',
-  });
-
   // Drift
   const { data: driftData, isLoading: loadingDrift } = useQuery({
     queryKey: ['driftSummary'],
@@ -82,6 +79,27 @@ export default function AnalysisPage() {
   const simulateMutation = useMutation({
     mutationFn: () => cacheService.driftSimulate({ text: simText, function_name: simFn }),
     onSuccess: (result) => setSimResult(result),
+  });
+
+  // Semantic: Input Scatter
+  const { data: scatterData, isLoading: loadingScatter } = useQuery({
+    queryKey: ['semanticScatter', scatterFnFilter],
+    queryFn: () => semanticService.scatter(scatterFnFilter || undefined, 200),
+    enabled: activeTab === 'inputScatter',
+  });
+
+  // Semantic: Bottleneck
+  const { data: bottleneckData, isLoading: loadingBottleneck } = useQuery({
+    queryKey: ['semanticBottleneck', bottleneckFnFilter],
+    queryFn: () => semanticService.bottleneck(bottleneckFnFilter || undefined, 5),
+    enabled: activeTab === 'bottleneck',
+  });
+
+  // Semantic: Error Clusters
+  const { data: errorClusterData, isLoading: loadingErrorClusters } = useQuery({
+    queryKey: ['semanticErrorClusters'],
+    queryFn: () => semanticService.errorClusters(5),
+    enabled: activeTab === 'errorClusters',
   });
 
   const driftItems = driftData?.items || [];
@@ -97,30 +115,12 @@ export default function AnalysisPage() {
     return { tokensSaved, costSaved, avgTokensPerExec };
   })();
 
-  // Function insights calculations
-  const functionInsights = (() => {
-    const items = functionsData?.items || [];
-    if (items.length === 0) return { underused: [], avgCount: 0, items: [] };
-    const counts = items.map((f) => f.execution_count ?? 0);
-    const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
-    const threshold = avgCount * 0.5;
-
-    const enriched = items.map((f) => {
-      const count = f.execution_count ?? 0;
-      const ratio = avgCount > 0 ? (count / avgCount) * 100 : 0;
-      const status: 'LOW' | 'NORMAL' | 'HIGH' =
-        ratio < 50 ? 'LOW' : ratio > 150 ? 'HIGH' : 'NORMAL';
-      return { ...f, ratio, status };
-    });
-
-    const underused = enriched.filter((f) => (f.execution_count ?? 0) < threshold);
-    return { underused, avgCount, items: enriched };
-  })();
-
   const tabs: { key: TabKey; labelKey: string }[] = [
     { key: 'cacheReport', labelKey: 'analysis.cacheReport' },
     { key: 'costSavings', labelKey: 'analysis.costSavings' },
-    { key: 'functionInsights', labelKey: 'analysis.functionInsights' },
+    { key: 'inputScatter', labelKey: 'analysis.inputScatter' },
+    { key: 'bottleneck', labelKey: 'analysis.bottleneck' },
+    { key: 'errorClusters', labelKey: 'analysis.errorClusters' },
     { key: 'drift', labelKey: 'analysis.drift' },
   ];
 
@@ -161,11 +161,31 @@ export default function AnalysisPage() {
         />
       )}
 
-      {/* === Function Insights Tab === */}
-      {activeTab === 'functionInsights' && (
-        <FunctionInsightsTab
-          insights={functionInsights}
-          loading={loadingFunctions}
+      {/* === Input Scatter Tab === */}
+      {activeTab === 'inputScatter' && (
+        <InputScatterTab
+          data={scatterData || []}
+          loading={loadingScatter}
+          fnFilter={scatterFnFilter}
+          setFnFilter={setScatterFnFilter}
+        />
+      )}
+
+      {/* === Bottleneck Tab === */}
+      {activeTab === 'bottleneck' && (
+        <BottleneckTab
+          data={bottleneckData || []}
+          loading={loadingBottleneck}
+          fnFilter={bottleneckFnFilter}
+          setFnFilter={setBottleneckFnFilter}
+        />
+      )}
+
+      {/* === Error Clusters Tab === */}
+      {activeTab === 'errorClusters' && (
+        <ErrorClustersTab
+          data={errorClusterData || []}
+          loading={loadingErrorClusters}
         />
       )}
 
@@ -387,17 +407,297 @@ function CostSavingsTab({
 }
 
 // ========================
-// Function Insights Tab
+// Input Scatter Tab (D12)
 // ========================
-function FunctionInsightsTab({
-  insights,
+const STATUS_COLORS: Record<string, string> = {
+  SUCCESS: '#00FFCC',
+  ERROR: '#FF4D6A',
+  CACHE_HIT: '#DFFF00',
+};
+
+function InputScatterTab({
+  data,
+  loading,
+  fnFilter,
+  setFnFilter,
+}: {
+  data: ScatterPoint[];
+  loading: boolean;
+  fnFilter: string;
+  setFnFilter: (v: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [hovered, setHovered] = useState<ScatterPoint | null>(null);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 size={28} className="animate-spin text-neon-lime" />
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
+        <ScatterChart size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+        <p className="text-sm text-text-muted">{t('analysis.noData')}</p>
+      </div>
+    );
+  }
+
+  // Normalize coords to SVG space
+  const xVals = data.map((d) => d.x);
+  const yVals = data.map((d) => d.y);
+  const xMin = Math.min(...xVals);
+  const xMax = Math.max(...xVals);
+  const yMin = Math.min(...yVals);
+  const yMax = Math.max(...yVals);
+  const xRange = xMax - xMin || 1;
+  const yRange = yMax - yMin || 1;
+  const pad = 30;
+  const w = 600;
+  const h = 400;
+
+  const toSvg = (pt: ScatterPoint) => ({
+    cx: pad + ((pt.x - xMin) / xRange) * (w - 2 * pad),
+    cy: pad + ((pt.y - yMin) / yRange) * (h - 2 * pad),
+  });
+
+  // Unique functions for filter
+  const uniqueFns = [...new Set(data.map((d) => d.function_name))].filter(Boolean);
+
+  return (
+    <div className="space-y-4">
+      {/* Function filter */}
+      {uniqueFns.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => setFnFilter('')}
+            className={cn(
+              'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
+              !fnFilter
+                ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
+                : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
+            )}
+          >
+            All
+          </button>
+          {uniqueFns.map((fn) => (
+            <button
+              key={fn}
+              onClick={() => setFnFilter(fn)}
+              className={cn(
+                'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
+                fnFilter === fn
+                  ? 'bg-neon-cyan-dim border-neon-cyan/30 text-neon-cyan'
+                  : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
+              )}
+            >
+              {fn}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.inputScatter')}</h3>
+        <div className="relative">
+          <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ maxHeight: 420 }}>
+            {/* Grid lines */}
+            {[0.25, 0.5, 0.75].map((pct) => (
+              <line
+                key={`h-${pct}`}
+                x1={pad} y1={pad + pct * (h - 2 * pad)}
+                x2={w - pad} y2={pad + pct * (h - 2 * pad)}
+                stroke="#222" strokeWidth="0.5"
+              />
+            ))}
+            {[0.25, 0.5, 0.75].map((pct) => (
+              <line
+                key={`v-${pct}`}
+                x1={pad + pct * (w - 2 * pad)} y1={pad}
+                x2={pad + pct * (w - 2 * pad)} y2={h - pad}
+                stroke="#222" strokeWidth="0.5"
+              />
+            ))}
+            {/* Points */}
+            {data.map((pt, i) => {
+              const { cx, cy } = toSvg(pt);
+              const color = STATUS_COLORS[pt.status] || '#666';
+              return (
+                <circle
+                  key={i}
+                  cx={cx} cy={cy} r={4}
+                  fill={color} fillOpacity={0.7}
+                  stroke={hovered?.span_id === pt.span_id ? '#fff' : 'none'}
+                  strokeWidth={1.5}
+                  className="cursor-pointer transition-all"
+                  onMouseEnter={() => setHovered(pt)}
+                  onMouseLeave={() => setHovered(null)}
+                />
+              );
+            })}
+          </svg>
+          {/* Tooltip */}
+          {hovered && (
+            <div className="absolute top-2 right-2 bg-bg-elevated border border-border-default rounded-[12px] px-4 py-3 text-xs space-y-1 pointer-events-none">
+              <p className="font-medium text-text-primary">{hovered.function_name}</p>
+              <p className="text-text-muted">Span: {hovered.span_id.slice(0, 16)}...</p>
+              <p className="text-text-muted">Status: <span className="font-semibold" style={{ color: STATUS_COLORS[hovered.status] || '#666' }}>{hovered.status}</span></p>
+              <p className="text-text-muted">Duration: {hovered.duration_ms}ms</p>
+            </div>
+          )}
+        </div>
+        {/* Legend */}
+        <div className="flex gap-4 mt-4 justify-center">
+          {Object.entries(STATUS_COLORS).map(([status, color]) => (
+            <div key={status} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
+              <span className="text-[10px] text-text-muted">{status}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================
+// Bottleneck Tab (D13)
+// ========================
+function BottleneckTab({
+  data,
+  loading,
+  fnFilter,
+  setFnFilter,
+}: {
+  data: BottleneckCluster[];
+  loading: boolean;
+  fnFilter: string;
+  setFnFilter: (v: string) => void;
+}) {
+  const { t } = useTranslation();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 size={28} className="animate-spin text-neon-lime" />
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
+        <Timer size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+        <p className="text-sm text-text-muted">{t('analysis.noData')}</p>
+      </div>
+    );
+  }
+
+  const maxDur = Math.max(...data.map((c) => c.avg_duration_ms), 1);
+
+  return (
+    <div className="space-y-4">
+      {/* Filter input */}
+      <div>
+        <input
+          type="text"
+          value={fnFilter}
+          onChange={(e) => setFnFilter(e.target.value)}
+          placeholder="Filter by function name..."
+          className={cn(
+            'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
+            'text-xs text-text-primary placeholder:text-text-muted',
+            'focus:border-neon-lime outline-none transition-colors'
+          )}
+        />
+      </div>
+
+      {/* Bar chart */}
+      <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
+        <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.bottleneck')}</h3>
+        <div className="space-y-3">
+          {data.map((cluster) => (
+            <div key={cluster.cluster_id} className="flex items-center gap-3">
+              <div className="w-20 text-xs text-text-muted shrink-0">
+                Cluster {cluster.cluster_id}
+              </div>
+              <div className="flex-1 h-6 bg-bg-elevated rounded-[6px] overflow-hidden relative">
+                <div
+                  className={cn(
+                    'h-full rounded-[6px] transition-all duration-500',
+                    cluster.is_bottleneck ? 'bg-neon-red' : 'bg-neon-cyan'
+                  )}
+                  style={{ width: `${(cluster.avg_duration_ms / maxDur) * 100}%` }}
+                />
+                <span className="absolute inset-0 flex items-center px-2 text-[10px] text-text-primary font-mono">
+                  {formatDuration(cluster.avg_duration_ms)}
+                </span>
+              </div>
+              <div className="w-14 text-xs text-text-muted text-right shrink-0">
+                {cluster.count} execs
+              </div>
+              {cluster.is_bottleneck && (
+                <span className="text-[10px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red shrink-0">
+                  {t('analysis.isBottleneck')}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Cluster details table */}
+      <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
+        <div className="px-5 py-3 border-b border-border-default">
+          <h3 className="text-sm font-medium text-text-secondary">{t('analysis.clusterCount')}</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border-default">
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Cluster</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Avg Duration</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Count</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Representative</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((cluster) => (
+                <tr key={cluster.cluster_id} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
+                  <td className="px-5 py-3.5 text-sm text-text-primary font-mono">#{cluster.cluster_id}</td>
+                  <td className="px-5 py-3.5 text-sm text-text-secondary font-mono">{formatDuration(cluster.avg_duration_ms)}</td>
+                  <td className="px-5 py-3.5 text-sm text-text-secondary">{cluster.count}</td>
+                  <td className="px-5 py-3.5 text-sm text-text-muted truncate max-w-[200px]">{cluster.representative_input}</td>
+                  <td className="px-5 py-3.5">
+                    <span className={cn(
+                      'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
+                      cluster.is_bottleneck ? 'bg-neon-red-dim text-neon-red' : 'bg-neon-cyan-dim text-neon-cyan'
+                    )}>
+                      {cluster.is_bottleneck ? 'BOTTLENECK' : 'NORMAL'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================
+// Error Clusters Tab (C9)
+// ========================
+function ErrorClustersTab({
+  data,
   loading,
 }: {
-  insights: {
-    underused: (FunctionInfo & { ratio: number; status: 'LOW' | 'NORMAL' | 'HIGH' })[];
-    avgCount: number;
-    items: (FunctionInfo & { ratio: number; status: 'LOW' | 'NORMAL' | 'HIGH' })[];
-  };
+  data: ErrorCluster[];
   loading: boolean;
 }) {
   const { t } = useTranslation();
@@ -410,88 +710,65 @@ function FunctionInsightsTab({
     );
   }
 
-  if (insights.items.length === 0) {
+  if (data.length === 0) {
     return (
       <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
-        <Activity size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+        <Layers size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
         <p className="text-sm text-text-muted">{t('analysis.noData')}</p>
       </div>
     );
   }
 
-  const statusColors: Record<string, { bg: string; text: string }> = {
-    LOW: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
-    NORMAL: { bg: 'bg-neon-cyan-dim', text: 'text-neon-cyan' },
-    HIGH: { bg: 'bg-neon-lime-dim', text: 'text-neon-lime' },
-  };
-
   return (
-    <div className="space-y-4">
-      {/* Warning card */}
-      {insights.underused.length > 0 && (
-        <div className="bg-neon-red-dim border border-neon-red/20 rounded-[16px] p-4 flex items-center gap-3">
-          <AlertTriangle size={18} className="text-neon-red shrink-0" />
-          <div>
-            <p className="text-sm font-medium text-neon-red">
-              {insights.underused.length} {t('analysis.needsAttention')}
-            </p>
-            <p className="text-xs text-text-muted mt-0.5">
-              {`< 50% of avg (${formatNumber(Math.round(insights.avgCount))} executions)`}
+    <div className="space-y-3">
+      {data.map((cluster) => (
+        <div key={cluster.cluster_id} className="bg-bg-card border border-border-default rounded-[16px] p-5 card-shadow">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red">
+                Cluster #{cluster.cluster_id}
+              </span>
+              <span className="text-xs text-text-muted">{cluster.count} errors</span>
+            </div>
+          </div>
+
+          {/* Representative error */}
+          <div className="mb-3">
+            <p className="text-[10px] text-text-muted mb-1">{t('analysis.representativeError')}</p>
+            <p className="text-xs text-neon-red bg-neon-red-dim/50 rounded-[8px] px-3 py-2 font-mono break-all">
+              {cluster.representative_error}
             </p>
           </div>
-        </div>
-      )}
 
-      {/* Functions table */}
-      <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
-        <div className="px-5 py-3 border-b border-border-default">
-          <h3 className="text-sm font-medium text-text-secondary">{t('analysis.functionInsights')}</h3>
+          {/* Error codes */}
+          {cluster.error_codes.length > 0 && (
+            <div className="mb-2">
+              <p className="text-[10px] text-text-muted mb-1">Error Codes</p>
+              <div className="flex gap-1 flex-wrap">
+                {cluster.error_codes.map((code) => (
+                  <span key={code} className="text-[10px] px-2 py-0.5 bg-bg-elevated rounded-md text-text-secondary font-mono">
+                    {code}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Functions */}
+          {cluster.functions.length > 0 && (
+            <div>
+              <p className="text-[10px] text-text-muted mb-1">Functions</p>
+              <div className="flex gap-1 flex-wrap">
+                {cluster.functions.map((fn) => (
+                  <span key={fn} className="text-[10px] px-2 py-0.5 bg-neon-cyan-dim rounded-md text-neon-cyan">
+                    {fn}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border-default">
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Function</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.executionCount')}</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.avgRatio')}</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {insights.items
-                .sort((a, b) => a.ratio - b.ratio)
-                .map((fn) => {
-                  const style = statusColors[fn.status];
-                  return (
-                    <tr key={fn.function_name} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
-                      <td className="px-5 py-3.5 text-sm text-text-primary font-medium">{fn.function_name}</td>
-                      <td className="px-5 py-3.5 text-sm text-text-secondary font-mono">{formatNumber(fn.execution_count ?? 0)}</td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                'h-full rounded-full',
-                                fn.status === 'LOW' ? 'bg-neon-red' : fn.status === 'HIGH' ? 'bg-neon-lime' : 'bg-neon-cyan'
-                              )}
-                              style={{ width: `${Math.min(fn.ratio, 200) / 2}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-text-muted font-mono">{fn.ratio.toFixed(0)}%</span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={cn('text-[11px] px-2 py-0.5 rounded-[8px] font-semibold', style.bg, style.text)}>
-                          {fn.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

@@ -259,3 +259,47 @@ export interface ErrorTrend {
   error_count: number;
   unique_error_codes: number;
 }
+
+// === Semantic Analysis ===
+export interface ScatterPoint {
+  x: number;
+  y: number;
+  span_id: string;
+  function_name: string;
+  status: string;
+  duration_ms: number;
+  is_golden?: boolean;
+}
+
+export interface BottleneckCluster {
+  cluster_id: number;
+  avg_duration_ms: number;
+  count: number;
+  representative_input: string;
+  is_bottleneck: boolean;
+}
+
+export interface CoverageResult {
+  coverage_score: number;
+  total_executions: number;
+  golden_count: number;
+  scatter: ScatterPoint[];
+}
+
+export interface HallucinationCandidate {
+  span_id: string;
+  function_name: string;
+  distance: number;
+  duration_ms: number;
+  timestamp_utc: string;
+  input_preview: string;
+  output_preview: string;
+}
+
+export interface ErrorCluster {
+  cluster_id: number;
+  count: number;
+  representative_error: string;
+  error_codes: string[];
+  functions: string[];
+}
