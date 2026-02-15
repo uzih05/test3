@@ -102,7 +102,7 @@ export default function ErrorsPage() {
             color="text-neon-orange"
             bg="bg-[rgba(255,159,67,0.15)]"
           />
-          {summaryData.most_common_errors.slice(0, 2).map((err, i) => (
+          {(summaryData.most_common_errors || []).slice(0, 2).map((err, i) => (
             <SummaryCard
               key={err.error_code}
               icon={TrendingUp}
@@ -130,9 +130,9 @@ export default function ErrorsPage() {
         {/* Error distribution */}
         <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
           <h3 className="text-sm font-medium text-text-secondary mb-4">Error Distribution</h3>
-          {summaryData && summaryData.most_common_errors.length > 0 ? (
+          {summaryData && (summaryData.most_common_errors || []).length > 0 ? (
             <div className="space-y-3">
-              {summaryData.most_common_errors.slice(0, 5).map((err, i) => (
+              {(summaryData.most_common_errors || []).slice(0, 5).map((err, i) => (
                 <div key={err.error_code}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-text-secondary truncate max-w-[60%]">{err.error_code}</span>

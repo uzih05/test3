@@ -366,9 +366,9 @@ function PRRow({ pr, onClick }: { pr: GitHubPR; onClick: () => void }) {
         </div>
       </div>
       {/* Labels */}
-      {pr.labels.length > 0 && (
+      {(pr.labels || []).length > 0 && (
         <div className="flex gap-1 shrink-0">
-          {pr.labels.slice(0, 3).map((label) => (
+          {(pr.labels || []).slice(0, 3).map((label) => (
             <span
               key={label.name}
               className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
@@ -467,14 +467,14 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
       </div>
 
       {/* Labels & Reviewers */}
-      {(detail.labels.length > 0 || detail.reviewers.length > 0) && (
+      {((detail.labels || []).length > 0 || (detail.reviewers || []).length > 0) && (
         <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {detail.labels.length > 0 && (
+            {(detail.labels || []).length > 0 && (
               <div>
                 <p className="text-xs text-text-muted mb-2">Labels</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {detail.labels.map((label) => (
+                  {(detail.labels || []).map((label) => (
                     <span
                       key={label.name}
                       className="text-xs px-2 py-0.5 rounded-md font-medium"
@@ -489,11 +489,11 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
                 </div>
               </div>
             )}
-            {detail.reviewers.length > 0 && (
+            {(detail.reviewers || []).length > 0 && (
               <div>
                 <p className="text-xs text-text-muted mb-2">Reviewers</p>
                 <div className="flex flex-wrap gap-2">
-                  {detail.reviewers.map((r) => (
+                  {(detail.reviewers || []).map((r) => (
                     <span key={r} className="text-xs text-text-secondary bg-bg-elevated px-2 py-1 rounded-[8px]">
                       <Eye size={10} className="inline mr-1" />{r}
                     </span>

@@ -374,9 +374,9 @@ function GoldenRecordRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-text-primary">{record.function_name}</span>
-            {record.tags.length > 0 && (
+            {(record.tags || []).length > 0 && (
               <div className="flex gap-1">
-                {record.tags.slice(0, 3).map((tag) => (
+                {(record.tags || []).slice(0, 3).map((tag) => (
                   <span
                     key={tag}
                     className="text-[10px] px-1.5 py-0.5 bg-bg-elevated rounded-md text-text-muted"
@@ -411,10 +411,10 @@ function GoldenRecordRow({
               <span className="ml-2 text-text-primary font-mono">{record.execution_uuid}</span>
             </div>
           </div>
-          {record.tags.length > 0 && (
+          {(record.tags || []).length > 0 && (
             <div className="flex items-center gap-1.5">
               <Tag size={12} className="text-text-muted" />
-              {record.tags.map((tag) => (
+              {(record.tags || []).map((tag) => (
                 <span
                   key={tag}
                   className="text-[10px] px-2 py-0.5 bg-neon-lime-dim text-neon-lime rounded-md"

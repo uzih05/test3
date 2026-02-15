@@ -47,15 +47,17 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
               {/* Info grid */}
               <div className="grid grid-cols-2 gap-3">
                 <InfoItem label="Span ID" value={data.span_id} mono />
-                <InfoItem label="Trace ID">
-                  <Link
-                    href={`/traces/${data.trace_id}`}
-                    className="text-xs text-neon-lime hover:underline flex items-center gap-1 font-mono"
-                  >
-                    {data.trace_id.slice(0, 12)}...
-                    <ExternalLink size={10} />
-                  </Link>
-                </InfoItem>
+                {data.trace_id && (
+                  <InfoItem label="Trace ID">
+                    <Link
+                      href={`/traces/${data.trace_id}`}
+                      className="text-xs text-neon-lime hover:underline flex items-center gap-1 font-mono"
+                    >
+                      {data.trace_id.slice(0, 12)}...
+                      <ExternalLink size={10} />
+                    </Link>
+                  </InfoItem>
+                )}
                 <InfoItem label="Duration" value={formatDuration(data.duration_ms)} />
                 <InfoItem label="Timestamp" value={timeAgo(data.timestamp_utc)} />
                 {data.team && <InfoItem label="Team" value={data.team} />}
@@ -80,12 +82,14 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
               )}
 
               {/* View Trace button */}
-              <Link
-                href={`/traces/${data.trace_id}`}
-                className="block w-full text-center py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-neon-lime hover:bg-bg-card-hover transition-colors"
-              >
-                View Trace
-              </Link>
+              {data.trace_id && (
+                <Link
+                  href={`/traces/${data.trace_id}`}
+                  className="block w-full text-center py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-neon-lime hover:bg-bg-card-hover transition-colors"
+                >
+                  View Trace
+                </Link>
+              )}
             </div>
           )}
         </div>

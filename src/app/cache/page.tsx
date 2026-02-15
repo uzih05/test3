@@ -201,8 +201,8 @@ export default function CachePage() {
                               {item.status}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-sm text-text-secondary font-mono">{item.avg_distance.toFixed(4)}</td>
-                          <td className="px-5 py-3.5 text-sm text-text-muted font-mono">{item.threshold.toFixed(2)}</td>
+                          <td className="px-5 py-3.5 text-sm text-text-secondary font-mono">{(item.avg_distance ?? 0).toFixed(4)}</td>
+                          <td className="px-5 py-3.5 text-sm text-text-muted font-mono">{(item.threshold ?? 0).toFixed(2)}</td>
                           <td className="px-5 py-3.5 text-sm text-text-muted">{item.sample_count}</td>
                         </tr>
                       );
@@ -267,16 +267,16 @@ export default function CachePage() {
                       {simResult.is_drift ? 'Drift Detected' : 'Normal'}
                     </span>
                     <span className="text-xs text-text-muted ml-auto">
-                      Distance: {simResult.avg_distance.toFixed(4)} / Threshold: {simResult.threshold.toFixed(2)}
+                      Distance: {(simResult.avg_distance ?? 0).toFixed(4)} / Threshold: {(simResult.threshold ?? 0).toFixed(2)}
                     </span>
                   </div>
-                  {simResult.neighbors.length > 0 && (
+                  {(simResult.neighbors || []).length > 0 && (
                     <div className="mt-3 space-y-1.5">
                       <p className="text-xs text-text-muted">Nearest Neighbors:</p>
-                      {simResult.neighbors.map((n) => (
+                      {(simResult.neighbors || []).map((n) => (
                         <div key={n.span_id} className="flex items-center justify-between text-xs bg-bg-primary/30 rounded-[8px] px-3 py-2">
-                          <span className="text-text-secondary font-mono">{n.span_id.slice(0, 12)}...</span>
-                          <span className="text-text-muted">dist: {n.distance.toFixed(4)}</span>
+                          <span className="text-text-secondary font-mono">{(n.span_id || '').slice(0, 12)}...</span>
+                          <span className="text-text-muted">dist: {(n.distance ?? 0).toFixed(4)}</span>
                         </div>
                       ))}
                     </div>

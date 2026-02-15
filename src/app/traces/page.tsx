@@ -35,8 +35,8 @@ export default function TracesPage() {
     .filter(
       (tr) =>
         !searchQuery ||
-        tr.root_function.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tr.trace_id.toLowerCase().includes(searchQuery.toLowerCase())
+        (tr.root_function || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (tr.trace_id || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   return (

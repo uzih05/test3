@@ -173,7 +173,7 @@ export default function TraceDetailPage() {
           </div>
         ) : (
           <div className="p-5">
-            <WaterfallView spans={traceData.spans} totalDuration={traceData.total_duration_ms} startTime={traceData.start_time} />
+            <WaterfallView spans={traceData.spans || []} totalDuration={traceData.total_duration_ms} startTime={traceData.start_time} />
           </div>
         )}
       </div>

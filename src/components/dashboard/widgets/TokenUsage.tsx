@@ -17,7 +17,7 @@ export function TokenUsage() {
     return <div className="h-[200px] flex items-center justify-center text-text-muted text-sm animate-pulse">Loading...</div>;
   }
 
-  const chartData = Object.entries(data.by_category).map(([name, value]) => ({
+  const chartData = Object.entries(data.by_category || {}).map(([name, value]) => ({
     name,
     value,
   }));

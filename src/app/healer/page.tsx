@@ -364,7 +364,7 @@ function FunctionItem({
         </div>
       </div>
       <div className="flex flex-wrap gap-1 shrink-0">
-        {fn.error_codes.slice(0, 2).map((code) => (
+        {(fn.error_codes || []).slice(0, 2).map((code) => (
           <span key={code} className="text-[9px] px-1.5 py-0.5 bg-neon-red-dim text-neon-red rounded-md">
             {code}
           </span>
