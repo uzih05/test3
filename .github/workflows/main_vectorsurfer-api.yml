@@ -1,12 +1,11 @@
 name: Build and deploy Python app to Azure Web App - vectorsurfer-api
 
 on:
-  # push trigger disabled until deployment is verified
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'backend/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
   workflow_dispatch:
 
 jobs:
