@@ -16,7 +16,11 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import MockDashboard from '@/components/quickstart/MockDashboard';
+import AnimatedTerminal, {
+  SETUP_SEQUENCE_INTRO,
+  SETUP_SEQUENCE_WCS,
+  SETUP_SEQUENCE_DOCKER,
+} from '@/components/quickstart/AnimatedTerminal';
 
 type Step =
   | 'q1_used_vectorwave'
@@ -171,9 +175,9 @@ export default function QuickStartPage() {
                 ))}
               </div>
 
-              {/* Dashboard preview */}
+              {/* Setup demo */}
               <div className="mb-6 text-left">
-                <MockDashboard />
+                <AnimatedTerminal lines={SETUP_SEQUENCE_INTRO} title="vectorwave-setup" />
               </div>
 
               <a
@@ -198,17 +202,14 @@ export default function QuickStartPage() {
 
         {/* End A: Ready to connect */}
         {step === 'end_ready' && (
-          <div className="w-full space-y-4">
-            <div className="max-w-lg mx-auto">
-              <EndCard
-                icon={<CheckCircle2 size={24} className="text-neon-lime" />}
-                title={t('onboarding.endReady')}
-                description={t('onboarding.endReadyDesc')}
-                ctaLabel={t('onboarding.goToProjects')}
-                onCta={goToProjects}
-              />
-            </div>
-            <MockDashboard />
+          <div className="w-full max-w-lg">
+            <EndCard
+              icon={<CheckCircle2 size={24} className="text-neon-lime" />}
+              title={t('onboarding.endReady')}
+              description={t('onboarding.endReadyDesc')}
+              ctaLabel={t('onboarding.goToProjects')}
+              onCta={goToProjects}
+            />
           </div>
         )}
 
@@ -226,6 +227,7 @@ export default function QuickStartPage() {
         {step === 'end_wcs_full' && (
           <div className="w-full space-y-4">
             <WcsGuide t={t} onCta={goToProjects} hideCta />
+            <AnimatedTerminal lines={SETUP_SEQUENCE_WCS} title="wcs-setup" />
             <VectorWaveInstallGuide t={t} envType="wcs" onCta={goToProjects} />
           </div>
         )}
@@ -234,6 +236,7 @@ export default function QuickStartPage() {
         {step === 'end_docker_full' && (
           <div className="w-full space-y-4">
             <DockerGuide t={t} onCta={goToProjects} hideCta />
+            <AnimatedTerminal lines={SETUP_SEQUENCE_DOCKER} title="docker-setup" />
             <VectorWaveInstallGuide t={t} envType="docker" onCta={goToProjects} />
           </div>
         )}
