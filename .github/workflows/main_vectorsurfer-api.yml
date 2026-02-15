@@ -66,3 +66,31 @@ jobs:
           app-name: 'vectorsurfer-api'
           slot-name: 'Production'
           package: .
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    if: always()
+
+    steps:
+      - name: Discord notification
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATUS: ${{ needs.deploy.result }}
+          COMMIT: ${{ github.event.head_commit.message || 'manual dispatch' }}
+          SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$STATUS" = "success" ]; then
+            COLOR=3066993
+            TITLE="Deploy Succeeded"
+            DESC="Backend deployed to Azure successfully."
+          else
+            COLOR=15158332
+            TITLE="Deploy Failed"
+            DESC="Backend deployment failed."
+          fi
+
+          curl -s -H "Content-Type: application/json" \
+            -d "{\"embeds\":[{\"title\":\"$TITLE\",\"description\":\"$DESC\",\"color\":$COLOR,\"fields\":[{\"name\":\"Commit\",\"value\":\"$COMMIT\",\"inline\":false},{\"name\":\"SHA\",\"value\":\"\`${SHA::7}\`\",\"inline\":true}],\"footer\":{\"text\":\"$REPO\"}}]}" \
+            "$WEBHOOK"
