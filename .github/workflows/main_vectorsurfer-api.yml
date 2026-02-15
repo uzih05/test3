@@ -91,6 +91,8 @@ jobs:
             DESC="Backend deployment failed."
           fi
 
+          ICON="https://raw.githubusercontent.com/github/explore/master/topics/azure/azure.png"
+
           curl -s -H "Content-Type: application/json" \
-            -d "{\"embeds\":[{\"title\":\"$TITLE\",\"description\":\"$DESC\",\"color\":$COLOR,\"fields\":[{\"name\":\"Commit\",\"value\":\"$COMMIT\",\"inline\":false},{\"name\":\"SHA\",\"value\":\"\`${SHA::7}\`\",\"inline\":true}],\"footer\":{\"text\":\"$REPO\"}}]}" \
+            -d "{\"embeds\":[{\"title\":\"$TITLE\",\"description\":\"$DESC\",\"color\":$COLOR,\"thumbnail\":{\"url\":\"$ICON\"},\"fields\":[{\"name\":\"Commit\",\"value\":\"$COMMIT\",\"inline\":false},{\"name\":\"SHA\",\"value\":\"\`${SHA::7}\`\",\"inline\":true},{\"name\":\"App\",\"value\":\"vectorsurfer-api\",\"inline\":true}],\"footer\":{\"text\":\"$REPO • Azure App Service\",\"icon_url\":\"$ICON\"}}]}" \
             "$WEBHOOK"
