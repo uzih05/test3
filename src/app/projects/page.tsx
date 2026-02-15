@@ -17,15 +17,12 @@ import {
   Globe,
   LogOut,
   Settings,
-  ChevronDown,
-  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { connectionsService } from '@/services/connections';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { timeAgo } from '@/lib/utils';
 import type { WeaviateConnection } from '@/types';
 
 export default function ProjectsPage() {
@@ -43,8 +40,7 @@ export default function ProjectsPage() {
     window.location.href = '/login';
   };
 
-  const [quickStartOpen, setQuickStartOpen] = useState(false);
-  const [quickStartTab, setQuickStartTab] = useState<'wcs' | 'self'>('wcs');
+  const [bannerVisible, setBannerVisible] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<'self_hosted' | 'wcs_cloud'>('self_hosted');
   const [formName, setFormName] = useState('');
@@ -55,18 +51,19 @@ export default function ProjectsPage() {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
+  useEffect(() => {
+    const dismissed = localStorage.getItem('quickStartDismissed');
+    if (dismissed !== 'true') {
+      setBannerVisible(true);
+    }
+  }, []);
+
   const { data, isLoading } = useQuery({
     queryKey: ['connections'],
     queryFn: () => connectionsService.list(),
   });
 
   const connections = data?.items || [];
-
-  useEffect(() => {
-    if (!isLoading && connections.length === 0) {
-      setQuickStartOpen(true);
-    }
-  }, [isLoading, connections.length]);
 
   const createMutation = useMutation({
     mutationFn: (payload: Parameters<typeof connectionsService.create>[0]) =>
@@ -134,18 +131,24 @@ export default function ProjectsPage() {
     }
   };
 
+  const dismissBanner = () => setBannerVisible(false);
+  const dismissBannerForever = () => {
+    localStorage.setItem('quickStartDismissed', 'true');
+    setBannerVisible(false);
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary p-4 flex flex-col items-center">
       {/* Background glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-neon-lime/3 rounded-full blur-[150px] pointer-events-none" />
 
-      {/* Top toolbar — settings, language, logout */}
+      {/* Top toolbar — account, language, logout */}
       <div className="fixed top-4 right-4 z-50 flex items-center gap-1">
-        {/* Settings */}
+        {/* Account (was Settings) */}
         <Link
-          href="/settings"
+          href="/account"
           className="p-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
-          aria-label={t('nav.settings')}
+          aria-label={t('account.title')}
         >
           <Settings size={18} />
         </Link>
@@ -210,145 +213,19 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* Quick Start Guide — collapsible */}
-        {!isLoading && (
-          <div className="bg-bg-card border border-border-default rounded-[20px] card-shadow mb-6 overflow-hidden">
-            {/* Header — always visible */}
+        {/* Empty state — prompt to add first connection */}
+        {!isLoading && connections.length === 0 && !showForm && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-bg-elevated flex items-center justify-center">
+              <Plus size={28} className="text-text-muted" />
+            </div>
+            <p className="text-sm text-text-secondary mb-6">{t('projects.subtitle')}</p>
             <button
-              onClick={() => setQuickStartOpen(!quickStartOpen)}
-              className="w-full flex items-center gap-3 px-6 py-4 text-left hover:bg-bg-card-hover transition-colors"
+              onClick={() => setShowForm(true)}
+              className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
             >
-              <div className="w-9 h-9 rounded-[12px] bg-neon-lime-dim flex items-center justify-center shrink-0">
-                <BookOpen size={18} className="text-neon-lime" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-text-primary">{t('projects.quickStart')}</h3>
-                {!quickStartOpen && connections.length > 0 && (
-                  <p className="text-xs text-text-muted mt-0.5">{t('projects.quickStartCollapsed')}</p>
-                )}
-              </div>
-              <ChevronDown
-                size={18}
-                className={cn(
-                  'text-text-muted shrink-0 transition-transform duration-200',
-                  quickStartOpen && 'rotate-180'
-                )}
-              />
+              {t('projects.newConnection')}
             </button>
-
-            {/* Body — collapsible */}
-            {quickStartOpen && (
-              <div className="px-6 pb-6">
-                {/* Tab toggle */}
-                <div className="flex gap-2 mb-5">
-                  {(['wcs', 'self'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setQuickStartTab(tab)}
-                      className={cn(
-                        'flex-1 py-2 rounded-[12px] text-sm font-medium transition-colors',
-                        quickStartTab === tab
-                          ? 'bg-neon-lime text-text-inverse'
-                          : 'bg-bg-elevated text-text-muted hover:text-text-primary'
-                      )}
-                    >
-                      {tab === 'wcs' ? t('projects.tabWcs') : t('projects.tabSelf')}
-                    </button>
-                  ))}
-                </div>
-
-                {/* WCS Cloud tab */}
-                {quickStartTab === 'wcs' && (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">1</span>
-                      <p className="text-sm text-text-secondary">
-                        {t('projects.wcsStep1')}{' '}
-                        <a href="https://console.weaviate.cloud" target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:underline inline-flex items-center gap-1">
-                          {t('projects.wcsConsole')} <ExternalLink size={12} />
-                        </a>
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">2</span>
-                      <p className="text-sm text-text-secondary">{t('projects.wcsStep2')}</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">3</span>
-                      <p className="text-sm text-text-secondary">{t('projects.wcsStep3')}</p>
-                    </div>
-                    <a
-                      href="https://weaviate.io/developers/wcs"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
-                    >
-                      {t('projects.wcsDocsLink')} <ExternalLink size={11} />
-                    </a>
-                  </div>
-                )}
-
-                {/* Self-Hosted tab */}
-                {quickStartTab === 'self' && (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">1</span>
-                      <div>
-                        <p className="text-sm text-text-secondary mb-2">{t('projects.selfStep1')}</p>
-                        <code className="block bg-bg-elevated rounded-[12px] px-4 py-3 text-xs font-mono text-neon-lime">
-                          docker compose up -d
-                        </code>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">2</span>
-                      <p className="text-sm text-text-secondary">{t('projects.selfStep2')}</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-bg-elevated flex items-center justify-center shrink-0 text-xs font-bold text-text-secondary">3</span>
-                      <p className="text-sm text-text-secondary">{t('projects.selfStep3')}</p>
-                    </div>
-                    <a
-                      href="https://cozymori.vercel.app/docs/vectorwave-installation"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
-                    >
-                      {t('projects.selfDocsLink')} <ExternalLink size={11} />
-                    </a>
-                  </div>
-                )}
-
-                {/* Common: VectorWave setup */}
-                <div className="mt-5 pt-4 border-t border-border-default">
-                  <p className="text-xs font-medium text-text-muted mb-2">{t('projects.vectorwaveSetup')}</p>
-                  <code className="block bg-bg-elevated rounded-[12px] px-4 py-3 text-xs font-mono text-text-secondary mb-2">
-                    WEAVIATE_URL=http://localhost:8080
-                  </code>
-                  <p className="text-xs text-text-muted">{t('projects.vectorwaveSetupDesc')}</p>
-                  <a
-                    href="https://cozymori.vercel.app/docs/quickstart"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-2"
-                  >
-                    {t('projects.vectorwaveDocsLink')} <ExternalLink size={11} />
-                  </a>
-                </div>
-
-                {/* New Connection CTA (only when no connections) */}
-                {connections.length === 0 && !showForm && (
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={() => setShowForm(true)}
-                      className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
-                    >
-                      {t('projects.newConnection')}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -577,6 +454,41 @@ export default function ProjectsPage() {
           </div>
         )}
       </div>
+
+      {/* Floating Quick Start banner */}
+      {bannerVisible && (
+        <div className="fixed bottom-6 right-6 z-50 bg-bg-card border border-border-default rounded-[20px] card-shadow p-4 max-w-xs">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-[12px] bg-neon-lime-dim flex items-center justify-center shrink-0">
+              <BookOpen size={18} className="text-neon-lime" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-text-primary">{t('projects.quickStartBanner')}</p>
+              <div className="flex items-center gap-3 mt-3">
+                <Link
+                  href="/projects/quickstart"
+                  className="px-4 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-semibold hover:brightness-110 transition-[opacity,filter]"
+                >
+                  {t('projects.quickStartBannerAction')}
+                </Link>
+                <button
+                  onClick={dismissBannerForever}
+                  className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+                >
+                  {t('projects.quickStartDontShow')}
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={dismissBanner}
+              className="p-0.5 text-text-muted hover:text-text-primary shrink-0"
+              aria-label={t('accessibility.close')}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

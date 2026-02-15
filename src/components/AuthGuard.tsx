@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 
 const PUBLIC_PATHS = ['/login', '/signup'];
-const FULLSCREEN_PATHS = ['/login', '/signup', '/projects'];
+const FULLSCREEN_PATHS = ['/login', '/signup', '/projects', '/projects/quickstart', '/account'];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
