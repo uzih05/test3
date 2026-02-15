@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import MockDashboard from '@/components/quickstart/MockDashboard';
 
 type Step =
   | 'q1_used_vectorwave'
@@ -170,6 +171,11 @@ export default function QuickStartPage() {
                 ))}
               </div>
 
+              {/* Dashboard preview */}
+              <div className="mb-6 text-left">
+                <MockDashboard />
+              </div>
+
               <a
                 href="https://cozymori.vercel.app/docs/quickstart"
                 target="_blank"
@@ -192,14 +198,17 @@ export default function QuickStartPage() {
 
         {/* End A: Ready to connect */}
         {step === 'end_ready' && (
-          <div className="w-full max-w-lg">
-            <EndCard
-              icon={<CheckCircle2 size={24} className="text-neon-lime" />}
-              title={t('onboarding.endReady')}
-              description={t('onboarding.endReadyDesc')}
-              ctaLabel={t('onboarding.goToProjects')}
-              onCta={goToProjects}
-            />
+          <div className="w-full space-y-4">
+            <div className="max-w-lg mx-auto">
+              <EndCard
+                icon={<CheckCircle2 size={24} className="text-neon-lime" />}
+                title={t('onboarding.endReady')}
+                description={t('onboarding.endReadyDesc')}
+                ctaLabel={t('onboarding.goToProjects')}
+                onCta={goToProjects}
+              />
+            </div>
+            <MockDashboard />
           </div>
         )}
 
