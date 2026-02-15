@@ -120,6 +120,7 @@ export default function GitHubPage() {
                 }
               }}
               className="p-1.5 text-text-muted hover:text-text-primary transition-colors"
+              aria-label={t('common.back')}
             >
               <ArrowLeft size={18} />
             </button>
@@ -150,7 +151,7 @@ export default function GitHubPage() {
           {!connected && view !== 'connect' && (
             <button
               onClick={() => setView('connect')}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[opacity,filter]"
             >
               <KeyRound size={14} />
               {t('github.connect')}
@@ -169,7 +170,7 @@ export default function GitHubPage() {
           </p>
           <button
             onClick={() => setView('connect')}
-            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 transition-all"
+            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 transition-[opacity,filter]"
           >
             Connect with Token
           </button>
@@ -193,7 +194,7 @@ export default function GitHubPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted font-mono',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
               )}
             />
             {saveMutation.isError && (
@@ -211,7 +212,7 @@ export default function GitHubPage() {
               <button
                 onClick={() => saveMutation.mutate()}
                 disabled={!tokenInput || saveMutation.isPending}
-                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
               >
                 {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : 'Save Token'}
               </button>
@@ -274,7 +275,7 @@ export default function GitHubPage() {
               className={cn(
                 'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
               )}
             />
           </div>
@@ -289,7 +290,7 @@ export default function GitHubPage() {
                 <button
                   key={repo.full_name}
                   onClick={() => setSelectedRepo({ owner: repo.owner, repo: repo.name })}
-                  className="bg-bg-card border border-border-default rounded-[16px] p-5 text-left hover:border-border-hover hover:bg-bg-card-hover transition-all group"
+                  className="bg-bg-card border border-border-default rounded-[16px] p-5 text-left hover:border-border-hover hover:bg-bg-card-hover transition-[border-color,background-color] group"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
@@ -441,6 +442,7 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 text-text-muted hover:text-neon-lime transition-colors shrink-0"
+            aria-label="Open in GitHub"
           >
             <ExternalLink size={16} />
           </a>

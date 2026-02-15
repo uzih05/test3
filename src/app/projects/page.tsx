@@ -16,7 +16,11 @@ import {
   BookOpen,
   Key,
   X,
+  Globe,
+  LogOut,
+  Settings,
 } from 'lucide-react';
+import Link from 'next/link';
 import { connectionsService } from '@/services/connections';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
@@ -27,8 +31,17 @@ import type { WeaviateConnection } from '@/types';
 export default function ProjectsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
-  const { t } = useTranslation();
+  const { user, logout } = useAuthStore();
+  const { t, language, setLanguage } = useTranslation();
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  const langLabels: Record<string, string> = { en: 'EN', ko: 'KO', ja: 'JA' };
+  const langNames: Record<string, string> = { en: 'English', ko: '한국어', ja: '日本語' };
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
 
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<'self_hosted' | 'wcs_cloud'>('self_hosted');
@@ -118,6 +131,58 @@ export default function ProjectsPage() {
       {/* Background glow */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-neon-lime/3 rounded-full blur-[150px] pointer-events-none" />
 
+      {/* Top toolbar — settings, language, logout */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-1">
+        {/* Settings */}
+        <Link
+          href="/settings"
+          className="p-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+          aria-label={t('nav.settings')}
+        >
+          <Settings size={18} />
+        </Link>
+
+        {/* Language selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+            aria-label={t('accessibility.toggleLanguage')}
+          >
+            <Globe size={16} />
+            <span className="text-xs font-medium">{langLabels[language]}</span>
+          </button>
+          {showLangMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowLangMenu(false)} />
+              <div className="absolute right-0 top-full mt-1 bg-bg-card border border-border-default rounded-[14px] py-1 min-w-[100px] z-50 card-shadow">
+                {(['en', 'ko', 'ja'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => { setLanguage(lang); setShowLangMenu(false); }}
+                    className={cn(
+                      'w-full px-4 py-2 text-sm text-left hover:bg-bg-card-hover transition-colors',
+                      language === lang ? 'text-neon-lime' : 'text-text-secondary'
+                    )}
+                  >
+                    {langNames[lang]}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="p-2 rounded-[12px] text-text-muted hover:text-neon-red hover:bg-bg-card transition-colors"
+          aria-label={t('auth.logout')}
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+
       <div className="w-full max-w-3xl relative pt-8">
         {/* Header */}
         <div className="text-center mb-10">
@@ -127,7 +192,7 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-text-primary">
             {user?.display_name ? `Welcome, ${user.display_name}` : t('projects.title')}
           </h1>
-          <p className="text-text-muted text-sm mt-1">Select a Weaviate connection to get started</p>
+          <p className="text-text-muted text-sm mt-1">{t('projects.subtitle')}</p>
         </div>
 
         {/* Loading */}
@@ -143,15 +208,15 @@ export default function ProjectsPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-neon-lime-dim flex items-center justify-center">
               <BookOpen size={28} className="text-neon-lime" />
             </div>
-            <h3 className="text-lg font-semibold text-text-primary mb-2">Quick Start Guide</h3>
+            <h3 className="text-lg font-semibold text-text-primary mb-2">{t('projects.quickStart')}</h3>
             <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto">
-              Connect your Weaviate instance to start monitoring function executions, traces, and more.
+              {t('projects.quickStartDesc')}
             </p>
             <div className="grid sm:grid-cols-3 gap-4 mb-8 text-left">
               {[
-                { icon: Zap, title: 'Connect', desc: 'Add your Weaviate URL and credentials' },
-                { icon: Server, title: 'Monitor', desc: 'Track executions, errors, and performance' },
-                { icon: Key, title: 'AI Features', desc: 'Add an OpenAI key for healer & search' },
+                { icon: Zap, title: t('projects.stepConnect'), desc: t('projects.stepConnectDesc') },
+                { icon: Server, title: t('projects.stepMonitor'), desc: t('projects.stepMonitorDesc') },
+                { icon: Key, title: t('projects.stepAI'), desc: t('projects.stepAIDesc') },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="bg-bg-elevated rounded-[14px] p-4">
                   <Icon size={20} className="text-neon-cyan mb-2" />
@@ -162,7 +227,7 @@ export default function ProjectsPage() {
             </div>
             <button
               onClick={() => setShowForm(true)}
-              className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-all neon-glow"
+              className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
             >
               {t('projects.newConnection')}
             </button>
@@ -178,7 +243,7 @@ export default function ProjectsPage() {
                 onClick={() => handleSelect(conn)}
                 disabled={activateMutation.isPending}
                 className={cn(
-                  'w-full text-left bg-bg-card border rounded-[20px] p-5 transition-all duration-200 group',
+                  'w-full text-left bg-bg-card border rounded-[20px] p-5 transition-[border-color,background-color] duration-200 group',
                   conn.is_active
                     ? 'border-neon-lime/40 neon-glow'
                     : 'border-border-default hover:border-border-hover hover:bg-bg-card-hover'
@@ -203,13 +268,13 @@ export default function ProjectsPage() {
                       <h3 className="font-medium text-text-primary truncate">{conn.name}</h3>
                       {conn.is_active && (
                         <span className="flex items-center gap-1 text-xs text-neon-lime">
-                          <CheckCircle2 size={12} /> Active
+                          <CheckCircle2 size={12} /> {t('projects.active')}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-text-muted mt-0.5">
                       {conn.host}:{conn.port} · {conn.connection_type === 'wcs_cloud' ? 'WCS Cloud' : 'Self Hosted'}
-                      {conn.has_openai_key && <span className="ml-2 text-neon-cyan">AI Ready</span>}
+                      {conn.has_openai_key && <span className="ml-2 text-neon-cyan">{t('projects.aiReady')}</span>}
                     </p>
                   </div>
 
@@ -240,7 +305,7 @@ export default function ProjectsPage() {
           <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow mt-4">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-text-primary">{t('projects.newConnection')}</h3>
-              <button onClick={resetForm} className="p-1 text-text-muted hover:text-text-primary">
+              <button onClick={resetForm} className="p-1 text-text-muted hover:text-text-primary" aria-label={t('accessibility.close')}>
                 <X size={18} />
               </button>
             </div>
@@ -252,7 +317,7 @@ export default function ProjectsPage() {
                   key={type}
                   onClick={() => setFormType(type)}
                   className={cn(
-                    'flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-all',
+                    'flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
                     formType === type
                       ? 'bg-neon-lime text-text-inverse'
                       : 'bg-bg-elevated text-text-muted hover:text-text-primary'
@@ -266,7 +331,7 @@ export default function ProjectsPage() {
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-sm text-text-secondary mb-1.5">Name</label>
+                <label className="block text-sm text-text-secondary mb-1.5">{t('projects.formName')}</label>
                 <input
                   type="text"
                   value={formName}
@@ -275,14 +340,14 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime outline-none transition-colors'
+                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                   )}
                 />
               </div>
 
               {/* Host */}
               <div>
-                <label className="block text-sm text-text-secondary mb-1.5">Host</label>
+                <label className="block text-sm text-text-secondary mb-1.5">{t('projects.formHost')}</label>
                 <input
                   type="text"
                   value={formHost}
@@ -291,7 +356,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime outline-none transition-colors'
+                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                   )}
                 />
               </div>
@@ -299,7 +364,7 @@ export default function ProjectsPage() {
               {/* Ports */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm text-text-secondary mb-1.5">HTTP Port</label>
+                  <label className="block text-sm text-text-secondary mb-1.5">{t('projects.formHttpPort')}</label>
                   <input
                     type="number"
                     value={formPort}
@@ -307,12 +372,12 @@ export default function ProjectsPage() {
                     className={cn(
                       'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                       'text-sm text-text-primary',
-                      'focus:border-neon-lime outline-none transition-colors'
+                      'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                     )}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-text-secondary mb-1.5">gRPC Port</label>
+                  <label className="block text-sm text-text-secondary mb-1.5">{t('projects.formGrpcPort')}</label>
                   <input
                     type="number"
                     value={formGrpcPort}
@@ -320,7 +385,7 @@ export default function ProjectsPage() {
                     className={cn(
                       'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                       'text-sm text-text-primary',
-                      'focus:border-neon-lime outline-none transition-colors'
+                      'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                     )}
                   />
                 </div>
@@ -329,7 +394,7 @@ export default function ProjectsPage() {
               {/* API Key */}
               <div>
                 <label className="block text-sm text-text-secondary mb-1.5">
-                  API Key <span className="text-text-muted">(optional)</span>
+                  {t('projects.formApiKey')} <span className="text-text-muted">({t('auth.optional')})</span>
                 </label>
                 <input
                   type="password"
@@ -339,7 +404,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime outline-none transition-colors'
+                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                   )}
                 />
               </div>
@@ -363,7 +428,7 @@ export default function ProjectsPage() {
                   onClick={handleTest}
                   disabled={testing || !formHost}
                   className={cn(
-                    'flex-1 py-2.5 rounded-[12px] text-sm font-medium border transition-all',
+                    'flex-1 py-2.5 rounded-[12px] text-sm font-medium border transition-colors',
                     'border-border-default text-text-secondary hover:text-text-primary hover:border-border-hover',
                     'disabled:opacity-40 disabled:cursor-not-allowed'
                   )}
@@ -378,7 +443,7 @@ export default function ProjectsPage() {
                   onClick={handleCreate}
                   disabled={createMutation.isPending || !formHost}
                   className={cn(
-                    'flex-1 py-2.5 rounded-[14px] text-sm font-semibold transition-all',
+                    'flex-1 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
                     'bg-neon-lime text-text-inverse hover:brightness-110',
                     'disabled:opacity-50 disabled:cursor-not-allowed'
                   )}

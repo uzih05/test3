@@ -44,6 +44,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
         <button
           onClick={onMenuToggle}
           className="lg:hidden p-2 text-text-muted hover:text-text-primary"
+          aria-label="Toggle menu"
         >
           <Menu size={22} />
         </button>
@@ -70,7 +71,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
           <button
             onClick={nextTheme}
             className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card"
-            title={theme}
+            aria-label={`Theme: ${theme}`}
           >
             <ThemeIcon size={18} />
           </button>
@@ -80,6 +81,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
               className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card flex items-center gap-1"
+              aria-label="Change language"
             >
               <Globe size={18} />
               <span className="text-xs font-medium hidden sm:inline">{langLabels[language]}</span>

@@ -134,7 +134,7 @@ export default function HealerPage() {
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-sm text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime outline-none transition-colors'
+                  'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                 )}
               />
             </div>
@@ -219,7 +219,7 @@ export default function HealerPage() {
                       onClick={() => diagnoseMutation.mutate(selectedFunction)}
                       disabled={diagnoseMutation.isPending}
                       className={cn(
-                        'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-all',
+                        'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
                         'bg-neon-lime text-text-inverse hover:brightness-110 neon-glow',
                         'disabled:opacity-50 disabled:cursor-not-allowed'
                       )}
@@ -256,7 +256,7 @@ export default function HealerPage() {
                   onClick={() => batchMutation.mutate([...checkedFunctions])}
                   disabled={checkedFunctions.size === 0 || batchMutation.isPending}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-all',
+                    'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
                     'bg-neon-lime text-text-inverse hover:brightness-110 neon-glow',
                     'disabled:opacity-50 disabled:cursor-not-allowed'
                   )}
@@ -342,7 +342,7 @@ function FunctionItem({
     <div
       onClick={mode === 'single' ? onSelect : onCheck}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-[12px] cursor-pointer transition-all',
+        'flex items-center gap-3 px-3 py-2.5 rounded-[12px] cursor-pointer transition-colors',
         isSelected ? 'bg-neon-lime-dim border border-neon-lime/30' :
         isChecked ? 'bg-neon-lime-dim/50' :
         'hover:bg-bg-card-hover'

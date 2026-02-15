@@ -140,7 +140,7 @@ export default function ErrorsPage() {
                   </div>
                   <div className="h-2 bg-bg-elevated rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className="h-full rounded-full transition-[width] duration-500"
                       style={{ width: `${err.percentage}%`, background: PIE_COLORS[i % PIE_COLORS.length] }}
                     />
                   </div>
@@ -172,7 +172,7 @@ export default function ErrorsPage() {
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime outline-none transition-colors'
+              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
             )}
           />
         </div>
@@ -187,7 +187,7 @@ export default function ErrorsPage() {
             className={cn(
               'w-40 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime outline-none transition-colors'
+              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
             )}
           />
         )}

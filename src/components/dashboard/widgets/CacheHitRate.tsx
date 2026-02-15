@@ -36,7 +36,7 @@ export function CacheHitRate() {
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
-            className="transition-all duration-700"
+            className="transition-[stroke-dashoffset] duration-700"
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">

@@ -36,7 +36,7 @@ export function ErrorRate() {
       <div className="w-full mt-4 h-2 bg-bg-elevated rounded-full overflow-hidden">
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-700',
+            'h-full rounded-full transition-[width] duration-700',
             isHigh ? 'bg-neon-red' : isMedium ? 'bg-neon-orange' : 'bg-neon-cyan'
           )}
           style={{ width: `${Math.min(rate, 100)}%` }}

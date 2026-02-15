@@ -215,7 +215,7 @@ function SpanTreeNode({ span, depth, totalDuration }: { span: Span; depth: numbe
         {/* Duration bar */}
         <div className="w-24 h-1.5 bg-bg-elevated rounded-full overflow-hidden shrink-0 hidden sm:block">
           <div
-            className="h-full rounded-full transition-all duration-500"
+            className="h-full rounded-full transition-[width] duration-500"
             style={{ width: `${Math.max(pct, 2)}%`, background: barColor }}
           />
         </div>
@@ -259,7 +259,7 @@ function WaterfallView({ spans, totalDuration, startTime }: { spans: Span[]; tot
             </span>
             <div className="flex-1 h-6 bg-bg-elevated rounded-md relative overflow-hidden">
               <div
-                className="absolute top-0.5 bottom-0.5 rounded-md transition-all duration-500 flex items-center px-2"
+                className="absolute top-0.5 bottom-0.5 rounded-md transition-[left,width] duration-500 flex items-center px-2"
                 style={{
                   left: `${Math.max(offsetPct, 0)}%`,
                   width: `${Math.max(widthPct, 1)}%`,

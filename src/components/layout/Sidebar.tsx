@@ -94,6 +94,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             className="ml-auto lg:hidden p-1 text-text-muted hover:text-text-primary"
+            aria-label={t('accessibility.close')}
           >
             <X size={20} />
           </button>
@@ -108,7 +109,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   href={path}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-all duration-200',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
                     'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
                     isActive(path)
                       ? 'bg-neon-lime-dim text-neon-lime neon-glow'
@@ -132,7 +133,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   href={path}
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-all duration-200',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
                     'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
                     isActive(path)
                       ? 'bg-neon-lime-dim text-neon-lime'
@@ -160,7 +161,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <button
                 onClick={handleLogout}
                 className="ml-auto lg:ml-0 p-1.5 text-text-muted hover:text-neon-red transition-colors"
-                title={t('auth.logout')}
+                aria-label={t('auth.logout')}
               >
                 <LogOut size={16} />
               </button>

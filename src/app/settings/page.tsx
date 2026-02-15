@@ -96,7 +96,7 @@ function AppearanceSection() {
             key={key}
             onClick={() => setTheme(key)}
             className={cn(
-              'p-4 rounded-[14px] border-2 text-left transition-all',
+              'p-4 rounded-[14px] border-2 text-left transition-[border-color,background-color]',
               theme === key
                 ? 'border-neon-lime bg-neon-lime-dim'
                 : 'border-border-default hover:border-border-hover bg-bg-elevated'
@@ -180,13 +180,13 @@ function AISection() {
           className={cn(
             'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
             'text-sm text-text-primary placeholder:text-text-muted font-mono',
-            'focus:border-neon-lime outline-none transition-colors'
+            'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
           )}
         />
         <button
           onClick={() => saveMutation.mutate()}
           disabled={!apiKey || saveMutation.isPending}
-          className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+          className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
         >
           {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : t('common.save')}
         </button>
@@ -318,13 +318,13 @@ function ConnectionsSection() {
                       className={cn(
                         'flex-1 px-3 py-2 bg-bg-input border border-border-default rounded-[10px]',
                         'text-xs text-text-primary placeholder:text-text-muted font-mono',
-                        'focus:border-neon-lime outline-none transition-colors'
+                        'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
                       )}
                     />
                     <button
                       onClick={() => saveKeyMutation.mutate({ id: conn.id, key: keyInput })}
                       disabled={!keyInput || saveKeyMutation.isPending}
-                      className="px-3 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+                      className="px-3 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
                     >
                       {saveKeyMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : 'Save'}
                     </button>

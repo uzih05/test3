@@ -30,7 +30,7 @@ export function WidgetCard({
     <div
       className={cn(
         'bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow',
-        'transition-all duration-200',
+        'transition-[border-color,box-shadow] duration-200',
         isEditing && 'ring-1 ring-neon-lime/20',
         SIZE_CLASSES[size]
       )}

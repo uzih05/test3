@@ -100,7 +100,7 @@ export default function FunctionsPage() {
               className={cn(
                 'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
               )}
             />
           </div>
@@ -195,7 +195,7 @@ export default function FunctionsPage() {
             <button
               key={fn.function_name}
               onClick={() => setSelectedFunction(fn.function_name)}
-              className="bg-bg-card border border-border-default rounded-[16px] p-5 text-left hover:border-border-hover hover:bg-bg-card-hover transition-all group"
+              className="bg-bg-card border border-border-default rounded-[16px] p-5 text-left hover:border-border-hover hover:bg-bg-card-hover transition-[border-color,background-color] group"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 min-w-0">
@@ -259,13 +259,13 @@ export default function FunctionsPage() {
             className={cn(
               'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime outline-none transition-colors'
+              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
             )}
           />
           <button
             type="submit"
             disabled={!askQuery.trim() || asking}
-            className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+            className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
           >
             {asking ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>

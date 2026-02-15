@@ -23,7 +23,11 @@
     "noAccount": "アカウントをお持ちでないですか？",
     "hasAccount": "既にアカウントをお持ちですか？",
     "loginFailed": "ログイン失敗",
-    "signupFailed": "サインアップ失敗"
+    "signupFailed": "サインアップ失敗",
+    "subtitle": "AI関数をモニタリング",
+    "createAccount": "アカウントを作成",
+    "togglePassword": "パスワード表示切替",
+    "optional": "任意"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -174,6 +178,29 @@
     "testConnection": "接続テスト",
     "activate": "アクティベート",
     "selfHosted": "セルフホスト",
-    "wcsCloud": "WCSクラウド"
+    "wcsCloud": "WCSクラウド",
+    "subtitle": "Weaviate接続を選択して始めましょう",
+    "quickStart": "クイックスタートガイド",
+    "quickStartDesc": "Weaviateインスタンスを接続して、関数実行、トレースなどのモニタリングを開始しましょう。",
+    "stepConnect": "接続",
+    "stepConnectDesc": "WeaviateのURLと認証情報を追加",
+    "stepMonitor": "モニタリング",
+    "stepMonitorDesc": "実行、エラー、パフォーマンスを追跡",
+    "stepAI": "AI機能",
+    "stepAIDesc": "ヒーラーと検索のためにOpenAIキーを追加",
+    "active": "アクティブ",
+    "aiReady": "AI対応",
+    "formName": "名前",
+    "formHost": "ホスト",
+    "formHttpPort": "HTTPポート",
+    "formGrpcPort": "gRPCポート",
+    "formApiKey": "APIキー"
+  },
+  "accessibility": {
+    "close": "閉じる",
+    "toggleLanguage": "言語変更",
+    "toggleMenu": "メニュー切替",
+    "toggleTheme": "テーマ切替",
+    "goBack": "戻る"
   }
 }

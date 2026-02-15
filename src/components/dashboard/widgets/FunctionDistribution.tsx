@@ -32,7 +32,7 @@ export function FunctionDistribution() {
           </div>
           <div className="h-2 bg-bg-elevated rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500"
+              className="h-full rounded-full transition-[width] duration-500"
               style={{
                 width: `${(item.count / maxCount) * 100}%`,
                 background: BAR_COLORS[i % BAR_COLORS.length],

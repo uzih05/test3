@@ -56,7 +56,7 @@ export default function TracesPage() {
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime outline-none transition-colors'
+              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
             )}
           />
         </div>

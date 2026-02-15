@@ -23,7 +23,11 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "loginFailed": "Login failed",
-    "signupFailed": "Signup failed"
+    "signupFailed": "Signup failed",
+    "subtitle": "Monitor your AI functions",
+    "createAccount": "Create your account",
+    "togglePassword": "Toggle password visibility",
+    "optional": "optional"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -174,6 +178,29 @@
     "testConnection": "Test Connection",
     "activate": "Activate",
     "selfHosted": "Self Hosted",
-    "wcsCloud": "WCS Cloud"
+    "wcsCloud": "WCS Cloud",
+    "subtitle": "Select a Weaviate connection to get started",
+    "quickStart": "Quick Start Guide",
+    "quickStartDesc": "Connect your Weaviate instance to start monitoring function executions, traces, and more.",
+    "stepConnect": "Connect",
+    "stepConnectDesc": "Add your Weaviate URL and credentials",
+    "stepMonitor": "Monitor",
+    "stepMonitorDesc": "Track executions, errors, and performance",
+    "stepAI": "AI Features",
+    "stepAIDesc": "Add an OpenAI key for healer & search",
+    "active": "Active",
+    "aiReady": "AI Ready",
+    "formName": "Name",
+    "formHost": "Host",
+    "formHttpPort": "HTTP Port",
+    "formGrpcPort": "gRPC Port",
+    "formApiKey": "API Key"
+  },
+  "accessibility": {
+    "close": "Close",
+    "toggleLanguage": "Change language",
+    "toggleMenu": "Toggle menu",
+    "toggleTheme": "Toggle theme",
+    "goBack": "Go back"
   }
 }

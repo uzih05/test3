@@ -98,7 +98,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsEditing(!isEditing)}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm font-medium transition-all',
+              'flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm font-medium transition-colors',
               isEditing
                 ? 'bg-neon-lime text-text-inverse'
                 : 'bg-bg-card border border-border-default text-text-secondary hover:text-text-primary'
@@ -127,7 +127,7 @@ export default function DashboardPage() {
           <p className="text-sm text-text-muted mb-4">Add widgets to customize your dashboard</p>
           <button
             onClick={() => setShowPicker(true)}
-            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-all neon-glow"
+            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] neon-glow"
           >
             {t('dashboard.addWidget')}
           </button>

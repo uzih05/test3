@@ -41,7 +41,7 @@ export function WidgetPicker({ existingTypes, onAdd, onClose }: WidgetPickerProp
                 onClick={() => !exists && onAdd(item.type, item.default_size)}
                 disabled={exists}
                 className={cn(
-                  'w-full flex items-center justify-between px-4 py-3 rounded-[14px] transition-all text-left',
+                  'w-full flex items-center justify-between px-4 py-3 rounded-[14px] transition-colors text-left',
                   exists
                     ? 'bg-bg-elevated text-text-muted cursor-not-allowed opacity-50'
                     : 'bg-bg-elevated hover:bg-bg-card-hover text-text-primary'
