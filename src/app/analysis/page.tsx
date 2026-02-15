@@ -283,14 +283,14 @@ function CacheReportTab({
                 cx="50" cy="50" r="42" fill="none" stroke="#00FFCC" strokeWidth="10" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}
                 strokeDashoffset={`${2 * Math.PI * 42 * (1 - analytics.cache_hit_rate / 100)}`}
-                className="transition-all duration-700"
+                className="transition-[stroke-dashoffset] duration-700"
               />
               {analytics.golden_ratio > 0 && (
                 <circle
                   cx="50" cy="50" r="42" fill="none" stroke="#DFFF00" strokeWidth="10" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 42}`}
                   strokeDashoffset={`${2 * Math.PI * 42 * (1 - (analytics.golden_ratio * analytics.cache_hit_rate / 10000))}`}
-                  className="transition-all duration-700"
+                  className="transition-[stroke-dashoffset] duration-700"
                 />
               )}
             </svg>
@@ -388,7 +388,7 @@ function CostSavingsTab({
                 cx="50" cy="50" r="42" fill="none" stroke="#00FFCC" strokeWidth="10" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}
                 strokeDashoffset={`${2 * Math.PI * 42 * (1 - analytics.cache_hit_rate / 100)}`}
-                className="transition-all duration-700"
+                className="transition-[stroke-dashoffset] duration-700"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
@@ -532,7 +532,7 @@ function InputScatterTab({
                   fill={color} fillOpacity={0.7}
                   stroke={hovered?.span_id === pt.span_id ? '#fff' : 'none'}
                   strokeWidth={1.5}
-                  className="cursor-pointer transition-all"
+                  className="cursor-pointer transition-[fill-opacity,stroke] duration-150"
                   onMouseEnter={() => setHovered(pt)}
                   onMouseLeave={() => setHovered(null)}
                 />
@@ -610,7 +610,7 @@ function BottleneckTab({
           className={cn(
             'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
             'text-xs text-text-primary placeholder:text-text-muted',
-            'focus:border-neon-lime outline-none transition-colors'
+            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
           )}
         />
       </div>
@@ -627,7 +627,7 @@ function BottleneckTab({
               <div className="flex-1 h-6 bg-bg-elevated rounded-[6px] overflow-hidden relative">
                 <div
                   className={cn(
-                    'h-full rounded-[6px] transition-all duration-500',
+                    'h-full rounded-[6px] transition-[width] duration-500',
                     cluster.is_bottleneck ? 'bg-neon-red' : 'bg-neon-cyan'
                   )}
                   style={{ width: `${(cluster.avg_duration_ms / maxDur) * 100}%` }}
@@ -852,7 +852,7 @@ function DriftTab({
             className={cn(
               'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime outline-none transition-colors'
+              'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
             )}
           />
           <div className="flex gap-2">
@@ -864,13 +864,14 @@ function DriftTab({
               className={cn(
                 'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
               )}
             />
             <button
               onClick={() => simulateMutation.mutate()}
               disabled={!simFn || !simText || simulateMutation.isPending}
-              className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+              aria-label="Simulate drift"
+              className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
             >
               {simulateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
             </button>

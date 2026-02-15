@@ -155,7 +155,7 @@ export default function GoldenPage() {
           {activeTab === 'records' && (
             <button
               onClick={() => setShowRegister(!showRegister)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
             >
               <Plus size={14} />
               {t('golden.register')}
@@ -208,7 +208,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors font-mono'
+                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors font-mono'
               )}
             />
             <input
@@ -219,7 +219,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
               )}
             />
             <input
@@ -230,7 +230,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime outline-none transition-colors'
+                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
               )}
             />
             <div className="flex justify-end gap-2">
@@ -243,7 +243,7 @@ export default function GoldenPage() {
               <button
                 onClick={() => registerMutation.mutate()}
                 disabled={!regUuid || registerMutation.isPending}
-                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-all"
+                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
               >
                 {registerMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -275,7 +275,7 @@ export default function GoldenPage() {
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-xs text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime outline-none transition-colors'
+                  'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
                 )}
               />
             </div>
@@ -391,7 +391,8 @@ export default function GoldenPage() {
                             <button
                               onClick={() => quickRegisterMutation.mutate(c.uuid)}
                               disabled={quickRegisterMutation.isPending}
-                              className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40"
+                              className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+                              aria-label={t('golden.register')}
                               title={t('golden.register')}
                             >
                               <Plus size={14} />
@@ -512,7 +513,7 @@ function CoverageTab({
                       cx="50" cy="50" r="42" fill="none" stroke="#DFFF00" strokeWidth="8" strokeLinecap="round"
                       strokeDasharray={`${2 * Math.PI * 42}`}
                       strokeDashoffset={`${2 * Math.PI * 42 * (1 - data.coverage_score)}`}
-                      className="transition-all duration-700"
+                      className="transition-[stroke-dashoffset] duration-700"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -695,7 +696,8 @@ function GoldenRecordRow({
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
               disabled={deleting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neon-red hover:bg-neon-red-dim rounded-[8px] transition-colors disabled:opacity-40"
+              aria-label={t('golden.delete')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neon-red hover:bg-neon-red-dim rounded-[8px] transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-red/50"
             >
               <Trash2 size={12} />
               {deleting ? 'Deleting...' : t('golden.delete')}

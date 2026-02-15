@@ -48,3 +48,7 @@ __pycache__/
 *.pyc
 *.pyo
 backend/antenv/
+
+# project docs (local only)
+FEATURE_SPEC*.md
+TODO-NEXT.md
