@@ -5,6 +5,7 @@ export interface User {
   display_name: string;
   created_at: string;
   has_openai_key: boolean;
+  plan: 'free' | 'pro';
 }
 
 export interface AuthResponse {
@@ -302,4 +303,31 @@ export interface ErrorCluster {
   representative_error: string;
   error_codes: string[];
   functions: string[];
+}
+
+// === Plan ===
+export interface PlanInfo {
+  plan: 'free' | 'pro';
+  daily_limit: number | null;
+  usage_today: number;
+  can_use_ai: boolean;
+}
+
+// === Ask AI ===
+export interface AskAiResponse {
+  question: string;
+  answer: string;
+  function_name: string | null;
+  source_type: 'ask_ai';
+  status: 'success' | 'error';
+}
+
+// === Saved Responses ===
+export interface SavedResponse {
+  id: string;
+  question: string;
+  answer: string;
+  source_type: string;
+  function_name: string | null;
+  created_at: string;
 }

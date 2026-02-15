@@ -11,7 +11,9 @@
     "golden": "Golden",
     "github": "GitHub",
     "projects": "Projects",
-    "settings": "Settings"
+    "settings": "Settings",
+    "ask": "Ask AI",
+    "saved": "Saved"
   },
   "auth": {
     "login": "Log In",
@@ -269,6 +271,37 @@
     "showQuickStart": "Show Quick Start banner",
     "showQuickStartDesc": "Display the setup guide banner on the Projects page",
     "logout": "Log Out"
+  },
+  "ask": {
+    "title": "Ask AI",
+    "subtitle": "Ask questions about your monitored functions",
+    "scope": "Scope",
+    "allFunctions": "All Functions",
+    "question": "Question",
+    "placeholder": "Ask a question about your functions...",
+    "submit": "Ask",
+    "callsToday": "calls today",
+    "limitReached": "Daily limit reached. Upgrade to Pro for unlimited access.",
+    "success": "Success",
+    "saved": "Saved"
+  },
+  "saved": {
+    "title": "Saved Responses",
+    "responses": "responses",
+    "search": "Search responses...",
+    "empty": "No saved responses yet",
+    "proOnly": "Saved Responses is a Pro feature",
+    "proDesc": "Upgrade to Pro to save and organize your AI responses for easy reference.",
+    "confirmDelete": "Delete this saved response?"
+  },
+  "plan": {
+    "title": "Plan",
+    "free": "Free",
+    "pro": "Pro",
+    "upgrade": "Upgrade to Pro",
+    "downgrade": "Downgrade",
+    "aiCallsToday": "AI calls today",
+    "unlimited": "Unlimited AI + Saved Responses"
   },
   "accessibility": {
     "close": "Close",

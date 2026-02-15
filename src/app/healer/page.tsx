@@ -12,8 +12,10 @@ import {
   ChevronDown,
   ChevronUp,
   KeyRound,
+  Bookmark,
 } from 'lucide-react';
 import { healerService } from '@/services/healer';
+import { savedService } from '@/services/saved';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
 import { timeAgo, cn } from '@/lib/utils';
@@ -234,7 +236,7 @@ export default function HealerPage() {
                   </div>
 
                   {/* Diagnosis result */}
-                  {diagnosis && <DiagnosisCard result={diagnosis} onCopy={handleCopy} />}
+                  {diagnosis && <DiagnosisCard result={diagnosis} onCopy={handleCopy} isPro={user?.plan === 'pro'} />}
                 </div>
               )}
 
@@ -306,7 +308,7 @@ export default function HealerPage() {
                       </button>
                       {expandedBatch === result.function_name && (
                         <div className="px-5 pb-4">
-                          <DiagnosisCard result={result} onCopy={handleCopy} />
+                          <DiagnosisCard result={result} onCopy={handleCopy} isPro={user?.plan === 'pro'} />
                         </div>
                       )}
                     </div>
@@ -374,7 +376,35 @@ function FunctionItem({
   );
 }
 
-function DiagnosisCard({ result, onCopy }: { result: DiagnosisResult; onCopy: (text: string) => void }) {
+function DiagnosisCard({
+  result,
+  onCopy,
+  isPro,
+}: {
+  result: DiagnosisResult;
+  onCopy: (text: string) => void;
+  isPro?: boolean;
+}) {
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await savedService.save({
+        question: `[Healer] ${result.function_name} (${result.lookback_minutes}min)`,
+        answer: [result.diagnosis, result.suggested_fix].filter(Boolean).join('\n\n--- Suggested Fix ---\n\n'),
+        source_type: 'healer',
+        function_name: result.function_name,
+      });
+      setSaved(true);
+    } catch {
+      // ignore
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Diagnosis */}
@@ -390,13 +420,30 @@ function DiagnosisCard({ result, onCopy }: { result: DiagnosisResult; onCopy: (t
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <p className="text-xs text-text-muted">Suggested Fix</p>
-            <button
-              onClick={() => onCopy(result.suggested_fix!)}
-              className="flex items-center gap-1 text-xs text-text-muted hover:text-neon-lime transition-colors"
-            >
-              <Copy size={12} />
-              Copy
-            </button>
+            <div className="flex items-center gap-2">
+              {isPro ? (
+                <button
+                  onClick={handleSave}
+                  disabled={saved || saving}
+                  className={cn(
+                    'flex items-center gap-1 text-xs transition-colors',
+                    saved ? 'text-neon-lime' : 'text-text-muted hover:text-neon-lime'
+                  )}
+                >
+                  <Bookmark size={12} />
+                  {saved ? 'Saved' : 'Save'}
+                </button>
+              ) : (
+                <span className="text-[9px] text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded uppercase">Pro</span>
+              )}
+              <button
+                onClick={() => onCopy(result.suggested_fix!)}
+                className="flex items-center gap-1 text-xs text-text-muted hover:text-neon-lime transition-colors"
+              >
+                <Copy size={12} />
+                Copy
+              </button>
+            </div>
           </div>
           <pre className="bg-bg-elevated rounded-[12px] p-4 text-xs text-neon-lime/80 whitespace-pre-wrap font-mono overflow-x-auto max-h-[300px] overflow-y-auto">
             {result.suggested_fix}

@@ -19,6 +19,8 @@ from app.api.v1.endpoints import (
     widgets,
     github,
     semantic,
+    ask_ai,
+    saved_responses,
 )
 
 api_router = APIRouter()
@@ -95,4 +97,16 @@ api_router.include_router(
     semantic.router,
     prefix="/semantic",
     tags=["Semantic Analysis"]
+)
+
+api_router.include_router(
+    ask_ai.router,
+    prefix="/ask-ai",
+    tags=["Ask AI"]
+)
+
+api_router.include_router(
+    saved_responses.router,
+    prefix="/saved",
+    tags=["Saved Responses"]
 )

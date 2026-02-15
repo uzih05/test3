@@ -5,7 +5,7 @@ User Model
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import String, Text, DateTime
+from sqlalchemy import String, Text, DateTime, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -21,6 +21,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     display_name: Mapped[str] = mapped_column(String(100), nullable=True)
     openai_api_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    plan: Mapped[str] = mapped_column(String(10), nullable=False, default="free")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -29,3 +30,4 @@ class User(Base):
     connection_keys = relationship("UserConnectionKey", back_populates="user", cascade="all, delete-orphan")
     widgets = relationship("DashboardWidget", back_populates="user", cascade="all, delete-orphan")
     github_token = relationship("UserGitHubToken", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    saved_responses = relationship("SavedResponse", back_populates="user", cascade="all, delete-orphan")

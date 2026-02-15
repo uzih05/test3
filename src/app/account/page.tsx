@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Globe, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Globe, Settings, LogOut, Crown } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
+import { planService } from '@/services/plan';
 import { cn } from '@/lib/utils';
 
 export default function AccountPage() {
@@ -12,6 +14,27 @@ export default function AccountPage() {
   const { user, logout } = useAuthStore();
   const { t, language, setLanguage } = useTranslation();
   const [showQuickStart, setShowQuickStart] = useState(true);
+  const [planUpdating, setPlanUpdating] = useState(false);
+
+  const { data: planInfo, refetch: refetchPlan } = useQuery({
+    queryKey: ['planInfo'],
+    queryFn: () => planService.info(),
+  });
+
+  const handlePlanToggle = async () => {
+    if (!user) return;
+    setPlanUpdating(true);
+    try {
+      const nextPlan = user.plan === 'pro' ? 'free' : 'pro';
+      await planService.update(nextPlan);
+      // Refresh user data
+      const { checkAuth } = useAuthStore.getState();
+      await checkAuth();
+      await refetchPlan();
+    } finally {
+      setPlanUpdating(false);
+    }
+  };
 
   useEffect(() => {
     const dismissed = localStorage.getItem('quickStartDismissed');
@@ -113,6 +136,44 @@ export default function AccountPage() {
                   showQuickStart ? 'left-[22px]' : 'left-0.5'
                 )}
               />
+            </button>
+          </div>
+        </div>
+
+        {/* Plan section */}
+        <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow mb-4">
+          <h2 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-4">{t('plan.title', 'Plan')}</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'p-2 rounded-xl',
+                user?.plan === 'pro' ? 'bg-neon-lime/10' : 'bg-bg-elevated'
+              )}>
+                <Crown size={20} className={user?.plan === 'pro' ? 'text-neon-lime' : 'text-text-muted'} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-text-primary uppercase">{user?.plan || 'Free'}</p>
+                {planInfo && user?.plan === 'free' && (
+                  <p className="text-xs text-text-muted mt-0.5">
+                    {planInfo.usage_today}/{planInfo.daily_limit} {t('plan.aiCallsToday', 'AI calls today')}
+                  </p>
+                )}
+                {user?.plan === 'pro' && (
+                  <p className="text-xs text-text-muted mt-0.5">{t('plan.unlimited', 'Unlimited AI + Saved Responses')}</p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={handlePlanToggle}
+              disabled={planUpdating}
+              className={cn(
+                'px-4 py-2 rounded-[12px] text-xs font-medium transition-colors',
+                user?.plan === 'pro'
+                  ? 'bg-bg-elevated text-text-muted hover:text-text-primary'
+                  : 'bg-neon-lime text-text-inverse hover:brightness-110'
+              )}
+            >
+              {user?.plan === 'pro' ? t('plan.downgrade', 'Downgrade') : t('plan.upgrade', 'Upgrade to Pro')}
             </button>
           </div>
         </div>

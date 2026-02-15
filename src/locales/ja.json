@@ -11,7 +11,9 @@
     "golden": "ゴールデン",
     "github": "GitHub",
     "projects": "プロジェクト",
-    "settings": "設定"
+    "settings": "設定",
+    "ask": "AI質問",
+    "saved": "保存済み"
   },
   "auth": {
     "login": "ログイン",
@@ -269,6 +271,37 @@
     "showQuickStart": "クイックスタートバナーを表示",
     "showQuickStartDesc": "プロジェクトページにセットアップガイドバナーを表示します",
     "logout": "ログアウト"
+  },
+  "ask": {
+    "title": "AI質問",
+    "subtitle": "監視中の関数について質問してください",
+    "scope": "スコープ",
+    "allFunctions": "全関数",
+    "question": "質問",
+    "placeholder": "関数について質問してください...",
+    "submit": "質問する",
+    "callsToday": "今日の使用回数",
+    "limitReached": "1日の上限に達しました。Proにアップグレードしてください。",
+    "success": "成功",
+    "saved": "保存済み"
+  },
+  "saved": {
+    "title": "保存済み応答",
+    "responses": "件の応答",
+    "search": "応答を検索...",
+    "empty": "保存済みの応答はありません",
+    "proOnly": "保存機能はPro専用です",
+    "proDesc": "Proにアップグレードして、AI応答を保存・管理しましょう。",
+    "confirmDelete": "この保存済み応答を削除しますか？"
+  },
+  "plan": {
+    "title": "プラン",
+    "free": "Free",
+    "pro": "Pro",
+    "upgrade": "Proにアップグレード",
+    "downgrade": "ダウングレード",
+    "aiCallsToday": "今日のAI呼出",
+    "unlimited": "無制限AI + 応答保存"
   },
   "accessibility": {
     "close": "閉じる",

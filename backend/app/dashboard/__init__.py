@@ -15,6 +15,7 @@ from .cache import CacheService
 from .golden_dataset import GoldenDatasetService
 from .drift import DriftService
 from .semantic_analysis import SemanticAnalysisService
+from .ask_ai import AskAiService
 
 __all__ = [
     'DashboardOverviewService',
@@ -27,4 +28,5 @@ __all__ = [
     'GoldenDatasetService',
     'DriftService',
     'SemanticAnalysisService',
+    'AskAiService',
 ]

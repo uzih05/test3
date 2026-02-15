@@ -50,6 +50,10 @@ class ApiKeyRequest(BaseModel):
     openai_api_key: str | None = None
 
 
+class PlanUpdateRequest(BaseModel):
+    plan: str  # "free" or "pro"
+
+
 # ============ Endpoints ============
 
 @router.post("/signup", response_model=TokenResponse)
@@ -139,6 +143,7 @@ async def get_me(
         "display_name": user.display_name,
         "created_at": user.created_at.isoformat() if user.created_at else None,
         "has_openai_key": has_key,
+        "plan": user.plan,
     }
 
 
@@ -156,3 +161,30 @@ async def update_api_key(
 
     await db.commit()
     return {"status": "saved", "has_key": bool(user.openai_api_key)}
+
+
+@router.get("/plan")
+async def get_plan(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get user's plan info and daily AI usage."""
+    from app.services.plan_service import get_plan_info
+    return await get_plan_info(db, user)
+
+
+@router.put("/plan")
+async def update_plan(
+    request: PlanUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update user's plan (no payment processing yet)."""
+    if request.plan not in ("free", "pro"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Plan must be 'free' or 'pro'",
+        )
+    user.plan = request.plan
+    await db.commit()
+    return {"status": "updated", "plan": user.plan}

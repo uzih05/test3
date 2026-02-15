@@ -11,7 +11,9 @@
     "golden": "골든",
     "github": "GitHub",
     "projects": "프로젝트",
-    "settings": "설정"
+    "settings": "설정",
+    "ask": "AI 질문",
+    "saved": "저장됨"
   },
   "auth": {
     "login": "로그인",
@@ -269,6 +271,37 @@
     "showQuickStart": "Quick Start 배너 표시",
     "showQuickStartDesc": "프로젝트 페이지에 설정 가이드 배너를 표시합니다",
     "logout": "로그아웃"
+  },
+  "ask": {
+    "title": "AI 질문",
+    "subtitle": "모니터링 중인 함수에 대해 질문하세요",
+    "scope": "범위",
+    "allFunctions": "전체 함수",
+    "question": "질문",
+    "placeholder": "함수에 대해 질문하세요...",
+    "submit": "질문하기",
+    "callsToday": "오늘 사용",
+    "limitReached": "일일 한도에 도달했습니다. Pro로 업그레이드하세요.",
+    "success": "성공",
+    "saved": "저장됨"
+  },
+  "saved": {
+    "title": "저장된 응답",
+    "responses": "개 응답",
+    "search": "응답 검색...",
+    "empty": "저장된 응답이 없습니다",
+    "proOnly": "저장 기능은 Pro 전용입니다",
+    "proDesc": "Pro로 업그레이드하여 AI 응답을 저장하고 관리하세요.",
+    "confirmDelete": "이 저장된 응답을 삭제하시겠습니까?"
+  },
+  "plan": {
+    "title": "요금제",
+    "free": "Free",
+    "pro": "Pro",
+    "upgrade": "Pro로 업그레이드",
+    "downgrade": "다운그레이드",
+    "aiCallsToday": "오늘 AI 호출",
+    "unlimited": "무제한 AI + 응답 저장"
   },
   "accessibility": {
     "close": "닫기",

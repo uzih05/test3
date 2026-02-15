@@ -9,7 +9,9 @@ import {
   Code2,
   AlertTriangle,
   Sparkles,
+  MessageSquare,
   BarChart3,
+  BookmarkCheck,
   Star,
   GitPullRequest,
   FolderOpen,
@@ -28,7 +30,9 @@ const NAV_ITEMS_TOP = [
   { key: 'functions', path: '/functions', icon: Code2 },
   { key: 'errors', path: '/errors', icon: AlertTriangle },
   { key: 'healer', path: '/healer', icon: Sparkles },
+  { key: 'ask', path: '/ask', icon: MessageSquare },
   { key: 'analysis', path: '/analysis', icon: BarChart3 },
+  { key: 'saved', path: '/saved', icon: BookmarkCheck },
   { key: 'golden', path: '/golden', icon: Star },
   { key: 'github', path: '/github', icon: GitPullRequest },
 ];
@@ -150,14 +154,26 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {/* User section */}
           {user && (
             <div className="mt-4 pt-4 border-t border-border-default flex items-center gap-3 px-3 lg:flex-col">
-              <div className="w-8 h-8 rounded-full bg-neon-lime flex items-center justify-center shrink-0">
-                <span className="text-text-inverse text-sm font-bold">
-                  {user.display_name?.[0]?.toUpperCase() || 'U'}
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-neon-lime flex items-center justify-center shrink-0">
+                  <span className="text-text-inverse text-sm font-bold">
+                    {user.display_name?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1 lg:items-center">
+                <span className="text-xs text-text-secondary truncate lg:hidden">
+                  {user.display_name || user.email}
+                </span>
+                <span className={cn(
+                  'text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider',
+                  user.plan === 'pro'
+                    ? 'bg-neon-lime-dim text-neon-lime'
+                    : 'bg-bg-card text-text-muted'
+                )}>
+                  {user.plan || 'free'}
                 </span>
               </div>
-              <span className="text-xs text-text-secondary truncate lg:hidden">
-                {user.display_name || user.email}
-              </span>
               <button
                 onClick={handleLogout}
                 className="ml-auto lg:ml-0 p-1.5 text-text-muted hover:text-neon-red transition-colors"
