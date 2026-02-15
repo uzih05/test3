@@ -81,12 +81,15 @@ export default function AnalysisPage() {
     onSuccess: (result) => setSimResult(result),
   });
 
-  // Semantic: Input Scatter
-  const { data: scatterData, isLoading: loadingScatter } = useQuery({
-    queryKey: ['semanticScatter', scatterFnFilter],
-    queryFn: () => semanticService.scatter(scatterFnFilter || undefined, 200),
+  // Semantic: Input Scatter (always fetch all, filter client-side)
+  const { data: scatterDataRaw, isLoading: loadingScatter } = useQuery({
+    queryKey: ['semanticScatter'],
+    queryFn: () => semanticService.scatter(undefined, 500),
     enabled: activeTab === 'inputScatter',
   });
+  const scatterData = scatterFnFilter
+    ? (scatterDataRaw || []).filter((d) => d.function_name === scatterFnFilter)
+    : scatterDataRaw;
 
   // Semantic: Bottleneck
   const { data: bottleneckData, isLoading: loadingBottleneck } = useQuery({
@@ -165,6 +168,7 @@ export default function AnalysisPage() {
       {activeTab === 'inputScatter' && (
         <InputScatterTab
           data={scatterData || []}
+          allFunctions={[...new Set((scatterDataRaw || []).map((d) => d.function_name))].filter(Boolean)}
           loading={loadingScatter}
           fnFilter={scatterFnFilter}
           setFnFilter={setScatterFnFilter}
@@ -417,11 +421,13 @@ const STATUS_COLORS: Record<string, string> = {
 
 function InputScatterTab({
   data,
+  allFunctions,
   loading,
   fnFilter,
   setFnFilter,
 }: {
   data: ScatterPoint[];
+  allFunctions: string[];
   loading: boolean;
   fnFilter: string;
   setFnFilter: (v: string) => void;
@@ -437,7 +443,7 @@ function InputScatterTab({
     );
   }
 
-  if (data.length === 0) {
+  if (data.length === 0 && !fnFilter) {
     return (
       <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
         <ScatterChart size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
@@ -449,10 +455,10 @@ function InputScatterTab({
   // Normalize coords to SVG space
   const xVals = data.map((d) => d.x);
   const yVals = data.map((d) => d.y);
-  const xMin = Math.min(...xVals);
-  const xMax = Math.max(...xVals);
-  const yMin = Math.min(...yVals);
-  const yMax = Math.max(...yVals);
+  const xMin = Math.min(...xVals, 0);
+  const xMax = Math.max(...xVals, 0);
+  const yMin = Math.min(...yVals, 0);
+  const yMax = Math.max(...yVals, 0);
   const xRange = xMax - xMin || 1;
   const yRange = yMax - yMin || 1;
   const pad = 30;
@@ -464,40 +470,31 @@ function InputScatterTab({
     cy: pad + ((pt.y - yMin) / yRange) * (h - 2 * pad),
   });
 
-  // Unique functions for filter
-  const uniqueFns = [...new Set(data.map((d) => d.function_name))].filter(Boolean);
-
   return (
     <div className="space-y-4">
-      {/* Function filter */}
-      {uniqueFns.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setFnFilter('')}
-            className={cn(
-              'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
-              !fnFilter
-                ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
-                : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
-            )}
-          >
-            All
-          </button>
-          {uniqueFns.map((fn) => (
-            <button
-              key={fn}
-              onClick={() => setFnFilter(fn)}
-              className={cn(
-                'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
-                fnFilter === fn
-                  ? 'bg-neon-cyan-dim border-neon-cyan/30 text-neon-cyan'
-                  : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
-              )}
-            >
-              {fn}
-            </button>
+      {/* Description */}
+      <div className="bg-bg-card border border-border-default rounded-[14px] px-4 py-3 card-shadow">
+        <p className="text-xs text-text-secondary leading-relaxed">
+          {t('analysis.inputScatterDesc')}
+        </p>
+      </div>
+
+      {/* Function filter (dropdown) */}
+      {allFunctions.length > 0 && (
+        <select
+          value={fnFilter}
+          onChange={(e) => setFnFilter(e.target.value)}
+          className={cn(
+            'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
+            'text-xs text-text-primary',
+            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+          )}
+        >
+          <option value="">All Functions ({allFunctions.length})</option>
+          {allFunctions.map((fn) => (
+            <option key={fn} value={fn}>{fn}</option>
           ))}
-        </div>
+        </select>
       )}
 
       <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
@@ -600,6 +597,13 @@ function BottleneckTab({
 
   return (
     <div className="space-y-4">
+      {/* Description */}
+      <div className="bg-bg-card border border-border-default rounded-[14px] px-4 py-3 card-shadow">
+        <p className="text-xs text-text-secondary leading-relaxed">
+          {t('analysis.bottleneckDesc')}
+        </p>
+      </div>
+
       {/* Filter input */}
       <div>
         <input
@@ -721,6 +725,12 @@ function ErrorClustersTab({
 
   return (
     <div className="space-y-3">
+      {/* Description */}
+      <div className="bg-bg-card border border-border-default rounded-[14px] px-4 py-3 card-shadow">
+        <p className="text-xs text-text-secondary leading-relaxed">
+          {t('analysis.errorClustersDesc')}
+        </p>
+      </div>
       {data.map((cluster) => (
         <div key={cluster.cluster_id} className="bg-bg-card border border-border-default rounded-[16px] p-5 card-shadow">
           <div className="flex items-start justify-between mb-3">

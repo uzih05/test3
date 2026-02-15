@@ -310,23 +310,41 @@ export default function GoldenPage() {
       {/* === Recommend tab (with Discovery/Steady) === */}
       {activeTab === 'recommend' && (
         <div className="space-y-4">
-          {fnNames.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {fnNames.map((fn) => (
-                <button
-                  key={fn}
-                  onClick={() => setRecFn(fn)}
-                  className={cn(
-                    'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
-                    recFn === fn
-                      ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
-                      : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
-                  )}
-                >
-                  {fn}
-                </button>
-              ))}
+          {/* Description */}
+          <div className="bg-bg-card border border-border-default rounded-[14px] px-4 py-3 card-shadow">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              {t('analysis.recommendDesc')}
+            </p>
+            <div className="flex gap-4 mt-2">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-neon-orange" />
+                <span className="text-[10px] text-neon-orange font-medium">{t('analysis.discovery')}</span>
+                <span className="text-[10px] text-text-muted">— {t('analysis.discoveryDesc')}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-neon-cyan" />
+                <span className="text-[10px] text-neon-cyan font-medium">{t('analysis.steady')}</span>
+                <span className="text-[10px] text-text-muted">— {t('analysis.steadyDesc')}</span>
+              </div>
             </div>
+          </div>
+
+          {/* Function selector (dropdown) */}
+          {fnNames.length > 0 && (
+            <select
+              value={recFn}
+              onChange={(e) => setRecFn(e.target.value)}
+              className={cn(
+                'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
+                'text-xs text-text-primary',
+                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+              )}
+            >
+              <option value="" disabled>{t('analysis.selectFunction')}</option>
+              {fnNames.map((fn) => (
+                <option key={fn} value={fn}>{fn}</option>
+              ))}
+            </select>
           )}
 
           {loadingDiverseRec ? (
@@ -459,35 +477,29 @@ function CoverageTab({
 
   return (
     <div className="space-y-4">
-      {/* Function filter */}
+      {/* Description */}
+      <div className="bg-bg-card border border-border-default rounded-[14px] px-4 py-3 card-shadow">
+        <p className="text-xs text-text-secondary leading-relaxed">
+          {t('analysis.coverageDesc')}
+        </p>
+      </div>
+
+      {/* Function filter (dropdown) */}
       {fnNames.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setCoverageFn('')}
-            className={cn(
-              'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
-              !coverageFn
-                ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
-                : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
-            )}
-          >
-            All
-          </button>
+        <select
+          value={coverageFn}
+          onChange={(e) => setCoverageFn(e.target.value)}
+          className={cn(
+            'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
+            'text-xs text-text-primary',
+            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+          )}
+        >
+          <option value="">All Functions</option>
           {fnNames.map((fn) => (
-            <button
-              key={fn}
-              onClick={() => setCoverageFn(fn)}
-              className={cn(
-                'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
-                coverageFn === fn
-                  ? 'bg-neon-cyan-dim border-neon-cyan/30 text-neon-cyan'
-                  : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
-              )}
-            >
-              {fn}
-            </button>
+            <option key={fn} value={fn}>{fn}</option>
           ))}
-        </div>
+        </select>
       )}
 
       {loading ? (
