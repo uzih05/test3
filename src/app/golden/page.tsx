@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Star,
@@ -16,6 +16,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { cacheService } from '@/services/cache';
+import { functionsService } from '@/services/functions';
 import { useTranslation } from '@/lib/i18n';
 import { formatNumber, timeAgo, cn } from '@/lib/utils';
 import type { GoldenRecord } from '@/types';
@@ -37,6 +38,24 @@ export default function GoldenPage() {
   // Recommend
   const [recFn, setRecFn] = useState('');
   const [registeredUuids, setRegisteredUuids] = useState<Set<string>>(new Set());
+
+  // Functions list for recommend tab
+  const { data: fnListData } = useQuery({
+    queryKey: ['functions'],
+    queryFn: () => functionsService.list(),
+    enabled: activeTab === 'recommend',
+  });
+
+  // Auto-select first function when list loads
+  const fnNames = (fnListData?.items || [])
+    .filter((f) => (f.execution_count ?? 0) > 0)
+    .map((f) => f.function_name);
+
+  useEffect(() => {
+    if (activeTab === 'recommend' && fnNames.length > 0 && !recFn) {
+      setRecFn(fnNames[0]);
+    }
+  }, [activeTab, fnNames.length]);
 
   // Golden records
   const { data: goldenData, isLoading: loadingGolden } = useQuery({
@@ -275,25 +294,25 @@ export default function GoldenPage() {
       ) : (
         /* === Recommend tab === */
         <div className="space-y-4">
-          <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={14} className="text-neon-lime" />
-              <h3 className="text-sm font-medium text-text-secondary">{t('golden.recommendTitle')}</h3>
+          {/* Function selector chips */}
+          {fnNames.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {fnNames.map((fn) => (
+                <button
+                  key={fn}
+                  onClick={() => setRecFn(fn)}
+                  className={cn(
+                    'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
+                    recFn === fn
+                      ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
+                      : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
+                  )}
+                >
+                  {fn}
+                </button>
+              ))}
             </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={recFn}
-                onChange={(e) => setRecFn(e.target.value)}
-                placeholder="Enter function name..."
-                className={cn(
-                  'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
-                  'text-sm text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime outline-none transition-colors'
-                )}
-              />
-            </div>
-          </div>
+          )}
 
           {loadingRec ? (
             <div className="flex justify-center py-12">
@@ -365,10 +384,15 @@ export default function GoldenPage() {
                 </table>
               </div>
             </div>
-          ) : recFn.length > 0 && !loadingRec ? (
+          ) : recFn && !loadingRec ? (
             <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
               <BarChart3 size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
-              <p className="text-sm text-text-muted">No candidates found</p>
+              <p className="text-sm text-text-muted">No candidates found for <span className="text-text-primary">{recFn}</span></p>
+            </div>
+          ) : fnNames.length === 0 && !loadingRec ? (
+            <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
+              <Sparkles size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+              <p className="text-sm text-text-muted">No functions with executions found</p>
             </div>
           ) : null}
         </div>
