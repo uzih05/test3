@@ -92,7 +92,17 @@ jobs:
           fi
 
           ICON="https://raw.githubusercontent.com/github/explore/master/topics/azure/azure.png"
+          SHORT_SHA="${SHA::7}"
+          FIRST_LINE=$(echo "$COMMIT" | head -1)
 
-          curl -s -H "Content-Type: application/json" \
-            -d "{\"embeds\":[{\"title\":\"$TITLE\",\"description\":\"$DESC\",\"color\":$COLOR,\"thumbnail\":{\"url\":\"$ICON\"},\"fields\":[{\"name\":\"Commit\",\"value\":\"$COMMIT\",\"inline\":false},{\"name\":\"SHA\",\"value\":\"\`${SHA::7}\`\",\"inline\":true},{\"name\":\"App\",\"value\":\"vectorsurfer-api\",\"inline\":true}],\"footer\":{\"text\":\"$REPO • Azure App Service\",\"icon_url\":\"$ICON\"}}]}" \
-            "$WEBHOOK"
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" \
+            --arg desc "$DESC" \
+            --argjson color "$COLOR" \
+            --arg icon "$ICON" \
+            --arg commit "$FIRST_LINE" \
+            --arg sha "$SHORT_SHA" \
+            --arg repo "$REPO" \
+            '{embeds:[{title:$title,description:$desc,color:$color,thumbnail:{url:$icon},fields:[{name:"Commit",value:$commit,inline:false},{name:"SHA",value:("`"+$sha+"`"),inline:true},{name:"App",value:"vectorsurfer-api",inline:true}],footer:{text:($repo+" • Azure App Service"),icon_url:$icon}}]}')
+
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK"
