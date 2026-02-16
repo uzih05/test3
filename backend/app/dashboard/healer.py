@@ -23,6 +23,21 @@ from weaviate.classes.aggregate import GroupByAggregate
 logger = logging.getLogger(__name__)
 
 
+def _format_duration(minutes: int) -> str:
+    """Format minutes into human-readable duration."""
+    if minutes < 60:
+        return f"{minutes} minute{'s' if minutes != 1 else ''}"
+    if minutes < 1440:
+        h = minutes / 60
+        if h == int(h):
+            return f"{int(h)} hour{'s' if h != 1 else ''}"
+        return f"{h:.1f} hours"
+    d = minutes / 1440
+    if d == int(d):
+        return f"{int(d)} day{'s' if d != 1 else ''}"
+    return f"{d:.1f} days"
+
+
 class HealerService:
     """
     Provides AI-powered healing functionality for the dashboard.
@@ -103,7 +118,7 @@ class HealerService:
             if not error_logs:
                 return {
                     "function_name": function_name,
-                    "diagnosis": f"No errors found for '{function_name}' in the last {lookback_minutes} minutes.",
+                    "diagnosis": f"No errors found for '{function_name}' in the last {_format_duration(lookback_minutes)}.",
                     "suggested_fix": None,
                     "lookback_minutes": lookback_minutes,
                     "status": "no_errors"

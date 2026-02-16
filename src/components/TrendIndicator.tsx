@@ -11,7 +11,21 @@ interface TrendIndicatorProps {
 export function TrendIndicator({ current, previous, invertColor = false, className }: TrendIndicatorProps) {
   if (previous === 0 && current === 0) return null;
 
-  const diff = previous !== 0 ? ((current - previous) / previous) * 100 : 0;
+  // previous=0 → current>0: 이전 데이터 없이 새로 발생한 값
+  if (previous === 0) {
+    const isUp = current > 0;
+    const isGood = invertColor ? !isUp : isUp;
+    const colorClass = isGood ? 'text-neon-cyan' : 'text-neon-red';
+    const Icon = isUp ? TrendingUp : TrendingDown;
+    return (
+      <span className={`inline-flex items-center gap-0.5 text-[11px] ${colorClass} ${className || ''}`}>
+        <Icon size={12} />
+        <span>New</span>
+      </span>
+    );
+  }
+
+  const diff = ((current - previous) / previous) * 100;
   const absDiff = Math.abs(diff);
 
   if (absDiff < 1) {

@@ -44,10 +44,13 @@ export default function HealerPage() {
 
   const handleTimeRangeChange = (value: number) => {
     setTimeRangeFilter(value);
-    const newLookback = value === 0 ? 10080 : value;
-    setLookback(newLookback);
+    // "All"(0) 선택 시 lookback은 변경하지 않음 (사용자가 자유롭게 설정)
+    if (value > 0) {
+      setLookback(Math.min(lookback, value));
+    }
   };
 
+  // 슬라이더 최대값: 특정 시간대 선택 시 해당 범위, "All" 선택 시 7일
   const lookbackMax = timeRangeFilter === 0 ? 10080 : timeRangeFilter;
   const [checkedFunctions, setCheckedFunctions] = useState<Set<string>>(new Set());
 
@@ -169,7 +172,7 @@ export default function HealerPage() {
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-text-muted">{t('healer.lookback')}</span>
               <input
-                type="range" min={5} max={lookbackMax} step={lookbackMax >= 1440 ? 60 : 5}
+                type="range" min={lookbackMax >= 1440 ? 60 : 5} max={lookbackMax} step={lookbackMax >= 1440 ? 60 : 5}
                 value={Math.min(lookback, lookbackMax)}
                 onChange={(e) => setLookback(parseInt(e.target.value))}
                 className="flex-1 h-1 accent-neon-lime"
