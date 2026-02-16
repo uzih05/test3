@@ -245,6 +245,7 @@ class SemanticAnalysisService:
                 "x": round(float(coords[idx][0]), 4),
                 "y": round(float(coords[idx][1]), 4) if n_components == 2 else 0.0,
                 "is_golden": False,
+                "uuid": str(obj.uuid),
                 "span_id": props.get("span_id", ""),
                 "function_name": props.get("function_name", ""),
                 "status": props.get("status", ""),
@@ -258,6 +259,7 @@ class SemanticAnalysisService:
                 "x": round(float(coords[idx][0]), 4),
                 "y": round(float(coords[idx][1]), 4) if n_components == 2 else 0.0,
                 "is_golden": True,
+                "uuid": str(obj.uuid),
                 "span_id": props.get("span_id", "") or props.get("original_uuid", ""),
                 "function_name": props.get("function_name", ""),
                 "status": props.get("status", ""),
@@ -278,10 +280,12 @@ class SemanticAnalysisService:
 
     def recommend_with_diversity(
         self, function_name: str, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """
-        Density-based candidate scoring. Mix far (Discovery) + near (Steady) from golden.
-        Returns: [{uuid, span_id, function_name, status, duration_ms, score, candidate_type, distance_to_nearest_golden}]
+        Density-based candidate scoring. Mix far (Discovery) + near (Steady).
+        When golden exists: distance to nearest golden.
+        When no golden: inter-execution distance (mutual diversity).
+        Returns: {candidates: [...], golden_count: int}
         """
         exec_collection = self.client.collections.get(self.exec_collection_name)
 
@@ -292,7 +296,7 @@ class SemanticAnalysisService:
 
         exec_results = exec_collection.query.fetch_objects(
             filters=fn_filter,
-            limit=limit * 5,
+            limit=limit * 10,
             include_vector=True,
         )
 
@@ -302,7 +306,9 @@ class SemanticAnalysisService:
         ]
 
         if not exec_objs:
-            return []
+            return {"candidates": [], "golden_count": 0}
+
+        exec_vectors = np.array([obj.vector["default"] for obj in exec_objs])
 
         # Fetch golden vectors
         golden_vectors = []
@@ -319,19 +325,18 @@ class SemanticAnalysisService:
                 if obj.vector and obj.vector.get("default")
             ]
 
-        # Calculate distances to nearest golden
+        golden_count = len(golden_vectors)
         candidates = []
+
         if golden_vectors:
+            # --- Mode A: Distance to nearest golden ---
             golden_np = np.array(golden_vectors)
             nn = NearestNeighbors(n_neighbors=1, metric="cosine")
             nn.fit(golden_np)
-
-            exec_vectors = np.array([obj.vector["default"] for obj in exec_objs])
             distances, _ = nn.kneighbors(exec_vectors)
 
             for i, obj in enumerate(exec_objs):
                 props = obj.properties
-                dist = float(distances[i][0])
                 candidates.append({
                     "uuid": str(obj.uuid),
                     "span_id": props.get("span_id", ""),
@@ -339,13 +344,37 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
-                    "distance_to_nearest_golden": round(dist, 4),
+                    "distance_to_nearest_golden": round(float(distances[i][0]), 6),
                     "candidate_type": "",
                     "score": 0.0,
                 })
         else:
-            # No golden data: all are Discovery candidates
-            for obj in exec_objs:
+            # --- Mode B: No golden — use inter-execution diversity ---
+            k = min(5, len(exec_objs) - 1)
+            if k < 1:
+                # Only 1 execution, can't compute diversity
+                for obj in exec_objs:
+                    props = obj.properties
+                    candidates.append({
+                        "uuid": str(obj.uuid),
+                        "span_id": props.get("span_id", ""),
+                        "function_name": props.get("function_name", ""),
+                        "status": props.get("status", ""),
+                        "duration_ms": float(props.get("duration_ms", 0)),
+                        "timestamp_utc": str(props.get("timestamp_utc", "")),
+                        "distance_to_nearest_golden": -1.0,
+                        "candidate_type": "DISCOVERY",
+                        "score": 1.0,
+                    })
+                return {"candidates": candidates[:limit], "golden_count": 0}
+
+            nn = NearestNeighbors(n_neighbors=k + 1, metric="cosine")
+            nn.fit(exec_vectors)
+            distances, _ = nn.kneighbors(exec_vectors)
+            # Average distance to k nearest neighbors (excluding self at index 0)
+            avg_distances = np.mean(distances[:, 1:], axis=1)
+
+            for i, obj in enumerate(exec_objs):
                 props = obj.properties
                 candidates.append({
                     "uuid": str(obj.uuid),
@@ -354,31 +383,36 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
-                    "distance_to_nearest_golden": 1.0,
-                    "candidate_type": "DISCOVERY",
-                    "score": 1.0,
+                    "distance_to_nearest_golden": round(float(avg_distances[i]), 6),
+                    "candidate_type": "",
+                    "score": 0.0,
                 })
-            return candidates[:limit]
 
-        # Sort by distance desc for Discovery, asc for Steady
+        # --- Percentile-based scoring (works for both modes) ---
+        dist_values = [c["distance_to_nearest_golden"] for c in candidates]
+        sorted_dists = sorted(dist_values)
+        n = len(sorted_dists)
+
+        # Build rank map: distance -> percentile (0.0 ~ 1.0)
+        rank_map = {}
+        for rank, d in enumerate(sorted_dists):
+            if d not in rank_map:
+                rank_map[d] = rank / max(n - 1, 1)
+
+        # Sort by distance desc, pick Discovery (top half) and Steady (bottom half)
         sorted_by_dist = sorted(candidates, key=lambda c: c["distance_to_nearest_golden"], reverse=True)
 
         half = limit // 2
         discovery = sorted_by_dist[:half]
         steady = sorted(sorted_by_dist, key=lambda c: c["distance_to_nearest_golden"])[:limit - half]
 
-        # Normalize scores
-        max_dist = max(c["distance_to_nearest_golden"] for c in candidates) if candidates else 1.0
-        if max_dist == 0:
-            max_dist = 1.0
-
         for c in discovery:
             c["candidate_type"] = "DISCOVERY"
-            c["score"] = round(c["distance_to_nearest_golden"] / max_dist, 4)
+            c["score"] = round(rank_map.get(c["distance_to_nearest_golden"], 0.5), 4)
 
         for c in steady:
             c["candidate_type"] = "STEADY"
-            c["score"] = round(1.0 - c["distance_to_nearest_golden"] / max_dist, 4)
+            c["score"] = round(1.0 - rank_map.get(c["distance_to_nearest_golden"], 0.5), 4)
 
         # Merge and deduplicate
         seen = set()
@@ -388,7 +422,7 @@ class SemanticAnalysisService:
                 seen.add(c["uuid"])
                 merged.append(c)
 
-        return merged[:limit]
+        return {"candidates": merged[:limit], "golden_count": golden_count}
 
     # ============================================================
     # C8: Hallucination Candidate List

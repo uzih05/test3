@@ -2,8 +2,10 @@
 Healer Endpoints
 
 Provides AI-powered bug diagnosis and fix suggestions.
-[BYOD] Refactored: singleton -> DI (Depends)
+Auto-saves diagnosis results to history.
 """
+
+import logging
 
 from fastapi import APIRouter, Query, Depends, HTTPException
 from typing import List
@@ -13,8 +15,11 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_user_weaviate_client, get_user_connection, get_openai_api_key
 from app.models.user import User
 from app.models.connection import WeaviateConnection
+from app.models.saved_response import SavedResponse
 from app.dashboard import HealerService
 from app.services.plan_service import check_can_use_ai, increment_usage
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -69,6 +74,31 @@ async def diagnose_and_heal(
 
     if result.get("status") == "success":
         await increment_usage(db, user.id)
+
+        # Auto-save to history
+        try:
+            diagnosis = result.get("diagnosis", {})
+            answer_parts = []
+            if diagnosis.get("summary"):
+                answer_parts.append(diagnosis["summary"])
+            if diagnosis.get("root_cause"):
+                answer_parts.append(f"Root cause: {diagnosis['root_cause']}")
+            if diagnosis.get("fix_suggestion"):
+                answer_parts.append(f"Fix: {diagnosis['fix_suggestion']}")
+
+            saved = SavedResponse(
+                user_id=user.id,
+                question=f"[Healer] {request.function_name} ({request.lookback_minutes}min)",
+                answer="\n\n".join(answer_parts) if answer_parts else str(diagnosis),
+                source_type="healer",
+                function_name=request.function_name,
+                is_bookmarked=False,
+            )
+            db.add(saved)
+            await db.commit()
+            result["saved_id"] = saved.id
+        except Exception as e:
+            logger.warning(f"Failed to auto-save Healer response: {e}")
 
     return result
 

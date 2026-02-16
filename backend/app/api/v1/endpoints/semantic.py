@@ -88,9 +88,10 @@ async def recommend_with_diversity(
 ):
     """Recommend golden candidates with Discovery/Steady diversity."""
     service = SemanticAnalysisService(client=client, openai_api_key=openai_key)
-    candidates = service.recommend_with_diversity(function_name=function_name, limit=limit)
+    result = service.recommend_with_diversity(function_name=function_name, limit=limit)
     return {
         "function_name": function_name,
-        "candidates": candidates,
-        "total": len(candidates),
+        "candidates": result["candidates"],
+        "total": len(result["candidates"]),
+        "golden_count": result["golden_count"],
     }

@@ -2,7 +2,10 @@
 Ask AI Endpoints
 
 Comprehensive AI Q&A service using monitored function data as context.
+Auto-saves responses to history.
 """
+
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -11,8 +14,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_user_weaviate_client, get_openai_api_key
 from app.models.user import User
+from app.models.saved_response import SavedResponse
 from app.dashboard import AskAiService
 from app.services.plan_service import check_can_use_ai, increment_usage
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -48,5 +54,21 @@ async def ask_ai(
 
     if result.get("status") == "success":
         await increment_usage(db, user.id)
+
+        # Auto-save to history
+        try:
+            saved = SavedResponse(
+                user_id=user.id,
+                question=result.get("question", request.question),
+                answer=result.get("answer", ""),
+                source_type="ask_ai",
+                function_name=result.get("function_name") or request.function_name,
+                is_bookmarked=False,
+            )
+            db.add(saved)
+            await db.commit()
+            result["saved_id"] = saved.id
+        except Exception as e:
+            logger.warning(f"Failed to auto-save Ask AI response: {e}")
 
     return result
