@@ -199,9 +199,7 @@ export default function ProjectsPage() {
       <div className="w-full max-w-3xl relative pt-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-neon-lime mb-4">
-            <span className="text-text-inverse font-black text-xl">VS</span>
-          </div>
+          <h1 className="text-3xl font-black text-neon-lime mb-4">VectorSurfer</h1>
           <h1 className="text-2xl font-bold text-text-primary">
             {user?.display_name ? `Welcome, ${user.display_name}` : t('projects.title')}
           </h1>

@@ -69,10 +69,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-neon-lime mb-4">
-            <span className="text-text-inverse font-black text-xl">VS</span>
-          </div>
-          <h1 className="text-2xl font-bold text-text-primary">VectorSurfer Extream</h1>
+          <h1 className="text-3xl font-black text-neon-lime mb-1">VectorSurfer</h1>
           <p className="text-text-muted text-sm mt-1">{t('auth.subtitle')}</p>
         </div>
 

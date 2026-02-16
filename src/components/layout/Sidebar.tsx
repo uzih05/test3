@@ -131,12 +131,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="h-[80px] flex items-center justify-center border-b border-border-default px-3">
           <Link href="/" className="flex items-center gap-2" onClick={onClose}>
-            <div className="w-8 h-8 rounded-lg bg-neon-lime flex items-center justify-center">
-              <span className="text-text-inverse font-bold text-sm">VS</span>
-            </div>
-            <span className="text-sm font-bold text-text-primary lg:hidden">
-              VectorSurfer
-            </span>
+            <span className="text-base font-black text-neon-lime">VectorSurfer</span>
           </Link>
           {/* Mobile close */}
           <button
