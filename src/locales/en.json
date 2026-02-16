@@ -234,6 +234,7 @@
     "functionNamePlaceholder": "Function name...",
     "inputTextPlaceholder": "Input text to simulate...",
     "driftDetected": "Drift Detected",
+    "driftRecommendation": "Consider reviewing golden responses for this function. Input patterns may have shifted significantly.",
     "normal": "Normal",
     "bottleneckLabel": "BOTTLENECK",
     "normalLabel": "NORMAL",

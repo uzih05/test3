@@ -208,7 +208,7 @@ export default function ExecutionsPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-border-default">
             <span className="text-xs text-text-muted">
-              {page * PAGE_SIZE + 1}-{Math.min((page + 1) * PAGE_SIZE, total)} of {total}
+              {page * PAGE_SIZE + 1}-{Math.min((page + 1) * PAGE_SIZE, total)} of {total} (Page {page + 1}/{totalPages})
             </span>
             <div className="flex gap-1">
               <button

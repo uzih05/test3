@@ -210,7 +210,7 @@ export default function SavedPage() {
                     <p className="text-sm text-text-primary truncate">{item.question}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] uppercase text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded">
-                        {item.source_type.replace('_', ' ')}
+                        {t(`saved.source${item.source_type === 'ask_ai' ? 'AskAi' : item.source_type === 'healer' ? 'Healer' : 'All'}`)}
                       </span>
                       {item.function_name && (
                         <span className="text-xs text-text-muted">{item.function_name}</span>

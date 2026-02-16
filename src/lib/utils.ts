@@ -42,3 +42,32 @@ export function timeAgo(iso: string): string {
   if (day < 30) return `${day}d ago`;
   return date.toLocaleDateString();
 }
+
+// Severity system
+export type Severity = 'critical' | 'warning' | 'normal' | 'good';
+
+export function getErrorRateSeverity(rate: number): Severity {
+  if (rate >= 10) return 'critical';
+  if (rate >= 5) return 'warning';
+  if (rate > 0) return 'normal';
+  return 'good';
+}
+
+export function getDurationSeverity(ms: number, thresholdMs = 5000): Severity {
+  if (ms >= thresholdMs * 2) return 'critical';
+  if (ms >= thresholdMs) return 'warning';
+  return 'normal';
+}
+
+export const SEVERITY_COLORS: Record<Severity, { text: string; bg: string }> = {
+  critical: { text: 'text-neon-red', bg: 'bg-neon-red-dim' },
+  warning: { text: 'text-neon-orange', bg: 'bg-[rgba(255,159,67,0.15)]' },
+  normal: { text: 'text-text-secondary', bg: 'bg-bg-elevated' },
+  good: { text: 'text-neon-cyan', bg: 'bg-neon-cyan-dim' },
+};
+
+export function formatCost(dollars: number): string {
+  if (dollars === 0) return '$0';
+  if (dollars < 0.01) return `$${dollars.toFixed(4)}`;
+  return `$${dollars.toFixed(2)}`;
+}

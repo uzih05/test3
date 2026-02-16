@@ -234,6 +234,7 @@
     "functionNamePlaceholder": "関数名...",
     "inputTextPlaceholder": "シミュレーション用入力テキスト...",
     "driftDetected": "ドリフト検出",
+    "driftRecommendation": "この関数のゴールデンレスポンスを確認してください。入力パターンが大幅に変化している可能性があります。",
     "normal": "正常",
     "bottleneckLabel": "ボトルネック",
     "normalLabel": "正常",

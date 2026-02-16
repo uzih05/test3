@@ -22,7 +22,8 @@ import { semanticService } from '@/services/semantic';
 import { functionsService } from '@/services/functions';
 import { executionsService } from '@/services/executions';
 import { useTranslation } from '@/lib/i18n';
-import { formatNumber, formatPercentage, timeAgo, cn } from '@/lib/utils';
+import { formatNumber, formatPercentage, formatDuration, timeAgo, cn } from '@/lib/utils';
+import { TruncatedText } from '@/components/TruncatedText';
 import type { GoldenRecord, ScatterPoint, CoverageResult } from '@/types';
 
 export default function GoldenPage() {
@@ -440,9 +441,9 @@ export default function GoldenPage() {
                                 {exec.status}
                               </span>
                             </td>
-                            <td className="px-5 py-3.5 text-sm text-text-secondary">{exec.duration_ms}ms</td>
+                            <td className="px-5 py-3.5 text-sm text-text-secondary">{formatDuration(exec.duration_ms)}</td>
                             <td className="px-5 py-3.5 text-xs text-text-muted">
-                              {new Date(exec.timestamp_utc).toLocaleString()}
+                              {timeAgo(exec.timestamp_utc)}
                             </td>
                             <td className="px-5 py-3.5 text-center">
                               {isGolden ? (
@@ -613,7 +614,7 @@ export default function GoldenPage() {
                                 />
                               )}
                             </td>
-                            <td className="px-5 py-3.5 text-sm text-text-primary font-mono">{(c.span_id || c.uuid).slice(0, 12)}...</td>
+                            <td className="px-5 py-3.5 text-sm text-text-primary"><TruncatedText text={c.span_id || c.uuid} maxLength={12} mono /></td>
                             <td className="px-5 py-3.5">
                               <span className={cn(
                                 'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
@@ -624,7 +625,7 @@ export default function GoldenPage() {
                                 {c.candidate_type === 'DISCOVERY' ? t('analysis.discovery') : t('analysis.steady')}
                               </span>
                             </td>
-                            <td className="px-5 py-3.5 text-sm text-text-secondary">{c.duration_ms}ms</td>
+                            <td className="px-5 py-3.5 text-sm text-text-secondary">{formatDuration(c.duration_ms)}</td>
                             <td className="px-5 py-3.5">
                               <div className="flex items-center gap-2">
                                 <div className="w-16 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
@@ -643,7 +644,7 @@ export default function GoldenPage() {
                               {c.distance_to_nearest_golden < 0 ? t('golden.notApplicable') : c.distance_to_nearest_golden.toFixed(6)}
                             </td>
                             <td className="px-5 py-3.5 text-xs text-text-muted" title={c.timestamp_utc}>
-                              {c.timestamp_utc ? new Date(c.timestamp_utc).toLocaleString() : '-'}
+                              {timeAgo(c.timestamp_utc)}
                             </td>
                             <td className="px-5 py-3.5 text-center">
                               {isRegistered ? (
@@ -883,9 +884,9 @@ function CoverageTab({
                           <>
                             <p className="font-medium text-text-primary">{pt.is_golden ? t('golden.goldenPoint') : t('golden.executionPoint')}</p>
                             <p className="text-text-muted">{pt.function_name}</p>
-                            <p className="text-text-muted">ID: {pt.span_id.slice(0, 16)}...</p>
+                            <p className="text-text-muted"><TruncatedText text={pt.span_id} maxLength={16} prefix="ID: " /></p>
                             {pt.duration_ms > 0 && (
-                              <p className="text-text-muted">{pt.duration_ms}ms</p>
+                              <p className="text-text-muted">{formatDuration(pt.duration_ms)}</p>
                             )}
                             {clickedPoint && !clickedPoint.is_golden && clickedPoint.uuid && !covRegistered.has(clickedPoint.uuid) && (
                               <button

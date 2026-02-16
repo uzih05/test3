@@ -80,8 +80,19 @@ export default function AskAiPage() {
           </div>
         </div>
         {planInfo && !isPro && (
-          <div className="text-sm text-text-muted bg-bg-card px-3 py-1.5 rounded-lg">
-            {planInfo.usage_today}/{planInfo.daily_limit} {t('ask.callsToday', 'calls today')}
+          <div className="flex items-center gap-3 bg-bg-card px-3 py-1.5 rounded-lg">
+            <span className="text-sm text-text-muted">
+              {planInfo.usage_today}/{planInfo.daily_limit} {t('ask.callsToday', 'calls today')}
+            </span>
+            <div className="w-16 h-1.5 bg-bg-secondary rounded-full overflow-hidden">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all',
+                  planInfo.usage_today >= (planInfo.daily_limit ?? 5) ? 'bg-neon-red' : 'bg-neon-cyan'
+                )}
+                style={{ width: `${Math.min((planInfo.usage_today / (planInfo.daily_limit ?? 5)) * 100, 100)}%` }}
+              />
+            </div>
           </div>
         )}
       </div>

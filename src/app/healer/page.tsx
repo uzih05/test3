@@ -291,7 +291,7 @@ export default function HealerPage() {
                     <span className="text-sm text-text-secondary">{t('healer.diagnosing')} {checkedFunctions.size} functions...</span>
                   </div>
                   <div className="mt-3 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
-                    <div className="h-full bg-neon-lime rounded-full animate-pulse" style={{ width: '60%' }} />
+                    <div className="h-full bg-neon-lime rounded-full w-full animate-pulse" />
                   </div>
                 </div>
               )}

@@ -234,6 +234,7 @@
     "functionNamePlaceholder": "함수명...",
     "inputTextPlaceholder": "시뮬레이션할 입력 텍스트...",
     "driftDetected": "드리프트 감지됨",
+    "driftRecommendation": "이 함수의 골든 응답을 검토해 보세요. 입력 패턴이 크게 변화했을 수 있습니다.",
     "normal": "정상",
     "bottleneckLabel": "병목",
     "normalLabel": "정상",

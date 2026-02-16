@@ -24,7 +24,8 @@ import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTranslation } from '@/lib/i18n';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
-import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
+import { formatNumber, formatDuration, formatPercentage, formatCost, cn } from '@/lib/utils';
+import { TruncatedText } from '@/components/TruncatedText';
 import type { CacheAnalytics, DriftItem, DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
 
 type TabKey = 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
@@ -232,7 +233,7 @@ const CostSavingsTab = memo(function CostSavingsTab({
         <StatCard
           icon={DollarSign}
           label={t('analysis.costSaved')}
-          value={`$${costCalc.costSaved.toFixed(4)}`}
+          value={formatCost(costCalc.costSaved)}
           sub={`${t('analysis.blendedRate')}: $${BLENDED_RATE}/1M`}
           color="text-neon-lime"
           bg="bg-neon-lime-dim"
@@ -402,9 +403,9 @@ const InputScatterTab = memo(function InputScatterTab({
           {hovered && (
             <div className="absolute top-2 right-2 bg-bg-elevated border border-border-default rounded-[12px] px-4 py-3 text-xs space-y-1 pointer-events-none">
               <p className="font-medium text-text-primary">{hovered.function_name}</p>
-              <p className="text-text-muted">Span: {hovered.span_id.slice(0, 16)}...</p>
+              <p className="text-text-muted"><TruncatedText text={hovered.span_id} maxLength={16} prefix="Span: " /></p>
               <p className="text-text-muted">Status: <span className="font-semibold" style={{ color: STATUS_COLORS[hovered.status] || '#666' }}>{hovered.status}</span></p>
-              <p className="text-text-muted">Duration: {hovered.duration_ms}ms</p>
+              <p className="text-text-muted">Duration: {formatDuration(hovered.duration_ms)}</p>
             </div>
           )}
         </div>
@@ -532,7 +533,7 @@ const BottleneckTab = memo(function BottleneckTab({
                   <td className="px-5 py-3.5 text-sm text-text-primary font-mono">#{cluster.cluster_id}</td>
                   <td className="px-5 py-3.5 text-sm text-text-secondary font-mono">{formatDuration(cluster.avg_duration_ms)}</td>
                   <td className="px-5 py-3.5 text-sm text-text-secondary">{cluster.count}</td>
-                  <td className="px-5 py-3.5 text-sm text-text-muted truncate max-w-[200px]">{cluster.representative_input}</td>
+                  <td className="px-5 py-3.5 text-sm text-text-muted truncate max-w-[200px]" title={cluster.representative_input}>{cluster.representative_input}</td>
                   <td className="px-5 py-3.5">
                     <span className={cn(
                       'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
@@ -754,12 +755,17 @@ const DriftTab = memo(function DriftTab({
                   Distance: {(simResult.avg_distance ?? 0).toFixed(4)} / Threshold: {(simResult.threshold ?? 0).toFixed(2)}
                 </span>
               </div>
+              {simResult.is_drift && (
+                <p className="text-xs text-text-muted mt-2">
+                  {t('analysis.driftRecommendation', 'Consider reviewing golden responses for this function. Input patterns may have shifted significantly.')}
+                </p>
+              )}
               {(simResult.neighbors || []).length > 0 && (
                 <div className="mt-3 space-y-1.5">
                   <p className="text-xs text-text-muted">Nearest Neighbors:</p>
                   {(simResult.neighbors || []).map((n) => (
                     <div key={n.span_id} className="flex items-center justify-between text-xs bg-bg-primary/30 rounded-[8px] px-3 py-2">
-                      <span className="text-text-secondary font-mono">{(n.span_id || '').slice(0, 12)}...</span>
+                      <TruncatedText text={n.span_id || ''} maxLength={12} mono className="text-text-secondary" />
                       <span className="text-text-muted">dist: {(n.distance ?? 0).toFixed(4)}</span>
                     </div>
                   ))}

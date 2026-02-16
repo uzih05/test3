@@ -5,6 +5,7 @@ import { X, ExternalLink, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { executionsService } from '@/services/executions';
 import { StatusBadge } from '@/components/StatusBadge';
+import { TruncatedText } from '@/components/TruncatedText';
 import { formatDuration, timeAgo } from '@/lib/utils';
 
 interface ExecutionDetailProps {
@@ -53,7 +54,7 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
                       href={`/traces/${data.trace_id}`}
                       className="text-xs text-neon-lime hover:underline flex items-center gap-1 font-mono"
                     >
-                      {data.trace_id.slice(0, 12)}...
+                      <TruncatedText text={data.trace_id} maxLength={12} />
                       <ExternalLink size={10} />
                     </Link>
                   </InfoItem>

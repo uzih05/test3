@@ -18,7 +18,8 @@ import {
 import { functionsService } from '@/services/functions';
 import { useTranslation } from '@/lib/i18n';
 import { FunctionDetail } from '@/components/FunctionDetail';
-import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
+import { formatNumber, formatDuration, formatPercentage, getErrorRateSeverity, cn } from '@/lib/utils';
+import { SeverityBadge } from '@/components/SeverityBadge';
 import type { FunctionInfo } from '@/types';
 
 type SortKey = 'execution_count' | 'error_rate' | 'avg_duration_ms' | 'name';
@@ -219,7 +220,7 @@ export default function FunctionsPage() {
                   <span className="text-neon-cyan font-semibold">{formatDuration(fn.avg_duration_ms || 0)}</span> {t('functions.avg')}
                 </span>
                 {(fn.error_rate || 0) > 0 && (
-                  <span className="text-neon-red font-semibold">{formatPercentage(fn.error_rate || 0)} {t('functions.err')}</span>
+                  <SeverityBadge severity={getErrorRateSeverity(fn.error_rate || 0)}>{formatPercentage(fn.error_rate || 0)} err</SeverityBadge>
                 )}
               </div>
               {fn.team && (

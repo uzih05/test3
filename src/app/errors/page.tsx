@@ -266,7 +266,7 @@ export default function ErrorsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 hidden md:table-cell">
-                      <span className="text-xs text-text-muted truncate block max-w-[300px]">
+                      <span className="text-xs text-text-muted truncate block max-w-[300px]" title={err.error_message || ''}>
                         {err.error_message || '-'}
                       </span>
                     </td>
