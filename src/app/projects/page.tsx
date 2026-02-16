@@ -141,9 +141,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary p-4 flex flex-col items-center">
-      {/* Background glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-neon-lime/3 rounded-full blur-[150px] pointer-events-none" />
-
       {/* Top toolbar — account, language, logout */}
       <div className="fixed top-4 right-4 z-50 flex items-center gap-1">
         {/* Account (was Settings) */}

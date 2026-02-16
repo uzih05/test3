@@ -62,24 +62,6 @@ export default function QuickStartPage() {
       className="min-h-screen p-4 flex flex-col items-center relative overflow-hidden"
       style={{ background: 'linear-gradient(170deg, #0a0a0a 0%, #0d1117 40%, #0a1628 70%, #0a0a0a 100%)' }}
     >
-      {/* Cyan glow - top center */}
-      <div
-        className="fixed top-[-100px] left-1/2 w-[600px] h-[400px] rounded-full pointer-events-none"
-        style={{
-          background: 'rgba(0, 255, 204, 0.04)',
-          filter: 'blur(160px)',
-          animation: 'onboarding-float 8s ease-in-out infinite',
-        }}
-      />
-      {/* Lime glow - right side */}
-      <div
-        className="fixed top-1/3 right-[-100px] w-[300px] h-[300px] rounded-full pointer-events-none"
-        style={{
-          background: 'rgba(223, 255, 0, 0.03)',
-          filter: 'blur(120px)',
-          animation: 'onboarding-drift 12s ease-in-out infinite',
-        }}
-      />
       {/* Dot grid overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"

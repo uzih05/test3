@@ -62,9 +62,6 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary p-4 flex flex-col items-center">
-      {/* Background glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-neon-lime/3 rounded-full blur-[150px] pointer-events-none" />
-
       {/* Back button */}
       <div className="fixed top-4 left-4 z-50">
         <button

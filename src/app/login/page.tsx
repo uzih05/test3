@@ -32,9 +32,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary p-4">
-      {/* Background glow */}
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-lime/5 rounded-full blur-[120px] pointer-events-none" />
-
       {/* Language toggle — top right */}
       <div className="fixed top-4 right-4 z-50 relative">
         <button
