@@ -14,8 +14,10 @@ export const healerService = {
     }),
 
   diagnoseBatch: (function_names: string[], lookback_minutes?: number) =>
-    api.post<DiagnosisResult[]>('/api/v1/healer/diagnose/batch', {
-      function_names,
-      lookback_minutes: lookback_minutes || 60,
-    }),
+    api.post<{ results: DiagnosisResult[]; total: number; succeeded: number; failed: number }>(
+      '/api/v1/healer/diagnose/batch', {
+        function_names,
+        lookback_minutes: lookback_minutes || 60,
+      },
+    ),
 };

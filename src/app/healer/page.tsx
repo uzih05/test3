@@ -73,7 +73,7 @@ export default function HealerPage() {
 
   const batchMutation = useMutation({
     mutationFn: (names: string[]) => healerService.diagnoseBatch(names, lookback),
-    onSuccess: (results) => setBatchResults(Array.isArray(results) ? results : []),
+    onSuccess: (data) => setBatchResults(data.results || []),
   });
 
   const handleCheck = (name: string) => {
