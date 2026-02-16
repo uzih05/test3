@@ -21,6 +21,7 @@ from app.api.v1.endpoints import (
     semantic,
     ask_ai,
     saved_responses,
+    suggest,
 )
 
 api_router = APIRouter()
@@ -109,4 +110,10 @@ api_router.include_router(
     saved_responses.router,
     prefix="/saved",
     tags=["Saved Responses"]
+)
+
+api_router.include_router(
+    suggest.router,
+    prefix="/suggest",
+    tags=["Suggest"]
 )

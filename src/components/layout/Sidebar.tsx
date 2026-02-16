@@ -19,6 +19,7 @@ import {
   Settings,
   LogOut,
   X,
+  Lightbulb,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
@@ -37,6 +38,7 @@ const NAV_ITEMS_TOP = [
   { key: 'saved', path: '/saved', icon: BookmarkCheck },
   { key: 'golden', path: '/golden', icon: Star },
   { key: 'github', path: '/github', icon: GitPullRequest },
+  { key: 'suggest', path: '/suggest', icon: Lightbulb },
 ];
 
 const NAV_ITEMS_BOTTOM = [

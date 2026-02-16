@@ -340,3 +340,29 @@ export interface SavedResponse {
   created_at: string;
   locked: boolean;
 }
+
+// === Suggest ===
+export type SuggestionType =
+  | 'unused_function'
+  | 'high_error_rate'
+  | 'slow_function'
+  | 'cache_optimization'
+  | 'no_golden_data'
+  | 'performance_degradation';
+
+export type SuggestionPriority = 'critical' | 'high' | 'medium' | 'low';
+
+export interface Suggestion {
+  type: SuggestionType;
+  priority: SuggestionPriority;
+  function_name: string;
+  message: string;
+  metrics: Record<string, number>;
+}
+
+export interface SuggestResponse {
+  suggestions: Suggestion[];
+  total: number;
+  time_range_minutes: number;
+  summary: { critical: number; high: number; medium: number; low: number };
+}

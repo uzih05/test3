@@ -13,7 +13,8 @@
     "projects": "Projects",
     "settings": "Settings",
     "ask": "Ask AI",
-    "saved": "Saved"
+    "saved": "Saved",
+    "suggest": "Suggest"
   },
   "auth": {
     "login": "Log In",
@@ -488,6 +489,28 @@
   "commandPalette": {
     "placeholder": "Type a command or search...",
     "noResults": "No results found"
+  },
+  "suggest": {
+    "title": "Suggestions",
+    "subtitle": "Data-driven recommendations based on execution analysis",
+    "noSuggestions": "No suggestions for the current time range",
+    "filterAll": "All",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "unusedFunction": "Unused Function",
+    "highErrorRate": "High Error Rate",
+    "slowFunction": "Slow Function",
+    "cacheOptimization": "Cache Candidate",
+    "noGoldenData": "No Golden Data",
+    "performanceDegradation": "Performance Degradation",
+    "viewErrors": "View Errors",
+    "viewFunction": "View Function",
+    "viewCache": "View Cache",
+    "viewGolden": "View Golden Data",
+    "filterByType": "Filter by type",
+    "fetchError": "Failed to load suggestions"
   },
   "accessibility": {
     "close": "Close",

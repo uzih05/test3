@@ -13,7 +13,8 @@
     "projects": "プロジェクト",
     "settings": "設定",
     "ask": "AI質問",
-    "saved": "保存済み"
+    "saved": "保存済み",
+    "suggest": "提案"
   },
   "auth": {
     "login": "ログイン",
@@ -488,6 +489,28 @@
   "commandPalette": {
     "placeholder": "コマンドを入力または検索...",
     "noResults": "結果が見つかりません"
+  },
+  "suggest": {
+    "title": "提案",
+    "subtitle": "実行データ分析に基づく改善提案",
+    "noSuggestions": "選択期間に提案はありません",
+    "filterAll": "すべて",
+    "critical": "重大",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "unusedFunction": "未使用関数",
+    "highErrorRate": "高エラー率",
+    "slowFunction": "低速関数",
+    "cacheOptimization": "キャッシュ候補",
+    "noGoldenData": "ゴールデンデータなし",
+    "performanceDegradation": "パフォーマンス低下",
+    "viewErrors": "エラーを見る",
+    "viewFunction": "関数を見る",
+    "viewCache": "キャッシュを見る",
+    "viewGolden": "ゴールデンデータを見る",
+    "filterByType": "タイプで絞り込み",
+    "fetchError": "提案の読み込みに失敗しました"
   },
   "accessibility": {
     "close": "閉じる",

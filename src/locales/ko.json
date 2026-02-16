@@ -13,7 +13,8 @@
     "projects": "프로젝트",
     "settings": "설정",
     "ask": "AI 질문",
-    "saved": "저장됨"
+    "saved": "저장됨",
+    "suggest": "제안"
   },
   "auth": {
     "login": "로그인",
@@ -488,6 +489,28 @@
   "commandPalette": {
     "placeholder": "명령어를 입력하거나 검색하세요...",
     "noResults": "결과가 없습니다"
+  },
+  "suggest": {
+    "title": "제안",
+    "subtitle": "실행 데이터 분석 기반 개선 추천",
+    "noSuggestions": "선택한 기간에 제안 사항이 없습니다",
+    "filterAll": "전체",
+    "critical": "심각",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음",
+    "unusedFunction": "미사용 함수",
+    "highErrorRate": "높은 에러율",
+    "slowFunction": "느린 함수",
+    "cacheOptimization": "캐시 후보",
+    "noGoldenData": "골든 데이터 없음",
+    "performanceDegradation": "성능 저하",
+    "viewErrors": "에러 보기",
+    "viewFunction": "함수 보기",
+    "viewCache": "캐시 보기",
+    "viewGolden": "골든 데이터 보기",
+    "filterByType": "타입별 필터",
+    "fetchError": "제안을 불러오지 못했습니다"
   },
   "accessibility": {
     "close": "닫기",
