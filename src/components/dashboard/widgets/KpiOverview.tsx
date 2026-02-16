@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, CheckCircle2, AlertTriangle, Database, Clock } from 'lucide-react';
 import { analyticsService } from '@/services/analytics';
@@ -7,14 +8,15 @@ import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTranslation } from '@/lib/i18n';
 import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
 import { Sparkline } from '@/components/Sparkline';
+import { TrendIndicator } from '@/components/TrendIndicator';
 
 export function KpiOverview() {
   const { timeRangeMinutes } = useDashboardStore();
   const { t } = useTranslation();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['kpi', timeRangeMinutes],
-    queryFn: () => analyticsService.kpi(timeRangeMinutes),
+  const { data: compareData, isLoading } = useQuery({
+    queryKey: ['kpi-compare', timeRangeMinutes],
+    queryFn: () => analyticsService.kpiCompare(timeRangeMinutes),
     refetchInterval: 15_000,
   });
 
@@ -25,17 +27,36 @@ export function KpiOverview() {
     refetchInterval: 15_000,
   });
 
+  const data = compareData?.current;
+  const prev = compareData?.previous;
+
+  const sparkTotal = useMemo(
+    () => (timeline || []).map(e => e.success + e.error),
+    [timeline]
+  );
+  const sparkSuccess = useMemo(
+    () => (timeline || []).map(e => {
+      const total = e.success + e.error;
+      return total > 0 ? (e.success / total) * 100 : 100;
+    }),
+    [timeline]
+  );
+  const sparkErrors = useMemo(
+    () => (timeline || []).map(e => e.error),
+    [timeline]
+  );
+  const sparkCache = useMemo(
+    () => (timeline || []).map(e => e.cache_hit),
+    [timeline]
+  );
+  const sparkAvgDuration = useMemo(
+    () => (timeline || []).map(e => e.avg_duration_ms),
+    [timeline]
+  );
+
   if (isLoading || !data) {
     return <KpiSkeleton />;
   }
-
-  const sparkTotal = (timeline || []).map(e => e.success + e.error);
-  const sparkSuccess = (timeline || []).map(e => {
-    const total = e.success + e.error;
-    return total > 0 ? (e.success / total) * 100 : 100;
-  });
-  const sparkErrors = (timeline || []).map(e => e.error);
-  const sparkCache = (timeline || []).map(e => e.cache_hit);
 
   const cards = [
     {
@@ -46,6 +67,10 @@ export function KpiOverview() {
       bg: 'bg-neon-lime-dim',
       sparkColor: '#b6ff00',
       spark: sparkTotal,
+      current: data.total_executions,
+      previous: prev?.total_executions ?? 0,
+      invertColor: false,
+      ariaLabel: 'Total executions trend',
     },
     {
       label: t('dashboard.kpi.successRate'),
@@ -55,6 +80,10 @@ export function KpiOverview() {
       bg: 'bg-neon-cyan-dim',
       sparkColor: '#00FFCC',
       spark: sparkSuccess,
+      current: data.success_rate,
+      previous: prev?.success_rate ?? 0,
+      invertColor: false,
+      ariaLabel: 'Success rate trend',
     },
     {
       label: t('dashboard.kpi.errors'),
@@ -64,6 +93,10 @@ export function KpiOverview() {
       bg: 'bg-neon-red-dim',
       sparkColor: '#FF4D6A',
       spark: sparkErrors,
+      current: data.error_count,
+      previous: prev?.error_count ?? 0,
+      invertColor: true,
+      ariaLabel: 'Error count trend',
     },
     {
       label: t('dashboard.kpi.cacheHit'),
@@ -75,6 +108,10 @@ export function KpiOverview() {
       bg: 'bg-neon-cyan-dim',
       sparkColor: '#00FFCC',
       spark: sparkCache,
+      current: data.cache_hit_count,
+      previous: prev?.cache_hit_count ?? 0,
+      invertColor: false,
+      ariaLabel: 'Cache hit trend',
     },
     {
       label: t('dashboard.kpi.avgDuration'),
@@ -83,7 +120,11 @@ export function KpiOverview() {
       color: 'text-neon-orange',
       bg: 'bg-[rgba(255,159,67,0.15)]',
       sparkColor: '#FF9F43',
-      spark: [] as number[],
+      spark: sparkAvgDuration,
+      current: data.avg_duration_ms,
+      previous: prev?.avg_duration_ms ?? 0,
+      invertColor: true,
+      ariaLabel: 'Average duration trend',
     },
   ];
 
@@ -98,11 +139,25 @@ export function KpiOverview() {
                 <Icon size={16} className={card.color} />
               </div>
               {card.spark.length >= 2 && (
-                <Sparkline data={card.spark} color={card.sparkColor} width={64} height={20} className="opacity-60" />
+                <Sparkline
+                  data={card.spark}
+                  color={card.sparkColor}
+                  width={64}
+                  height={20}
+                  className="opacity-60"
+                  ariaLabel={card.ariaLabel}
+                />
               )}
             </div>
             <p className="text-xs text-text-muted mb-1">{card.label}</p>
-            <p className={cn('text-xl font-bold', card.color)}>{card.value}</p>
+            <div className="flex items-baseline gap-2">
+              <p className={cn('text-xl font-bold', card.color)}>{card.value}</p>
+              <TrendIndicator
+                current={card.current}
+                previous={card.previous}
+                invertColor={card.invertColor}
+              />
+            </div>
           </div>
         );
       })}

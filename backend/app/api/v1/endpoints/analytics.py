@@ -27,6 +27,15 @@ async def get_kpi_metrics(
     return service.get_kpi_metrics(time_range_minutes=range)
 
 
+@router.get("/kpi/compare")
+async def get_kpi_compare(
+    range: int = Query(60, alias="range", description="Time range in minutes"),
+    client=Depends(get_user_weaviate_client),
+):
+    service = DashboardOverviewService(client=client)
+    return service.get_kpi_compare(time_range_minutes=range)
+
+
 @router.get("/tokens")
 async def get_token_usage(client=Depends(get_user_weaviate_client)):
     service = DashboardOverviewService(client=client)

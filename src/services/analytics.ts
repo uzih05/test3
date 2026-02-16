@@ -1,9 +1,12 @@
 import { api } from '@/lib/api';
-import type { KpiData, TokenUsage, SystemStatus, TimelineEntry } from '@/types';
+import type { KpiData, KpiCompareData, TokenUsage, SystemStatus, TimelineEntry } from '@/types';
 
 export const analyticsService = {
   kpi: (range?: number) =>
     api.get<KpiData>('/api/v1/analytics/kpi', { range }),
+
+  kpiCompare: (range?: number) =>
+    api.get<KpiCompareData>('/api/v1/analytics/kpi/compare', { range }),
 
   tokens: () =>
     api.get<TokenUsage>('/api/v1/analytics/tokens'),

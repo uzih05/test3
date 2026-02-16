@@ -236,6 +236,12 @@ export interface TimelineEntry {
   success: number;
   error: number;
   cache_hit: number;
+  avg_duration_ms: number;
+}
+
+export interface KpiCompareData {
+  current: KpiData;
+  previous: KpiData;
 }
 
 export interface SystemStatus {

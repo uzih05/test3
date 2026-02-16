@@ -68,89 +68,73 @@ class DashboardOverviewService:
                 "error": str(e)
             }
 
+    def _get_kpi_for_filter(self, time_filter, time_range_minutes: int) -> Dict[str, Any]:
+        """Shared KPI aggregation logic for a given time filter."""
+        from weaviate.classes.aggregate import Metrics
+
+        collection = self._get_execution_collection()
+
+        # 1. 전체 카운트
+        total_result = collection.aggregate.over_all(
+            filters=time_filter,
+            total_count=True
+        )
+        total = total_result.total_count or 0
+
+        # 2. 상태별 카운트
+        status_result = collection.aggregate.over_all(
+            filters=time_filter,
+            group_by=GroupByAggregate(prop="status"),
+            total_count=True
+        )
+
+        success_count = 0
+        error_count = 0
+        cache_hit_count = 0
+
+        for group in status_result.groups:
+            status_value = group.grouped_by.value
+            count = group.total_count or 0
+            if status_value == "SUCCESS":
+                success_count = count
+            elif status_value == "ERROR":
+                error_count = count
+            elif status_value == "CACHE_HIT":
+                cache_hit_count = count
+
+        # 3. 평균 duration (CACHE_HIT 제외)
+        duration_result = collection.aggregate.over_all(
+            filters=(
+                time_filter &
+                wvc_query.Filter.by_property("status").not_equal("CACHE_HIT")
+            ),
+            return_metrics=Metrics("duration_ms").number(mean=True)
+        )
+
+        avg_duration = 0.0
+        if duration_result.properties and "duration_ms" in duration_result.properties:
+            avg_duration = duration_result.properties["duration_ms"].mean or 0.0
+
+        success_rate = (success_count / total * 100) if total > 0 else 0
+
+        return {
+            "total_executions": total,
+            "success_count": success_count,
+            "error_count": error_count,
+            "cache_hit_count": cache_hit_count,
+            "success_rate": round(success_rate, 2),
+            "avg_duration_ms": round(avg_duration, 2),
+            "time_range_minutes": time_range_minutes
+        }
+
     def get_kpi_metrics(self, time_range_minutes: int = 60) -> Dict[str, Any]:
         """
         Returns key performance indicators for the specified time range.
-        [수정] Weaviate Aggregate API 사용하여 DB 레벨에서 집계
-        
-        Args:
-            time_range_minutes: Time range in minutes (default: 60)
-            
-        Returns:
-            {
-                "total_executions": int,
-                "success_count": int,
-                "error_count": int,
-                "cache_hit_count": int,
-                "success_rate": float (0-100),
-                "avg_duration_ms": float,
-                "time_range_minutes": int
-            }
         """
         try:
-            collection = self._get_execution_collection()
-            time_limit = (datetime.now(timezone.utc) - timedelta(minutes=time_range_minutes))
-
-            # 시간 필터
+            time_limit = datetime.now(timezone.utc) - timedelta(minutes=time_range_minutes)
             time_filter = wvc_query.Filter.by_property("timestamp_utc").greater_or_equal(time_limit)
-            
-            # 1. 전체 카운트 (Aggregate)
-            total_result = collection.aggregate.over_all(
-                filters=time_filter,
-                total_count=True
-            )
-            total = total_result.total_count or 0
-            
-            # 2. 상태별 카운트 (Group By Aggregate)
-            status_result = collection.aggregate.over_all(
-                filters=time_filter,
-                group_by=GroupByAggregate(prop="status"),
-                total_count=True
-            )
-            
-            success_count = 0
-            error_count = 0
-            cache_hit_count = 0
-            
-            for group in status_result.groups:
-                status_value = group.grouped_by.value
-                count = group.total_count or 0
-                
-                if status_value == "SUCCESS":
-                    success_count = count
-                elif status_value == "ERROR":
-                    error_count = count
-                elif status_value == "CACHE_HIT":
-                    cache_hit_count = count
-            
-            # 3. 평균 duration (SUCCESS만, CACHE_HIT 제외)
-            # Aggregate로 평균 계산
-            from weaviate.classes.aggregate import Metrics
-            
-            duration_result = collection.aggregate.over_all(
-                filters=(
-                    time_filter &
-                    wvc_query.Filter.by_property("status").not_equal("CACHE_HIT")
-                ),
-                return_metrics=Metrics("duration_ms").number(mean=True)
-            )
-            
-            avg_duration = 0.0
-            if duration_result.properties and "duration_ms" in duration_result.properties:
-                avg_duration = duration_result.properties["duration_ms"].mean or 0.0
-            
-            success_rate = (success_count / total * 100) if total > 0 else 0
-            
-            return {
-                "total_executions": total,
-                "success_count": success_count,
-                "error_count": error_count,
-                "cache_hit_count": cache_hit_count,
-                "success_rate": round(success_rate, 2),
-                "avg_duration_ms": round(avg_duration, 2),
-                "time_range_minutes": time_range_minutes
-            }
-            
+            return self._get_kpi_for_filter(time_filter, time_range_minutes)
         except Exception as e:
             logger.error(f"Failed to get KPI metrics: {e}")
             return {
@@ -163,6 +147,38 @@ class DashboardOverviewService:
                 "time_range_minutes": time_range_minutes,
                 "error": str(e)
             }
+
+    def get_kpi_compare(self, time_range_minutes: int = 60) -> Dict[str, Any]:
+        """
+        Returns current-period and previous-period KPI for comparison.
+        Previous period = same duration, immediately before current period.
+        """
+        try:
+            now = datetime.now(timezone.utc)
+
+            # Current period
+            current_start = now - timedelta(minutes=time_range_minutes)
+            current_filter = wvc_query.Filter.by_property("timestamp_utc").greater_or_equal(current_start)
+            current = self._get_kpi_for_filter(current_filter, time_range_minutes)
+
+            # Previous period
+            prev_end = current_start
+            prev_start = prev_end - timedelta(minutes=time_range_minutes)
+            prev_filter = (
+                wvc_query.Filter.by_property("timestamp_utc").greater_or_equal(prev_start) &
+                wvc_query.Filter.by_property("timestamp_utc").less_than(prev_end)
+            )
+            previous = self._get_kpi_for_filter(prev_filter, time_range_minutes)
+
+            return {"current": current, "previous": previous}
+        except Exception as e:
+            logger.error(f"Failed to get KPI compare: {e}")
+            fallback = {
+                "total_executions": 0, "success_count": 0, "error_count": 0,
+                "cache_hit_count": 0, "success_rate": 0, "avg_duration_ms": 0,
+                "time_range_minutes": time_range_minutes
+            }
+            return {"current": fallback, "previous": fallback}
 
     def get_token_usage(self) -> Dict[str, Any]:
         """
@@ -249,20 +265,38 @@ class DashboardOverviewService:
                         "timestamp": bucket_start.isoformat(),
                         "success": 0,
                         "error": 0,
-                        "cache_hit": 0
+                        "cache_hit": 0,
+                        "avg_duration_ms": 0.0
                     }
-                    
+
                     for group in status_result.groups:
                         status_value = group.grouped_by.value
                         count = group.total_count or 0
-                        
+
                         if status_value == "SUCCESS":
                             bucket_data["success"] = count
                         elif status_value == "ERROR":
                             bucket_data["error"] = count
                         elif status_value == "CACHE_HIT":
                             bucket_data["cache_hit"] = count
-                    
+
+                    # Avg duration for this bucket (CACHE_HIT 제외)
+                    try:
+                        from weaviate.classes.aggregate import Metrics
+                        dur_result = collection.aggregate.over_all(
+                            filters=(
+                                bucket_filter &
+                                wvc_query.Filter.by_property("status").not_equal("CACHE_HIT")
+                            ),
+                            return_metrics=Metrics("duration_ms").number(mean=True)
+                        )
+                        if dur_result.properties and "duration_ms" in dur_result.properties:
+                            bucket_data["avg_duration_ms"] = round(
+                                dur_result.properties["duration_ms"].mean or 0.0, 2
+                            )
+                    except Exception:
+                        pass
+
                     buckets.append(bucket_data)
                     
                 except Exception as bucket_error:
@@ -271,7 +305,8 @@ class DashboardOverviewService:
                         "timestamp": bucket_start.isoformat(),
                         "success": 0,
                         "error": 0,
-                        "cache_hit": 0
+                        "cache_hit": 0,
+                        "avg_duration_ms": 0.0
                     })
             
             return buckets
