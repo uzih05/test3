@@ -132,8 +132,10 @@ async def toggle_bookmark(
         raise HTTPException(status_code=404, detail="Saved response not found")
 
     saved.is_bookmarked = not saved.is_bookmarked
+    saved_id = saved.id
+    new_bookmark_state = saved.is_bookmarked
     await db.commit()
-    return {"id": saved.id, "is_bookmarked": saved.is_bookmarked}
+    return {"id": saved_id, "is_bookmarked": new_bookmark_state}
 
 
 @router.delete("/{response_id}")

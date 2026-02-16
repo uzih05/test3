@@ -57,7 +57,10 @@ async def ask_ai(
 
         # Auto-save to history
         try:
+            import uuid as _uuid
+            saved_id = str(_uuid.uuid4())
             saved = SavedResponse(
+                id=saved_id,
                 user_id=user.id,
                 question=result.get("question", request.question),
                 answer=result.get("answer", ""),
@@ -67,7 +70,7 @@ async def ask_ai(
             )
             db.add(saved)
             await db.commit()
-            result["saved_id"] = saved.id
+            result["saved_id"] = saved_id
         except Exception as e:
             logger.warning(f"Failed to auto-save Ask AI response: {e}")
 

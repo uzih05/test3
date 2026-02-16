@@ -86,7 +86,10 @@ async def diagnose_and_heal(
             if diagnosis.get("fix_suggestion"):
                 answer_parts.append(f"Fix: {diagnosis['fix_suggestion']}")
 
+            import uuid as _uuid
+            saved_id = str(_uuid.uuid4())
             saved = SavedResponse(
+                id=saved_id,
                 user_id=user.id,
                 question=f"[Healer] {request.function_name} ({request.lookback_minutes}min)",
                 answer="\n\n".join(answer_parts) if answer_parts else str(diagnosis),
@@ -96,7 +99,7 @@ async def diagnose_and_heal(
             )
             db.add(saved)
             await db.commit()
-            result["saved_id"] = saved.id
+            result["saved_id"] = saved_id
         except Exception as e:
             logger.warning(f"Failed to auto-save Healer response: {e}")
 
