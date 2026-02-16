@@ -41,6 +41,7 @@ export default function GitHubPage() {
   const { data: status, isLoading: loadingStatus } = useQuery({
     queryKey: ['githubStatus'],
     queryFn: () => githubService.status(),
+    refetchInterval: 60_000,
   });
 
   // Repos
@@ -48,6 +49,7 @@ export default function GitHubPage() {
     queryKey: ['githubRepos'],
     queryFn: () => githubService.repos(1, 50),
     enabled: !!status?.connected,
+    refetchInterval: 60_000,
   });
 
   // PRs
@@ -56,6 +58,7 @@ export default function GitHubPage() {
     queryFn: () =>
       githubService.pulls(selectedRepo!.owner, selectedRepo!.repo, prFilter === 'all' ? undefined : prFilter),
     enabled: !!selectedRepo,
+    refetchInterval: 60_000,
   });
 
   // PR Detail

@@ -14,6 +14,7 @@ export function RecentErrors() {
   const { data, isLoading } = useQuery({
     queryKey: ['recentErrors', timeRangeMinutes],
     queryFn: () => executionsService.recentErrors(timeRangeMinutes, 10),
+    refetchInterval: 15_000,
   });
 
   if (isLoading) {

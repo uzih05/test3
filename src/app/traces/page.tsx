@@ -28,6 +28,7 @@ export default function TracesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['traces', limit],
     queryFn: () => tracesService.list(limit),
+    refetchInterval: 30_000,
   });
 
   const traces = (data || [])

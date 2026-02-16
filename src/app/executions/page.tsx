@@ -49,12 +49,14 @@ export default function ExecutionsPage() {
         function_name: debouncedSearchQuery || undefined,
         status: statusFilter || undefined,
       }),
+    refetchInterval: 30_000,
   });
 
   const { data: slowestData } = useQuery({
     queryKey: ['slowest'],
     queryFn: () => executionsService.slowest(),
     staleTime: 5 * 60_000,
+    refetchInterval: 30_000,
   });
 
   const items = data?.items || [];

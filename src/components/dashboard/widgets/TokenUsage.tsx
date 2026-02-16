@@ -13,6 +13,7 @@ export function TokenUsage() {
   const { data, isLoading } = useQuery({
     queryKey: ['tokens'],
     queryFn: () => analyticsService.tokens(),
+    refetchInterval: 15_000,
   });
 
   if (isLoading || !data) {

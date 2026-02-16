@@ -14,6 +14,7 @@ export function KpiOverview() {
   const { data, isLoading } = useQuery({
     queryKey: ['kpi', timeRangeMinutes],
     queryFn: () => analyticsService.kpi(timeRangeMinutes),
+    refetchInterval: 15_000,
   });
 
   if (isLoading || !data) {

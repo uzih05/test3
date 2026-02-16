@@ -15,6 +15,7 @@ export function ExecutionTimeline() {
   const { data, isLoading } = useQuery({
     queryKey: ['timeline', timeRangeMinutes, bucket],
     queryFn: () => analyticsService.timeline(timeRangeMinutes, bucket),
+    refetchInterval: 15_000,
   });
 
   if (isLoading || !data) {

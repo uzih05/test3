@@ -60,6 +60,7 @@ export default function HealerPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['healerFunctions', timeRangeFilter],
     queryFn: () => healerService.functions(timeRangeFilter),
+    refetchInterval: 60_000,
   });
 
   const functions = (data?.items || []).filter(

@@ -52,6 +52,7 @@ export default function DashboardPage() {
   const { data: widgetData, isLoading } = useQuery({
     queryKey: ['widgets'],
     queryFn: () => widgetsService.list(),
+    refetchInterval: 15_000,
   });
 
   const widgets = widgetData?.items || [];

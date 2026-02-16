@@ -11,6 +11,7 @@ export function FunctionDistribution() {
   const { data, isLoading } = useQuery({
     queryKey: ['functionDist'],
     queryFn: () => analyticsService.functionDistribution(10),
+    refetchInterval: 15_000,
   });
 
   if (isLoading || !data) {

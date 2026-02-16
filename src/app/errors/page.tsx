@@ -49,6 +49,7 @@ export default function ErrorsPage() {
         limit: 50,
       }),
     enabled: searchMode === 'filter',
+    refetchInterval: 15_000,
   });
 
   // Semantic search
@@ -62,6 +63,7 @@ export default function ErrorsPage() {
   const { data: summaryData } = useQuery({
     queryKey: ['errorSummary', timeRangeMinutes],
     queryFn: () => errorsService.summary(timeRangeMinutes),
+    refetchInterval: 15_000,
   });
 
   // Trends
@@ -71,6 +73,7 @@ export default function ErrorsPage() {
       const bucket = timeRangeMinutes <= 60 ? 5 : timeRangeMinutes <= 360 ? 15 : timeRangeMinutes <= 1440 ? 60 : 360;
       return errorsService.trends(timeRangeMinutes, bucket);
     },
+    refetchInterval: 15_000,
   });
 
   const errors = searchMode === 'semantic'

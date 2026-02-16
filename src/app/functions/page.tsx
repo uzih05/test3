@@ -41,6 +41,7 @@ export default function FunctionsPage() {
   const { data: allData, isLoading: loadingAll } = useQuery({
     queryKey: ['functions'],
     queryFn: () => functionsService.list(),
+    refetchInterval: 30_000,
   });
 
   // Search results

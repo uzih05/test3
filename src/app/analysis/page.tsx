@@ -835,6 +835,7 @@ export default function AnalysisPage() {
   const { data: analytics, isLoading: loadingAnalytics } = useQuery({
     queryKey: ['cacheAnalytics', timeRangeMinutes],
     queryFn: () => cacheService.analytics(timeRangeMinutes),
+    refetchInterval: 60_000,
   });
 
   // Token usage
@@ -842,6 +843,7 @@ export default function AnalysisPage() {
     queryKey: ['tokenUsage'],
     queryFn: () => analyticsService.tokens(),
     enabled: activeTab === 'costSavings',
+    refetchInterval: 60_000,
   });
 
   // KPI
@@ -849,6 +851,7 @@ export default function AnalysisPage() {
     queryKey: ['kpi', timeRangeMinutes],
     queryFn: () => analyticsService.kpi(timeRangeMinutes),
     enabled: activeTab === 'costSavings',
+    refetchInterval: 60_000,
   });
 
   // Drift
@@ -856,6 +859,7 @@ export default function AnalysisPage() {
     queryKey: ['driftSummary'],
     queryFn: () => cacheService.driftSummary(),
     enabled: activeTab === 'drift',
+    refetchInterval: 60_000,
   });
 
   const simulateMutation = useMutation({
@@ -868,6 +872,7 @@ export default function AnalysisPage() {
     queryKey: ['semanticScatter'],
     queryFn: () => semanticService.scatter(undefined, 500),
     enabled: activeTab === 'inputScatter',
+    refetchInterval: 60_000,
   });
 
   const scatterData = useMemo(
@@ -888,6 +893,7 @@ export default function AnalysisPage() {
     queryKey: ['semanticBottleneck', debouncedBottleneckFnFilter],
     queryFn: () => semanticService.bottleneck(debouncedBottleneckFnFilter || undefined, 5),
     enabled: activeTab === 'bottleneck',
+    refetchInterval: 60_000,
   });
 
   // Semantic: Error Clusters
@@ -895,6 +901,7 @@ export default function AnalysisPage() {
     queryKey: ['semanticErrorClusters'],
     queryFn: () => semanticService.errorClusters(5),
     enabled: activeTab === 'errorClusters',
+    refetchInterval: 60_000,
   });
 
   const driftItems = driftData?.items || [];

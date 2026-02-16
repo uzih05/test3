@@ -11,6 +11,7 @@ export function SystemStatus() {
   const { data, isLoading } = useQuery({
     queryKey: ['status'],
     queryFn: () => analyticsService.status(),
+    refetchInterval: 15_000,
   });
 
   if (isLoading || !data) {

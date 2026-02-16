@@ -55,6 +55,7 @@ export default function GoldenPage() {
     queryKey: ['functions'],
     queryFn: () => functionsService.list(),
     enabled: activeTab === 'recommend' || activeTab === 'coverage',
+    refetchInterval: 60_000,
   });
 
   // Auto-select first function when list loads
@@ -79,6 +80,7 @@ export default function GoldenPage() {
     queryKey: ['goldenCoverage', coverageFn],
     queryFn: () => semanticService.coverage(coverageFn || undefined),
     enabled: activeTab === 'coverage',
+    refetchInterval: 60_000,
   });
 
   // Enhanced Recommend (with diversity)
@@ -86,6 +88,7 @@ export default function GoldenPage() {
     queryKey: ['semanticRecommend', recFn],
     queryFn: () => semanticService.recommend(recFn, 10),
     enabled: activeTab === 'recommend' && recFn.length > 0,
+    refetchInterval: 60_000,
   });
 
   // Golden records
@@ -93,6 +96,7 @@ export default function GoldenPage() {
     queryKey: ['golden', functionFilter],
     queryFn: () => cacheService.goldenList(functionFilter || undefined, 100),
     enabled: activeTab === 'records',
+    refetchInterval: 60_000,
   });
 
   // Browse executions (within Records tab)
@@ -106,6 +110,7 @@ export default function GoldenPage() {
       sort_asc: false,
     }),
     enabled: activeTab === 'records' && recordsMode === 'browse',
+    refetchInterval: 60_000,
   });
 
   // Set of execution UUIDs already registered as golden
@@ -117,6 +122,7 @@ export default function GoldenPage() {
   const { data: statsData } = useQuery({
     queryKey: ['goldenStats'],
     queryFn: () => cacheService.goldenStats(),
+    refetchInterval: 60_000,
   });
 
   // Register mutation
