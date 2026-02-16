@@ -95,7 +95,7 @@ export default function SignupPage() {
                 type="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); clearError(); }}
-                placeholder="you@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 required
                 className={cn(
                   'w-full px-4 py-3 bg-bg-input border border-border-default rounded-[12px]',
@@ -115,7 +115,7 @@ export default function SignupPage() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name"
+                placeholder={t('auth.displayNamePlaceholder')}
                 className={cn(
                   'w-full px-4 py-3 bg-bg-input border border-border-default rounded-[12px]',
                   'text-sm text-text-primary placeholder:text-text-muted',
@@ -132,7 +132,7 @@ export default function SignupPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); clearError(); }}
-                  placeholder="••••••••"
+                  placeholder={t('auth.passwordPlaceholder')}
                   required
                   className={cn(
                     'w-full px-4 py-3 pr-11 bg-bg-input border border-border-default rounded-[12px]',

@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 import { executionsService } from '@/services/executions';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useTranslation } from '@/lib/i18n';
 import { timeAgo, cn } from '@/lib/utils';
 
 export function RecentErrors() {
+  const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
 
   const { data, isLoading } = useQuery({
@@ -15,7 +17,7 @@ export function RecentErrors() {
   });
 
   if (isLoading) {
-    return <div className="h-[200px] flex items-center justify-center animate-pulse text-text-muted text-sm">Loading...</div>;
+    return <div className="h-[200px] flex items-center justify-center animate-pulse text-text-muted text-sm">{t('common.loading')}</div>;
   }
 
   const items = data?.items || [];
@@ -24,7 +26,7 @@ export function RecentErrors() {
     return (
       <div className="h-[200px] flex flex-col items-center justify-center text-text-muted">
         <AlertTriangle size={24} className="mb-2 opacity-40" />
-        <p className="text-sm">No recent errors</p>
+        <p className="text-sm">{t('dashboard.noRecentErrors')}</p>
       </div>
     );
   }

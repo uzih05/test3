@@ -3,9 +3,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/services/analytics';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useTranslation } from '@/lib/i18n';
 import { formatPercentage } from '@/lib/utils';
 
 export function CacheHitRate() {
+  const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
 
   const { data, isLoading } = useQuery({
@@ -14,7 +16,7 @@ export function CacheHitRate() {
   });
 
   if (isLoading || !data) {
-    return <div className="h-[120px] flex items-center justify-center animate-pulse text-text-muted text-sm">Loading...</div>;
+    return <div className="h-[120px] flex items-center justify-center animate-pulse text-text-muted text-sm">{t('common.loading')}</div>;
   }
 
   const rate = data.total_executions > 0
@@ -44,7 +46,7 @@ export function CacheHitRate() {
         </div>
       </div>
       <p className="text-xs text-text-muted mt-2">
-        {data.cache_hit_count} / {data.total_executions} hits
+        {data.cache_hit_count} / {data.total_executions} {t('dashboard.hits')}
       </p>
     </div>
   );

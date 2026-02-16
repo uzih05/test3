@@ -79,11 +79,11 @@ export function SurferChart({
           />
           <Tooltip
             contentStyle={{
-              background: '#1a1a1a',
-              border: '1px solid #2a2a2a',
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border-default)',
               borderRadius: '12px',
               fontSize: '12px',
-              color: '#fff',
+              color: 'var(--color-text-primary)',
             }}
           />
           <Area

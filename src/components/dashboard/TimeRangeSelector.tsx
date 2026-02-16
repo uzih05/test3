@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Clock, ChevronDown } from 'lucide-react';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 const PRESETS = [
@@ -18,6 +19,7 @@ const PRESETS = [
 ];
 
 export function TimeRangeSelector() {
+  const { t } = useTranslation();
   const { timeRange, timeRangeLabel, setPreset, setCustomRange } = useDashboardStore();
   const [open, setOpen] = useState(false);
   const [customStart, setCustomStart] = useState('');
@@ -69,7 +71,7 @@ export function TimeRangeSelector() {
 
             {/* Custom range */}
             <div className="border-t border-border-default pt-3">
-              <p className="text-xs text-text-muted mb-2">Custom Range</p>
+              <p className="text-xs text-text-muted mb-2">{t('dashboard.customRange')}</p>
               <input
                 type="datetime-local"
                 value={customStart}
@@ -87,7 +89,7 @@ export function TimeRangeSelector() {
                 disabled={!customStart || !customEnd}
                 className="w-full py-1.5 bg-neon-lime text-text-inverse rounded-[8px] text-xs font-medium disabled:opacity-40"
               >
-                Apply
+                {t('dashboard.apply')}
               </button>
             </div>
           </div>

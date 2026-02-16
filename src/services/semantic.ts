@@ -55,5 +55,6 @@ export const semanticService = {
         distance_to_nearest_golden: number;
       }[];
       total: number;
+      golden_count: number;
     }>(`/api/v1/semantic/recommend/${functionName}`, { limit }),
 };

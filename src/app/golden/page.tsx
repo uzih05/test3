@@ -15,10 +15,12 @@ import {
   BarChart3,
   CheckCircle2,
   Map,
+  Info,
 } from 'lucide-react';
 import { cacheService } from '@/services/cache';
 import { semanticService } from '@/services/semantic';
 import { functionsService } from '@/services/functions';
+import { executionsService } from '@/services/executions';
 import { useTranslation } from '@/lib/i18n';
 import { formatNumber, formatPercentage, timeAgo, cn } from '@/lib/utils';
 import type { GoldenRecord, ScatterPoint, CoverageResult } from '@/types';
@@ -31,6 +33,11 @@ export default function GoldenPage() {
   const [activeTab, setActiveTab] = useState<'records' | 'recommend' | 'coverage'>('records');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // Records sub-mode
+  const [recordsMode, setRecordsMode] = useState<'golden' | 'browse'>('golden');
+  const [browsePage, setBrowsePage] = useState(0);
+  const BROWSE_PAGE_SIZE = 20;
+
   // Register form
   const [showRegister, setShowRegister] = useState(false);
   const [regUuid, setRegUuid] = useState('');
@@ -40,6 +47,8 @@ export default function GoldenPage() {
   // Recommend
   const [recFn, setRecFn] = useState('');
   const [registeredUuids, setRegisteredUuids] = useState<Set<string>>(new Set());
+  const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set());
+  const [batchRegistering, setBatchRegistering] = useState(false);
 
   // Functions list for recommend/coverage tab
   const { data: fnListData } = useQuery({
@@ -86,6 +95,24 @@ export default function GoldenPage() {
     enabled: activeTab === 'records',
   });
 
+  // Browse executions (within Records tab)
+  const { data: browseData, isLoading: loadingBrowse } = useQuery({
+    queryKey: ['browseExecutions', functionFilter, browsePage],
+    queryFn: () => executionsService.list({
+      function_name: functionFilter || undefined,
+      limit: BROWSE_PAGE_SIZE,
+      offset: browsePage * BROWSE_PAGE_SIZE,
+      sort_by: 'timestamp_utc',
+      sort_asc: false,
+    }),
+    enabled: activeTab === 'records' && recordsMode === 'browse',
+  });
+
+  // Set of execution UUIDs already registered as golden
+  const goldenExecUuids = new Set(
+    (goldenData?.items || []).map((r) => r.execution_uuid)
+  );
+
   // Stats
   const { data: statsData } = useQuery({
     queryKey: ['goldenStats'],
@@ -115,10 +142,45 @@ export default function GoldenPage() {
     mutationFn: (uuid: string) => cacheService.goldenRegister(uuid),
     onSuccess: (_data, uuid) => {
       setRegisteredUuids((prev) => new Set(prev).add(uuid));
+      setSelectedUuids((prev) => { const next = new Set(prev); next.delete(uuid); return next; });
       queryClient.invalidateQueries({ queryKey: ['golden'] });
       queryClient.invalidateQueries({ queryKey: ['goldenStats'] });
     },
   });
+
+  // Batch register
+  const handleBatchRegister = async () => {
+    if (selectedUuids.size === 0) return;
+    setBatchRegistering(true);
+    const uuids = Array.from(selectedUuids);
+    for (const uuid of uuids) {
+      try {
+        await cacheService.goldenRegister(uuid);
+        setRegisteredUuids((prev) => new Set(prev).add(uuid));
+      } catch { /* skip failed */ }
+    }
+    setSelectedUuids(new Set());
+    setBatchRegistering(false);
+    queryClient.invalidateQueries({ queryKey: ['golden'] });
+    queryClient.invalidateQueries({ queryKey: ['goldenStats'] });
+  };
+
+  const toggleSelect = (uuid: string) => {
+    setSelectedUuids((prev) => {
+      const next = new Set(prev);
+      if (next.has(uuid)) next.delete(uuid); else next.add(uuid);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (candidates: { uuid: string }[]) => {
+    const selectable = candidates.filter((c) => !registeredUuids.has(c.uuid));
+    if (selectable.every((c) => selectedUuids.has(c.uuid))) {
+      setSelectedUuids(new Set());
+    } else {
+      setSelectedUuids(new Set(selectable.map((c) => c.uuid)));
+    }
+  };
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -176,7 +238,7 @@ export default function GoldenPage() {
                 : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
             )}
           >
-            All ({statsData?.total || 0})
+            {t('golden.allFilter')} ({statsData?.total || 0})
           </button>
           {stats.map((s) => (
             <button
@@ -204,7 +266,7 @@ export default function GoldenPage() {
               type="text"
               value={regUuid}
               onChange={(e) => setRegUuid(e.target.value)}
-              placeholder="Execution UUID..."
+              placeholder={t('golden.executionUuidPlaceholder')}
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
@@ -215,7 +277,7 @@ export default function GoldenPage() {
               type="text"
               value={regNote}
               onChange={(e) => setRegNote(e.target.value)}
-              placeholder="Note (optional)..."
+              placeholder={t('golden.notePlaceholder')}
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
@@ -226,7 +288,7 @@ export default function GoldenPage() {
               type="text"
               value={regTags}
               onChange={(e) => setRegTags(e.target.value)}
-              placeholder="Tags (comma separated)..."
+              placeholder={t('golden.tagsPlaceholder')}
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
@@ -254,7 +316,7 @@ export default function GoldenPage() {
             </div>
             {registerMutation.isError && (
               <p className="text-xs text-neon-red">
-                {(registerMutation.error as Error).message || 'Registration failed'}
+                {(registerMutation.error as Error).message}
               </p>
             )}
           </div>
@@ -264,14 +326,40 @@ export default function GoldenPage() {
       {/* === Records tab === */}
       {activeTab === 'records' && (
         <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
-          <div className="px-5 py-3 border-b border-border-default">
-            <div className="relative max-w-sm">
+          <div className="px-5 py-3 border-b border-border-default flex items-center gap-3">
+            {/* Sub-mode toggle */}
+            <div className="flex bg-bg-secondary border border-border-default rounded-xl overflow-hidden shrink-0">
+              <button
+                onClick={() => setRecordsMode('golden')}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium transition-colors',
+                  recordsMode === 'golden'
+                    ? 'bg-neon-lime-dim text-neon-lime'
+                    : 'text-text-muted hover:text-text-primary'
+                )}
+              >
+                {t('golden.goldenRecords')}
+              </button>
+              <button
+                onClick={() => setRecordsMode('browse')}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium transition-colors',
+                  recordsMode === 'browse'
+                    ? 'bg-neon-lime-dim text-neon-lime'
+                    : 'text-text-muted hover:text-text-primary'
+                )}
+              >
+                {t('golden.browseExecutions')}
+              </button>
+            </div>
+            {/* Search */}
+            <div className="relative flex-1 max-w-sm">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
               <input
                 type="text"
                 value={functionFilter}
-                onChange={(e) => setFunctionFilter(e.target.value)}
-                placeholder="Filter by function..."
+                onChange={(e) => { setFunctionFilter(e.target.value); setBrowsePage(0); }}
+                placeholder={t('golden.filterPlaceholder')}
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-xs text-text-primary placeholder:text-text-muted',
@@ -281,28 +369,122 @@ export default function GoldenPage() {
             </div>
           </div>
 
-          {loadingGolden ? (
-            <div className="flex justify-center py-12">
-              <Loader2 size={20} className="animate-spin text-neon-lime" />
-            </div>
-          ) : records.length === 0 ? (
-            <div className="text-center py-16">
-              <Star size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
-              <p className="text-sm text-text-muted">{t('golden.noRecords')}</p>
-            </div>
+          {recordsMode === 'golden' ? (
+            /* Golden Records sub-tab */
+            loadingGolden ? (
+              <div className="flex justify-center py-12">
+                <Loader2 size={20} className="animate-spin text-neon-lime" />
+              </div>
+            ) : records.length === 0 ? (
+              <div className="text-center py-16">
+                <Star size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+                <p className="text-sm text-text-muted">{t('golden.noRecords')}</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border-default">
+                {records.map((rec) => (
+                  <GoldenRecordRow
+                    key={rec.uuid}
+                    record={rec}
+                    expanded={expandedId === rec.uuid}
+                    onToggle={() => setExpandedId(expandedId === rec.uuid ? null : rec.uuid)}
+                    onDelete={() => deleteMutation.mutate(rec.uuid)}
+                    deleting={deleteMutation.isPending}
+                  />
+                ))}
+              </div>
+            )
           ) : (
-            <div className="divide-y divide-border-default">
-              {records.map((rec) => (
-                <GoldenRecordRow
-                  key={rec.uuid}
-                  record={rec}
-                  expanded={expandedId === rec.uuid}
-                  onToggle={() => setExpandedId(expandedId === rec.uuid ? null : rec.uuid)}
-                  onDelete={() => deleteMutation.mutate(rec.uuid)}
-                  deleting={deleteMutation.isPending}
-                />
-              ))}
-            </div>
+            /* Browse Executions sub-tab */
+            loadingBrowse ? (
+              <div className="flex justify-center py-12">
+                <Loader2 size={20} className="animate-spin text-neon-lime" />
+              </div>
+            ) : !browseData?.items?.length ? (
+              <div className="text-center py-16">
+                <Search size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
+                <p className="text-sm text-text-muted">{t('golden.noExecutions')}</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border-default">
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnFunction')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnStatus')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnDuration')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnTime')}</th>
+                        <th className="text-center px-5 py-3 text-xs font-medium text-text-muted">{t('golden.register')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {browseData.items.map((exec) => {
+                        const isGolden = goldenExecUuids.has(exec.uuid) || registeredUuids.has(exec.uuid);
+                        return (
+                          <tr key={exec.span_id} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
+                            <td className="px-5 py-3.5 text-sm text-text-primary">{exec.function_name}</td>
+                            <td className="px-5 py-3.5">
+                              <span className={cn(
+                                'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
+                                exec.status === 'SUCCESS' ? 'bg-neon-lime-dim text-neon-lime' :
+                                exec.status === 'ERROR' ? 'bg-neon-red-dim text-neon-red' :
+                                'bg-neon-cyan-dim text-neon-cyan'
+                              )}>
+                                {exec.status}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-sm text-text-secondary">{exec.duration_ms}ms</td>
+                            <td className="px-5 py-3.5 text-xs text-text-muted">
+                              {new Date(exec.timestamp_utc).toLocaleString()}
+                            </td>
+                            <td className="px-5 py-3.5 text-center">
+                              {isGolden ? (
+                                <CheckCircle2 size={16} className="inline text-neon-lime" />
+                              ) : (
+                                <button
+                                  onClick={() => quickRegisterMutation.mutate(exec.uuid)}
+                                  disabled={quickRegisterMutation.isPending}
+                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40"
+                                  title={t('golden.register')}
+                                >
+                                  <Plus size={14} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Pagination */}
+                <div className="px-5 py-3 border-t border-border-default flex items-center justify-between">
+                  <span className="text-xs text-text-muted">
+                    {browseData.total} {t('golden.executionsCount')}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBrowsePage((p) => Math.max(0, p - 1))}
+                      disabled={browsePage === 0}
+                      className="px-3 py-1.5 text-xs text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
+                    >
+                      {t('golden.prev')}
+                    </button>
+                    <span className="text-xs text-text-muted">
+                      {t('golden.page')} {browsePage + 1}
+                    </span>
+                    <button
+                      onClick={() => setBrowsePage((p) => p + 1)}
+                      disabled={(browsePage + 1) * BROWSE_PAGE_SIZE >= browseData.total}
+                      className="px-3 py-1.5 text-xs text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors"
+                    >
+                      {t('golden.next')}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )
           )}
         </div>
       )}
@@ -352,86 +534,143 @@ export default function GoldenPage() {
               <Loader2 size={20} className="animate-spin text-neon-lime" />
             </div>
           ) : diverseRecData && diverseRecData.candidates.length > 0 ? (
-            <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
-              <div className="px-5 py-3 border-b border-border-default">
-                <h3 className="text-sm font-medium text-text-secondary">
-                  Candidates for <span className="text-neon-lime">{diverseRecData.function_name}</span>
-                </h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border-default">
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Span ID</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Type</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.diversityScore')}</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.distanceToGolden')}</th>
-                      <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
-                      <th className="text-center px-5 py-3 text-xs font-medium text-text-muted">{t('golden.register')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {diverseRecData.candidates.map((c) => (
-                      <tr key={c.uuid} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
-                        <td className="px-5 py-3.5 text-sm text-text-primary font-mono">{(c.span_id || c.uuid).slice(0, 12)}...</td>
-                        <td className="px-5 py-3.5">
-                          <span className={cn(
-                            'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
-                            c.candidate_type === 'DISCOVERY'
-                              ? 'bg-[rgba(255,159,67,0.15)] text-neon-orange'
-                              : 'bg-neon-cyan-dim text-neon-cyan'
-                          )}>
-                            {c.candidate_type === 'DISCOVERY' ? t('analysis.discovery') : t('analysis.steady')}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-sm text-text-secondary">{c.duration_ms}ms</td>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
-                              <div
-                                className={cn(
-                                  'h-full rounded-full',
-                                  c.candidate_type === 'DISCOVERY' ? 'bg-neon-orange' : 'bg-neon-cyan'
-                                )}
-                                style={{ width: `${Math.min(c.score * 100, 100)}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-text-muted font-mono">{(c.score * 100).toFixed(0)}%</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3.5 text-xs text-text-muted font-mono">{c.distance_to_nearest_golden.toFixed(4)}</td>
-                        <td className="px-5 py-3.5 text-xs text-text-muted">{timeAgo(c.timestamp_utc)}</td>
-                        <td className="px-5 py-3.5 text-center">
-                          {registeredUuids.has(c.uuid) ? (
-                            <CheckCircle2 size={16} className="inline text-neon-lime" />
-                          ) : (
-                            <button
-                              onClick={() => quickRegisterMutation.mutate(c.uuid)}
-                              disabled={quickRegisterMutation.isPending}
-                              className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-lime/50"
-                              aria-label={t('golden.register')}
-                              title={t('golden.register')}
-                            >
-                              <Plus size={14} />
-                            </button>
-                          )}
-                        </td>
+            <>
+              {/* Golden 0개 배너 */}
+              {diverseRecData.golden_count === 0 && (
+                <div className="flex items-center gap-2 bg-neon-orange/10 border border-neon-orange/20 rounded-[12px] px-4 py-2.5">
+                  <Info size={14} className="text-neon-orange shrink-0" />
+                  <p className="text-xs text-neon-orange">
+                    {t('golden.noGoldenBanner')}
+                  </p>
+                </div>
+              )}
+              <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
+                <div className="px-5 py-3 border-b border-border-default flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-text-secondary">
+                    {t('golden.candidatesFor')} <span className="text-neon-lime">{diverseRecData.function_name}</span>
+                    <span className="ml-2 text-xs text-text-muted">
+                      ({diverseRecData.golden_count} {t('golden.goldenPoint').toLowerCase()})
+                    </span>
+                  </h3>
+                  {selectedUuids.size > 0 && (
+                    <button
+                      onClick={handleBatchRegister}
+                      disabled={batchRegistering}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+                    >
+                      {batchRegistering ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Plus size={12} />
+                      )}
+                      {t('golden.registerSelected')} ({selectedUuids.size})
+                    </button>
+                  )}
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border-default">
+                        <th className="w-10 px-3 py-3">
+                          <input
+                            type="checkbox"
+                            checked={diverseRecData.candidates.filter((c) => !registeredUuids.has(c.uuid)).length > 0 && diverseRecData.candidates.filter((c) => !registeredUuids.has(c.uuid)).every((c) => selectedUuids.has(c.uuid))}
+                            onChange={() => toggleSelectAll(diverseRecData.candidates)}
+                            className="rounded border-border-default accent-neon-lime"
+                          />
+                        </th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnSpanId')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnType')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnDuration')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.diversityScore')}</th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">
+                          {diverseRecData.golden_count > 0 ? t('analysis.distanceToGolden') : t('golden.avgDistance')}
+                        </th>
+                        <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnTime')}</th>
+                        <th className="text-center px-5 py-3 text-xs font-medium text-text-muted">{t('golden.register')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {diverseRecData.candidates.map((c) => {
+                        const isRegistered = registeredUuids.has(c.uuid);
+                        return (
+                          <tr key={c.uuid} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
+                            <td className="w-10 px-3 py-3.5">
+                              {isRegistered ? (
+                                <CheckCircle2 size={16} className="text-neon-lime mx-auto" />
+                              ) : (
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUuids.has(c.uuid)}
+                                  onChange={() => toggleSelect(c.uuid)}
+                                  className="rounded border-border-default accent-neon-lime"
+                                />
+                              )}
+                            </td>
+                            <td className="px-5 py-3.5 text-sm text-text-primary font-mono">{(c.span_id || c.uuid).slice(0, 12)}...</td>
+                            <td className="px-5 py-3.5">
+                              <span className={cn(
+                                'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
+                                c.candidate_type === 'DISCOVERY'
+                                  ? 'bg-[rgba(255,159,67,0.15)] text-neon-orange'
+                                  : 'bg-neon-cyan-dim text-neon-cyan'
+                              )}>
+                                {c.candidate_type === 'DISCOVERY' ? t('analysis.discovery') : t('analysis.steady')}
+                              </span>
+                            </td>
+                            <td className="px-5 py-3.5 text-sm text-text-secondary">{c.duration_ms}ms</td>
+                            <td className="px-5 py-3.5">
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
+                                  <div
+                                    className={cn(
+                                      'h-full rounded-full',
+                                      c.candidate_type === 'DISCOVERY' ? 'bg-neon-orange' : 'bg-neon-cyan'
+                                    )}
+                                    style={{ width: `${Math.min(c.score * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs text-text-muted font-mono">{(c.score * 100).toFixed(0)}%</span>
+                              </div>
+                            </td>
+                            <td className="px-5 py-3.5 text-xs text-text-muted font-mono">
+                              {c.distance_to_nearest_golden < 0 ? t('golden.notApplicable') : c.distance_to_nearest_golden.toFixed(6)}
+                            </td>
+                            <td className="px-5 py-3.5 text-xs text-text-muted" title={c.timestamp_utc}>
+                              {c.timestamp_utc ? new Date(c.timestamp_utc).toLocaleString() : '-'}
+                            </td>
+                            <td className="px-5 py-3.5 text-center">
+                              {isRegistered ? (
+                                <CheckCircle2 size={16} className="inline text-neon-lime" />
+                              ) : (
+                                <button
+                                  onClick={() => quickRegisterMutation.mutate(c.uuid)}
+                                  disabled={quickRegisterMutation.isPending}
+                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+                                  aria-label={t('golden.register')}
+                                  title={t('golden.register')}
+                                >
+                                  <Plus size={14} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            </>
           ) : recFn && !loadingDiverseRec ? (
             <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
               <BarChart3 size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
-              <p className="text-sm text-text-muted">No candidates found for <span className="text-text-primary">{recFn}</span></p>
+              <p className="text-sm text-text-muted">{t('golden.noRecords')}</p>
             </div>
           ) : fnNames.length === 0 && !loadingDiverseRec ? (
             <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
               <Sparkles size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
-              <p className="text-sm text-text-muted">No functions with executions found</p>
+              <p className="text-sm text-text-muted">{t('golden.noFunctions')}</p>
             </div>
           ) : null}
         </div>
@@ -473,7 +712,21 @@ function CoverageTab({
   setCoverageFn: (v: string) => void;
 }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [hovered, setHovered] = useState<ScatterPoint | null>(null);
+  const [clickedPoint, setClickedPoint] = useState<ScatterPoint | null>(null);
+  const [covRegistered, setCovRegistered] = useState<Set<string>>(new Set());
+
+  const coverageRegisterMutation = useMutation({
+    mutationFn: (uuid: string) => cacheService.goldenRegister(uuid),
+    onSuccess: (_data, uuid) => {
+      setCovRegistered((prev) => new Set(prev).add(uuid));
+      setClickedPoint(null);
+      queryClient.invalidateQueries({ queryKey: ['goldenCoverage'] });
+      queryClient.invalidateQueries({ queryKey: ['golden'] });
+      queryClient.invalidateQueries({ queryKey: ['goldenStats'] });
+    },
+  });
 
   return (
     <div className="space-y-4">
@@ -495,7 +748,7 @@ function CoverageTab({
             'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
           )}
         >
-          <option value="">All Functions</option>
+          <option value="">{t('golden.allFilter')}</option>
           {fnNames.map((fn) => (
             <option key={fn} value={fn}>{fn}</option>
           ))}
@@ -535,11 +788,11 @@ function CoverageTab({
               </div>
             </div>
             <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
-              <p className="text-xs text-text-muted mb-1">Total Executions</p>
+              <p className="text-xs text-text-muted mb-1">{t('golden.executionsCount')}</p>
               <p className="text-xl font-bold text-neon-cyan">{formatNumber(data.total_executions)}</p>
             </div>
             <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
-              <p className="text-xs text-text-muted mb-1">Golden Count</p>
+              <p className="text-xs text-text-muted mb-1">{t('golden.goldenRecords')}</p>
               <p className="text-xl font-bold text-neon-lime">{formatNumber(data.golden_count)}</p>
             </div>
           </div>
@@ -562,7 +815,12 @@ function CoverageTab({
               <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
                 <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.coverage')}</h3>
                 <div className="relative">
-                  <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ maxHeight: 420 }}>
+                  <svg
+                    viewBox={`0 0 ${w} ${h}`}
+                    className="w-full"
+                    style={{ maxHeight: 420 }}
+                    onClick={() => setClickedPoint(null)}
+                  >
                     {/* Grid */}
                     {[0.25, 0.5, 0.75].map((pct) => (
                       <line key={`h-${pct}`} x1={pad} y1={pad + pct * (h - 2 * pad)} x2={w - pad} y2={pad + pct * (h - 2 * pad)} stroke="#222" strokeWidth="0.5" />
@@ -571,15 +829,19 @@ function CoverageTab({
                     {data.scatter.filter((p) => !p.is_golden).map((pt, i) => {
                       const cx = pad + ((pt.x - xMin) / xRange) * (w - 2 * pad);
                       const cy = pad + ((pt.y - yMin) / yRange) * (h - 2 * pad);
+                      const isClicked = clickedPoint?.span_id === pt.span_id;
+                      const isNewlyRegistered = pt.uuid ? covRegistered.has(pt.uuid) : false;
                       return (
                         <circle
                           key={`e-${i}`}
-                          cx={cx} cy={cy} r={3.5}
-                          fill={COVERAGE_COLORS.execution} fillOpacity={0.5}
-                          stroke={hovered?.span_id === pt.span_id ? '#fff' : 'none'}
-                          strokeWidth={1}
+                          cx={cx} cy={cy} r={isClicked ? 5 : 3.5}
+                          fill={isNewlyRegistered ? COVERAGE_COLORS.golden : COVERAGE_COLORS.execution}
+                          fillOpacity={isClicked || isNewlyRegistered ? 0.9 : 0.5}
+                          stroke={isClicked ? '#fff' : hovered?.span_id === pt.span_id ? '#fff' : 'none'}
+                          strokeWidth={isClicked ? 2 : 1}
                           onMouseEnter={() => setHovered(pt)}
                           onMouseLeave={() => setHovered(null)}
+                          onClick={(e) => { e.stopPropagation(); if (!isNewlyRegistered) setClickedPoint(isClicked ? null : pt); }}
                           className="cursor-pointer"
                         />
                       );
@@ -603,22 +865,50 @@ function CoverageTab({
                       );
                     })}
                   </svg>
-                  {hovered && (
-                    <div className="absolute top-2 right-2 bg-bg-elevated border border-border-default rounded-[12px] px-4 py-3 text-xs space-y-1 pointer-events-none">
-                      <p className="font-medium text-text-primary">{hovered.is_golden ? 'Golden' : 'Execution'}</p>
-                      <p className="text-text-muted">{hovered.function_name}</p>
-                      <p className="text-text-muted">ID: {hovered.span_id.slice(0, 16)}...</p>
+                  {/* Tooltip / action panel */}
+                  {(hovered || clickedPoint) && (
+                    <div className={cn(
+                      'absolute top-2 right-2 bg-bg-elevated border border-border-default rounded-[12px] px-4 py-3 text-xs space-y-1',
+                      clickedPoint ? '' : 'pointer-events-none'
+                    )}>
+                      {(() => {
+                        const pt = clickedPoint || hovered!;
+                        return (
+                          <>
+                            <p className="font-medium text-text-primary">{pt.is_golden ? t('golden.goldenPoint') : t('golden.executionPoint')}</p>
+                            <p className="text-text-muted">{pt.function_name}</p>
+                            <p className="text-text-muted">ID: {pt.span_id.slice(0, 16)}...</p>
+                            {pt.duration_ms > 0 && (
+                              <p className="text-text-muted">{pt.duration_ms}ms</p>
+                            )}
+                            {clickedPoint && !clickedPoint.is_golden && clickedPoint.uuid && !covRegistered.has(clickedPoint.uuid) && (
+                              <button
+                                onClick={() => coverageRegisterMutation.mutate(clickedPoint.uuid!)}
+                                disabled={coverageRegisterMutation.isPending}
+                                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[8px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] w-full justify-center"
+                              >
+                                {coverageRegisterMutation.isPending ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  <Plus size={12} />
+                                )}
+                                {t('golden.registerAsGolden')}
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
                 <div className="flex gap-4 mt-4 justify-center">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: COVERAGE_COLORS.execution }} />
-                    <span className="text-[10px] text-text-muted">Execution</span>
+                    <span className="text-[10px] text-text-muted">{t('golden.executionPoint')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: COVERAGE_COLORS.golden }} />
-                    <span className="text-[10px] text-text-muted">Golden</span>
+                    <span className="text-[10px] text-text-muted">{t('golden.goldenPoint')}</span>
                   </div>
                 </div>
               </div>
@@ -683,11 +973,11 @@ function GoldenRecordRow({
         <div className="px-5 pb-4 pt-1 ml-8 space-y-2">
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <span className="text-text-muted">UUID:</span>
+              <span className="text-text-muted">{t('golden.uuidLabel')}</span>
               <span className="ml-2 text-text-primary font-mono">{record.uuid}</span>
             </div>
             <div>
-              <span className="text-text-muted">Execution UUID:</span>
+              <span className="text-text-muted">{t('golden.executionUuidLabel')}</span>
               <span className="ml-2 text-text-primary font-mono">{record.execution_uuid}</span>
             </div>
           </div>
@@ -712,7 +1002,7 @@ function GoldenRecordRow({
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neon-red hover:bg-neon-red-dim rounded-[8px] transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-red/50"
             >
               <Trash2 size={12} />
-              {deleting ? 'Deleting...' : t('golden.delete')}
+              {deleting ? t('golden.deleting') : t('golden.delete')}
             </button>
           </div>
         </div>

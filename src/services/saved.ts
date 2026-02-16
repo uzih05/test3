@@ -6,6 +6,7 @@ export const savedService = {
     source_type?: string;
     function_name?: string;
     search?: string;
+    bookmarked?: boolean;
     limit?: number;
     offset?: number;
   }) => api.get<PaginatedResponse<SavedResponse>>('/api/v1/saved/', params),
@@ -16,6 +17,9 @@ export const savedService = {
     source_type: string;
     function_name?: string;
   }) => api.post<{ id: string; status: string }>('/api/v1/saved/', data),
+
+  toggleBookmark: (id: string) =>
+    api.patch<{ id: string; is_bookmarked: boolean }>(`/api/v1/saved/${id}/bookmark`),
 
   delete: (id: string) =>
     api.delete<{ status: string }>(`/api/v1/saved/${id}`),

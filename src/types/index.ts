@@ -265,6 +265,7 @@ export interface ErrorTrend {
 export interface ScatterPoint {
   x: number;
   y: number;
+  uuid?: string;
   span_id: string;
   function_name: string;
   status: string;
@@ -329,5 +330,7 @@ export interface SavedResponse {
   answer: string;
   source_type: string;
   function_name: string | null;
+  is_bookmarked: boolean;
   created_at: string;
+  locked: boolean;
 }

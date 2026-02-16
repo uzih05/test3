@@ -13,7 +13,7 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle }: HeaderProps) {
   const { theme, setTheme } = useThemeStore();
-  const { language, setLanguage } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const [showPalette, setShowPalette] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
 
@@ -44,7 +44,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
         <button
           onClick={onMenuToggle}
           className="lg:hidden p-2 text-text-muted hover:text-text-primary"
-          aria-label="Toggle menu"
+          aria-label={t('accessibility.toggleMenu')}
         >
           <Menu size={22} />
         </button>
@@ -71,7 +71,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
           <button
             onClick={nextTheme}
             className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card"
-            aria-label={`Theme: ${theme}`}
+            aria-label={t('accessibility.toggleTheme')}
           >
             <ThemeIcon size={18} />
           </button>
@@ -81,7 +81,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
               className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card flex items-center gap-1"
-              aria-label="Change language"
+              aria-label={t('accessibility.toggleLanguage')}
             >
               <Globe size={18} />
               <span className="text-xs font-medium hidden sm:inline">{langLabels[language]}</span>

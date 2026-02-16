@@ -93,7 +93,7 @@ export default function HealerPage() {
         <h1 className="text-xl font-bold text-text-primary mb-6">{t('healer.title')}</h1>
         <div className="bg-bg-card border border-neon-orange/30 rounded-[20px] p-8 text-center card-shadow">
           <KeyRound size={32} className="mx-auto mb-4 text-neon-orange" />
-          <h3 className="text-lg font-semibold text-text-primary mb-2">OpenAI API Key Required</h3>
+          <h3 className="text-lg font-semibold text-text-primary mb-2">{t('healer.apiKeyRequired')}</h3>
           <p className="text-sm text-text-muted max-w-md mx-auto">{t('healer.noOpenaiKey')}</p>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function HealerPage() {
                 type="text"
                 value={functionFilter}
                 onChange={(e) => setFunctionFilter(e.target.value)}
-                placeholder="Filter functions..."
+                placeholder={t('healer.filterPlaceholder')}
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-sm text-text-primary placeholder:text-text-muted',
@@ -158,7 +158,7 @@ export default function HealerPage() {
             </div>
             {/* Lookback slider */}
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-text-muted">Lookback:</span>
+              <span className="text-[10px] text-text-muted">{t('healer.lookback')}</span>
               <input
                 type="range" min={5} max={1440} step={5}
                 value={lookback}
@@ -175,7 +175,7 @@ export default function HealerPage() {
               onClick={handleSelectAll}
               className="text-xs text-neon-lime hover:underline mb-3"
             >
-              {checkedFunctions.size === functions.length ? 'Deselect All' : 'Select All'}
+              {checkedFunctions.size === functions.length ? t('healer.deselectAll') : t('healer.selectAll')}
             </button>
           )}
 
@@ -185,7 +185,7 @@ export default function HealerPage() {
               <Loader2 size={20} className="animate-spin text-neon-lime" />
             </div>
           ) : functions.length === 0 ? (
-            <div className="text-center py-8 text-sm text-text-muted">No functions with errors</div>
+            <div className="text-center py-8 text-sm text-text-muted">{t('healer.noFunctions')}</div>
           ) : (
             <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
               {functions.map((fn) => (
@@ -214,7 +214,7 @@ export default function HealerPage() {
                     <div>
                       <h3 className="text-sm font-semibold text-text-primary">{selectedFunction}</h3>
                       <p className="text-xs text-text-muted mt-0.5">
-                        Lookback: {lookback} minutes
+                        {t('healer.lookback')} {lookback} {t('healer.minutes')}
                       </p>
                     </div>
                     <button
@@ -243,7 +243,7 @@ export default function HealerPage() {
               {!selectedFunction && (
                 <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
                   <Sparkles size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
-                  <p className="text-sm text-text-muted">Select a function from the left to diagnose</p>
+                  <p className="text-sm text-text-muted">{t('healer.selectFunction')}</p>
                 </div>
               )}
             </>
@@ -252,7 +252,7 @@ export default function HealerPage() {
               {/* Batch diagnose button */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-text-secondary">
-                  {checkedFunctions.size} selected
+                  {checkedFunctions.size} {t('healer.selected')}
                 </span>
                 <button
                   onClick={() => batchMutation.mutate([...checkedFunctions])}
@@ -277,7 +277,7 @@ export default function HealerPage() {
                 <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
                   <div className="flex items-center gap-3">
                     <Loader2 size={16} className="animate-spin text-neon-lime" />
-                    <span className="text-sm text-text-secondary">Diagnosing {checkedFunctions.size} functions...</span>
+                    <span className="text-sm text-text-secondary">{t('healer.diagnosing')} {checkedFunctions.size} functions...</span>
                   </div>
                   <div className="mt-3 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
                     <div className="h-full bg-neon-lime rounded-full animate-pulse" style={{ width: '60%' }} />
@@ -340,6 +340,7 @@ function FunctionItem({
   onSelect: () => void;
   onCheck: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       onClick={mode === 'single' ? onSelect : onCheck}
@@ -361,7 +362,7 @@ function FunctionItem({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-text-primary truncate">{fn.function_name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] text-neon-red font-medium">{fn.error_count} errors</span>
+          <span className="text-[10px] text-neon-red font-medium">{fn.error_count} {t('healer.errorCount')}</span>
           <span className="text-[10px] text-text-muted">{timeAgo(fn.last_error)}</span>
         </div>
       </div>
@@ -385,6 +386,7 @@ function DiagnosisCard({
   onCopy: (text: string) => void;
   isPro?: boolean;
 }) {
+  const { t } = useTranslation();
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -409,7 +411,7 @@ function DiagnosisCard({
     <div className="space-y-4">
       {/* Diagnosis */}
       <div>
-        <p className="text-xs text-text-muted mb-1.5">Diagnosis</p>
+        <p className="text-xs text-text-muted mb-1.5">{t('healer.diagnosis')}</p>
         <div className="bg-bg-elevated rounded-[12px] p-4 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
           {result.diagnosis}
         </div>
@@ -419,7 +421,7 @@ function DiagnosisCard({
       {result.suggested_fix && (
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-text-muted">Suggested Fix</p>
+            <p className="text-xs text-text-muted">{t('healer.suggestedFix')}</p>
             <div className="flex items-center gap-2">
               {isPro ? (
                 <button
@@ -454,7 +456,7 @@ function DiagnosisCard({
       {result.status === 'no_errors' && (
         <div className="flex items-center gap-2 px-4 py-3 bg-neon-cyan-dim rounded-[12px] text-sm text-neon-cyan">
           <CheckCircle2 size={16} />
-          No errors found in the lookback period
+          {t('healer.noErrors')}
         </div>
       )}
     </div>

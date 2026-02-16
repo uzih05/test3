@@ -26,17 +26,22 @@ export default function AskAiPage() {
 
   const [question, setQuestion] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('');
-  const [result, setResult] = useState<AskAiResponse | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [result, setResult] = useState<AskAiResponse & { saved_id?: string } | null>(null);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const isPro = user?.plan === 'pro';
 
   const { data: planInfo, refetch: refetchPlan } = useQuery({
     queryKey: ['planInfo'],
     queryFn: () => planService.info(),
+    enabled: !isPro,
+    staleTime: 10 * 60_000,
   });
 
   const { data: functionsData } = useQuery({
     queryKey: ['functionsList'],
     queryFn: () => functionsService.list(),
+    staleTime: 30 * 60_000,
   });
 
   const functions = functionsData?.items || [];
@@ -45,26 +50,20 @@ export default function AskAiPage() {
     mutationFn: () => askAiService.ask(question, selectedFunction || undefined),
     onSuccess: (data) => {
       setResult(data);
-      setSaved(false);
+      setBookmarked(false);
       refetchPlan();
     },
   });
 
-  const saveMutation = useMutation({
+  const bookmarkMutation = useMutation({
     mutationFn: () => {
-      if (!result) throw new Error('No result');
-      return savedService.save({
-        question: result.question,
-        answer: result.answer,
-        source_type: 'ask_ai',
-        function_name: result.function_name || undefined,
-      });
+      if (!result?.saved_id) throw new Error('No saved_id');
+      return savedService.toggleBookmark(result.saved_id);
     },
-    onSuccess: () => setSaved(true),
+    onSuccess: (data) => setBookmarked(data.is_bookmarked),
   });
 
   const hasOpenAiKey = user?.has_openai_key;
-  const isPro = user?.plan === 'pro';
   const canUseAi = planInfo?.can_use_ai !== false;
 
   return (
@@ -157,7 +156,7 @@ export default function AskAiPage() {
         <div className="flex items-center gap-3 p-4 rounded-xl bg-neon-red/10 border border-neon-red/30">
           <AlertTriangle size={20} className="text-neon-red shrink-0" />
           <p className="text-sm text-neon-red">
-            {(askMutation.error as { message?: string })?.message || 'Failed to get response'}
+            {(askMutation.error as { message?: string })?.message || t('ask.failedResponse')}
           </p>
         </div>
       )}
@@ -198,24 +197,20 @@ export default function AskAiPage() {
                 </span>
               )}
             </div>
-            {isPro ? (
+            {result.saved_id && (
               <button
-                onClick={() => saveMutation.mutate()}
-                disabled={saved || saveMutation.isPending}
+                onClick={() => bookmarkMutation.mutate()}
+                disabled={bookmarkMutation.isPending}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-                  saved
+                  bookmarked
                     ? 'bg-neon-lime/10 text-neon-lime'
                     : 'bg-bg-secondary text-text-muted hover:text-text-primary hover:bg-bg-card'
                 )}
               >
-                <Bookmark size={14} />
-                {saved ? t('ask.saved', 'Saved') : t('common.save', 'Save')}
+                <Bookmark size={14} className={bookmarked ? 'fill-current' : ''} />
+                {bookmarked ? t('ask.bookmarked', 'Bookmarked') : t('ask.bookmark', 'Bookmark')}
               </button>
-            ) : (
-              <span className="text-[10px] text-text-muted bg-bg-secondary px-2 py-1 rounded-md uppercase">
-                Pro
-              </span>
             )}
           </div>
         </div>

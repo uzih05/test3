@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { X, Plus } from 'lucide-react';
 import { widgetsService } from '@/services/widgets';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 interface WidgetPickerProps {
@@ -12,6 +13,7 @@ interface WidgetPickerProps {
 }
 
 export function WidgetPicker({ existingTypes, onAdd, onClose }: WidgetPickerProps) {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ['widgetCatalog'],
     queryFn: () => widgetsService.catalog(),
@@ -25,7 +27,7 @@ export function WidgetPicker({ existingTypes, onAdd, onClose }: WidgetPickerProp
       <div className="relative w-full max-w-md bg-bg-card border border-border-default rounded-[20px] card-shadow overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
-          <h3 className="text-lg font-semibold text-text-primary">Add Widget</h3>
+          <h3 className="text-lg font-semibold text-text-primary">{t('dashboard.addWidget')}</h3>
           <button onClick={onClose} className="p-1 text-text-muted hover:text-text-primary">
             <X size={18} />
           </button>
@@ -50,11 +52,11 @@ export function WidgetPicker({ existingTypes, onAdd, onClose }: WidgetPickerProp
                 <div>
                   <p className="text-sm font-medium">{item.name}</p>
                   <p className="text-xs text-text-muted mt-0.5">
-                    Sizes: {item.sizes.join(', ')}
+                    {t('dashboard.sizes')}: {item.sizes.join(', ')}
                   </p>
                 </div>
                 {!exists && <Plus size={16} className="text-neon-lime shrink-0" />}
-                {exists && <span className="text-xs text-text-muted">Added</span>}
+                {exists && <span className="text-xs text-text-muted">{t('dashboard.added')}</span>}
               </button>
             );
           })}

@@ -12,10 +12,10 @@ import { formatDuration, timeAgo, cn } from '@/lib/utils';
 const LIMIT_OPTIONS = [20, 50, 100];
 
 const STATUS_TABS = [
-  { value: '', label: 'All' },
-  { value: 'SUCCESS', label: 'Success' },
-  { value: 'ERROR', label: 'Error' },
-  { value: 'PARTIAL', label: 'Partial' },
+  { value: '', labelKey: 'allFilter' },
+  { value: 'SUCCESS', labelKey: 'successFilter' },
+  { value: 'ERROR', labelKey: 'errorFilter' },
+  { value: 'PARTIAL', labelKey: 'partialFilter' },
 ];
 
 export default function TracesPage() {
@@ -52,7 +52,7 @@ export default function TracesPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by function or trace ID..."
+            placeholder={t('traces.searchPlaceholder')}
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
@@ -74,7 +74,7 @@ export default function TracesPage() {
                   : 'text-text-muted hover:text-text-primary'
               )}
             >
-              {tab.label}
+              {t(`traces.${tab.labelKey}`)}
             </button>
           ))}
         </div>
@@ -104,11 +104,11 @@ export default function TracesPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Root Function</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden sm:table-cell">Spans</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('traces.columnFunction')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('traces.columnStatus')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('traces.columnDuration')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden sm:table-cell">{t('traces.columnSpans')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('traces.columnTime')}</th>
               </tr>
             </thead>
             <tbody>

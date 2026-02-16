@@ -1,16 +1,18 @@
 'use client';
 
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 const MODES = [
-  { value: 'stroke-only' as const, label: 'Line' },
-  { value: 'gradient' as const, label: 'Gradient' },
-  { value: 'solid' as const, label: 'Solid' },
+  { value: 'stroke-only' as const, labelKey: 'dashboard.fillLine' },
+  { value: 'gradient' as const, labelKey: 'dashboard.fillGradient' },
+  { value: 'solid' as const, labelKey: 'dashboard.fillSolid' },
 ];
 
 export function FillModeSelector() {
   const { fillMode, setFillMode } = useDashboardStore();
+  const { t } = useTranslation();
 
   return (
     <div className="flex gap-1 bg-bg-elevated rounded-[10px] p-1">
@@ -25,7 +27,7 @@ export function FillModeSelector() {
               : 'text-text-muted hover:text-text-primary'
           )}
         >
-          {m.label}
+          {t(m.labelKey)}
         </button>
       ))}
     </div>

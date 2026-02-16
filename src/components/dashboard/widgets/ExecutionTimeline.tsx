@@ -3,9 +3,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/services/analytics';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useTranslation } from '@/lib/i18n';
 import { SurferChart } from '@/components/charts/SurferChart';
 
 export function ExecutionTimeline() {
+  const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
 
   const bucket = timeRangeMinutes <= 60 ? 5 : timeRangeMinutes <= 360 ? 15 : timeRangeMinutes <= 1440 ? 60 : 360;
@@ -16,7 +18,7 @@ export function ExecutionTimeline() {
   });
 
   if (isLoading || !data) {
-    return <div className="h-[220px] flex items-center justify-center animate-pulse text-text-muted text-sm">Loading...</div>;
+    return <div className="h-[220px] flex items-center justify-center animate-pulse text-text-muted text-sm">{t('common.loading')}</div>;
   }
 
   const chartData = data.map((entry) => ({
@@ -34,9 +36,9 @@ export function ExecutionTimeline() {
       color3="#00FFCC"
       height={220}
       legend={[
-        { key: 'value', label: 'Success', color: '#DFFF00' },
-        { key: 'value2', label: 'Error', color: '#FF4D6A' },
-        { key: 'value3', label: 'Cache Hit', color: '#00FFCC' },
+        { key: 'value', label: t('executions.success'), color: '#DFFF00' },
+        { key: 'value2', label: t('executions.error'), color: '#FF4D6A' },
+        { key: 'value3', label: t('executions.cacheHit'), color: '#00FFCC' },
       ]}
     />
   );
