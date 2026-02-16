@@ -41,6 +41,7 @@ export default function ProjectsPage() {
   };
 
   const [bannerVisible, setBannerVisible] = useState(false);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<'self_hosted' | 'wcs_cloud'>('self_hosted');
   const [formName, setFormName] = useState('');
@@ -127,6 +128,7 @@ export default function ProjectsPage() {
       sessionStorage.setItem('project_selected', 'true');
       router.push('/');
     } else {
+      setActivatingId(conn.id);
       activateMutation.mutate(conn.id);
     }
   };
@@ -236,7 +238,7 @@ export default function ProjectsPage() {
               <button
                 key={conn.id}
                 onClick={() => handleSelect(conn)}
-                disabled={activateMutation.isPending}
+                disabled={activatingId === conn.id && activateMutation.isPending}
                 className={cn(
                   'w-full text-left bg-bg-card border rounded-[20px] p-5 transition-[border-color,background-color] duration-200 group',
                   conn.is_active
@@ -458,11 +460,11 @@ export default function ProjectsPage() {
       {/* Floating Quick Start banner */}
       {bannerVisible && (
         <div
-          className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-3rem)] max-w-lg"
+          className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-3rem)] max-w-lg pointer-events-none"
           style={{ animation: 'banner-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
         >
           <div
-            className="bg-bg-card border-2 rounded-[20px] card-shadow p-5 relative overflow-hidden"
+            className="bg-bg-card border-2 rounded-[20px] card-shadow p-5 relative overflow-hidden pointer-events-auto"
             style={{ animation: 'banner-pulse-border 3s ease-in-out infinite, banner-glow 3s ease-in-out infinite', borderColor: 'rgba(0, 255, 204, 0.3)' }}
           >
             {/* Gradient accent bar */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Database,
@@ -22,9 +22,10 @@ import { analyticsService } from '@/services/analytics';
 import { semanticService } from '@/services/semantic';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTranslation } from '@/lib/i18n';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
-import type { DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
+import type { CacheAnalytics, DriftItem, DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
 
 type TabKey = 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
 
@@ -36,190 +37,67 @@ const DRIFT_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 // OpenAI GPT-4o pricing (2026)
-const BLENDED_RATE = 5.0; // $ per 1M tokens (input:output ≈ 60:40)
+const BLENDED_RATE = 5.0; // $ per 1M tokens (input:output ~ 60:40)
 
-export default function AnalysisPage() {
-  const { t } = useTranslation();
-  const { timeRangeMinutes } = useDashboardStore();
+const STATUS_COLORS: Record<string, string> = {
+  SUCCESS: '#00FFCC',
+  ERROR: '#FF4D6A',
+  CACHE_HIT: '#DFFF00',
+};
 
-  const [activeTab, setActiveTab] = useState<TabKey>('cacheReport');
-  const [simFn, setSimFn] = useState('');
-  const [simText, setSimText] = useState('');
-  const [simResult, setSimResult] = useState<DriftSimulationResult | null>(null);
-  const [scatterFnFilter, setScatterFnFilter] = useState<string>('');
-  const [bottleneckFnFilter, setBottleneckFnFilter] = useState<string>('');
+// ========================
+// Prop Interfaces
+// ========================
 
-  // Cache analytics
-  const { data: analytics, isLoading: loadingAnalytics } = useQuery({
-    queryKey: ['cacheAnalytics', timeRangeMinutes],
-    queryFn: () => cacheService.analytics(timeRangeMinutes),
-  });
+interface CacheReportTabProps {
+  analytics: CacheAnalytics | undefined;
+  loading: boolean;
+}
 
-  // Token usage
-  const { data: tokenData } = useQuery({
-    queryKey: ['tokenUsage'],
-    queryFn: () => analyticsService.tokens(),
-    enabled: activeTab === 'costSavings',
-  });
+interface CostSavingsTabProps {
+  analytics: { has_data: boolean; cache_hit_rate: number; time_saved_ms: number; cache_hit_count: number; total_executions: number } | undefined;
+  costCalc: { tokensSaved: number; costSaved: number; avgTokensPerExec: number } | null;
+  loading: boolean;
+}
 
-  // KPI
-  const { data: kpiData } = useQuery({
-    queryKey: ['kpi', timeRangeMinutes],
-    queryFn: () => analyticsService.kpi(timeRangeMinutes),
-    enabled: activeTab === 'costSavings',
-  });
+interface InputScatterTabProps {
+  data: ScatterPoint[];
+  allFunctions: string[];
+  loading: boolean;
+  fnFilter: string;
+  setFnFilter: (v: string) => void;
+}
 
-  // Drift
-  const { data: driftData, isLoading: loadingDrift } = useQuery({
-    queryKey: ['driftSummary'],
-    queryFn: () => cacheService.driftSummary(),
-    enabled: activeTab === 'drift',
-  });
+interface BottleneckTabProps {
+  data: BottleneckCluster[];
+  loading: boolean;
+  fnFilter: string;
+  setFnFilter: (v: string) => void;
+}
 
-  const simulateMutation = useMutation({
-    mutationFn: () => cacheService.driftSimulate({ text: simText, function_name: simFn }),
-    onSuccess: (result) => setSimResult(result),
-  });
+interface ErrorClustersTabProps {
+  data: ErrorCluster[];
+  loading: boolean;
+}
 
-  // Semantic: Input Scatter (always fetch all, filter client-side)
-  const { data: scatterDataRaw, isLoading: loadingScatter } = useQuery({
-    queryKey: ['semanticScatter'],
-    queryFn: () => semanticService.scatter(undefined, 500),
-    enabled: activeTab === 'inputScatter',
-  });
-  const scatterData = scatterFnFilter
-    ? (scatterDataRaw || []).filter((d) => d.function_name === scatterFnFilter)
-    : scatterDataRaw;
-
-  // Semantic: Bottleneck
-  const { data: bottleneckData, isLoading: loadingBottleneck } = useQuery({
-    queryKey: ['semanticBottleneck', bottleneckFnFilter],
-    queryFn: () => semanticService.bottleneck(bottleneckFnFilter || undefined, 5),
-    enabled: activeTab === 'bottleneck',
-  });
-
-  // Semantic: Error Clusters
-  const { data: errorClusterData, isLoading: loadingErrorClusters } = useQuery({
-    queryKey: ['semanticErrorClusters'],
-    queryFn: () => semanticService.errorClusters(5),
-    enabled: activeTab === 'errorClusters',
-  });
-
-  const driftItems = driftData?.items || [];
-
-  // Cost savings calculations
-  const costCalc = (() => {
-    if (!analytics?.has_data) return null;
-    const totalTokens = tokenData?.total_tokens ?? 0;
-    const totalExec = kpiData?.total_executions ?? analytics.total_executions;
-    const avgTokensPerExec = totalExec > 0 ? totalTokens / totalExec : 0;
-    const tokensSaved = analytics.cache_hit_count * avgTokensPerExec;
-    const costSaved = (tokensSaved * BLENDED_RATE) / 1_000_000;
-    return { tokensSaved, costSaved, avgTokensPerExec };
-  })();
-
-  const tabs: { key: TabKey; labelKey: string }[] = [
-    { key: 'cacheReport', labelKey: 'analysis.cacheReport' },
-    { key: 'costSavings', labelKey: 'analysis.costSavings' },
-    { key: 'inputScatter', labelKey: 'analysis.inputScatter' },
-    { key: 'bottleneck', labelKey: 'analysis.bottleneck' },
-    { key: 'errorClusters', labelKey: 'analysis.errorClusters' },
-    { key: 'drift', labelKey: 'analysis.drift' },
-  ];
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-text-primary">{t('analysis.title')}</h1>
-        <div className="flex items-center gap-2">
-          <TimeRangeSelector />
-          <div className="flex gap-1 bg-bg-card rounded-[12px] p-1 border border-border-default">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={cn(
-                  'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-                  activeTab === tab.key ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
-                )}
-              >
-                {t(tab.labelKey)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* === Cache Report Tab === */}
-      {activeTab === 'cacheReport' && (
-        <CacheReportTab analytics={analytics} loading={loadingAnalytics} />
-      )}
-
-      {/* === Cost Savings Tab === */}
-      {activeTab === 'costSavings' && (
-        <CostSavingsTab
-          analytics={analytics}
-          costCalc={costCalc}
-          loading={loadingAnalytics}
-        />
-      )}
-
-      {/* === Input Scatter Tab === */}
-      {activeTab === 'inputScatter' && (
-        <InputScatterTab
-          data={scatterData || []}
-          allFunctions={[...new Set((scatterDataRaw || []).map((d) => d.function_name))].filter(Boolean)}
-          loading={loadingScatter}
-          fnFilter={scatterFnFilter}
-          setFnFilter={setScatterFnFilter}
-        />
-      )}
-
-      {/* === Bottleneck Tab === */}
-      {activeTab === 'bottleneck' && (
-        <BottleneckTab
-          data={bottleneckData || []}
-          loading={loadingBottleneck}
-          fnFilter={bottleneckFnFilter}
-          setFnFilter={setBottleneckFnFilter}
-        />
-      )}
-
-      {/* === Error Clusters Tab === */}
-      {activeTab === 'errorClusters' && (
-        <ErrorClustersTab
-          data={errorClusterData || []}
-          loading={loadingErrorClusters}
-        />
-      )}
-
-      {/* === Drift Tab === */}
-      {activeTab === 'drift' && (
-        <DriftTab
-          driftItems={driftItems}
-          loadingDrift={loadingDrift}
-          simFn={simFn}
-          setSimFn={setSimFn}
-          simText={simText}
-          setSimText={setSimText}
-          simResult={simResult}
-          simulateMutation={simulateMutation}
-        />
-      )}
-    </div>
-  );
+interface DriftTabProps {
+  driftItems: DriftItem[];
+  loadingDrift: boolean;
+  simFn: string;
+  setSimFn: (v: string) => void;
+  simText: string;
+  setSimText: (v: string) => void;
+  simResult: DriftSimulationResult | null;
+  simulateMutation: { mutate: () => void; isPending: boolean };
 }
 
 // ========================
-// Cache Report Tab (from old cache page)
+// Cache Report Tab
 // ========================
-function CacheReportTab({
+const CacheReportTab = memo(function CacheReportTab({
   analytics,
   loading,
-}: {
-  analytics: ReturnType<typeof cacheService.analytics> extends Promise<infer R> ? R | undefined : never;
-  loading: boolean;
-}) {
+}: CacheReportTabProps) {
   const { t } = useTranslation();
 
   if (loading) {
@@ -260,7 +138,7 @@ function CacheReportTab({
         />
         <StatCard
           icon={Star}
-          label="Golden Hits"
+          label={t('analysis.goldenHits')}
           value={formatNumber(analytics.golden_hit_count)}
           sub={`${formatPercentage(analytics.golden_ratio)} of hits`}
           color="text-neon-orange"
@@ -268,7 +146,7 @@ function CacheReportTab({
         />
         <StatCard
           icon={Database}
-          label="Standard Hits"
+          label={t('analysis.standardHits')}
           value={formatNumber(analytics.standard_hit_count)}
           sub={`${analytics.total_executions} total`}
           color="text-text-secondary"
@@ -278,7 +156,7 @@ function CacheReportTab({
 
       {/* Hit rate gauge */}
       <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
-        <h3 className="text-sm font-medium text-text-secondary mb-4">Cache Hit Breakdown</h3>
+        <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.cacheHitBreakdown')}</h3>
         <div className="flex items-center gap-4">
           <div className="relative w-32 h-32 shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -303,28 +181,24 @@ function CacheReportTab({
             </div>
           </div>
           <div className="space-y-3 flex-1">
-            <LegendItem color="#00FFCC" label="Standard Cache" value={analytics.standard_hit_count} />
-            <LegendItem color="#DFFF00" label="Golden Cache" value={analytics.golden_hit_count} />
-            <LegendItem color="#333" label="Cache Miss" value={analytics.total_executions - analytics.cache_hit_count} />
+            <LegendItem color="#00FFCC" label={t('analysis.standardCache')} value={analytics.standard_hit_count} />
+            <LegendItem color="#DFFF00" label={t('analysis.goldenCache')} value={analytics.golden_hit_count} />
+            <LegendItem color="#333" label={t('analysis.cacheMiss')} value={analytics.total_executions - analytics.cache_hit_count} />
           </div>
         </div>
       </div>
     </div>
   );
-}
+});
 
 // ========================
 // Cost Savings Tab
 // ========================
-function CostSavingsTab({
+const CostSavingsTab = memo(function CostSavingsTab({
   analytics,
   costCalc,
   loading,
-}: {
-  analytics: { has_data: boolean; cache_hit_rate: number; time_saved_ms: number; cache_hit_count: number; total_executions: number } | undefined;
-  costCalc: { tokensSaved: number; costSaved: number; avgTokensPerExec: number } | null;
-  loading: boolean;
-}) {
+}: CostSavingsTabProps) {
   const { t } = useTranslation();
 
   if (loading) {
@@ -401,37 +275,25 @@ function CostSavingsTab({
           </div>
           <div className="text-xs text-text-muted">
             <p>{t('analysis.basedOn')}</p>
-            <p className="mt-1">Input: $2.50/1M · Output: $10.00/1M</p>
+            <p className="mt-1">{t('analysis.pricingDetail')}</p>
             <p>{t('analysis.blendedRate')}: ${BLENDED_RATE.toFixed(2)}/1M tokens</p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+});
 
 // ========================
 // Input Scatter Tab (D12)
 // ========================
-const STATUS_COLORS: Record<string, string> = {
-  SUCCESS: '#00FFCC',
-  ERROR: '#FF4D6A',
-  CACHE_HIT: '#DFFF00',
-};
-
-function InputScatterTab({
+const InputScatterTab = memo(function InputScatterTab({
   data,
   allFunctions,
   loading,
   fnFilter,
   setFnFilter,
-}: {
-  data: ScatterPoint[];
-  allFunctions: string[];
-  loading: boolean;
-  fnFilter: string;
-  setFnFilter: (v: string) => void;
-}) {
+}: InputScatterTabProps) {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState<ScatterPoint | null>(null);
 
@@ -490,7 +352,7 @@ function InputScatterTab({
             'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
           )}
         >
-          <option value="">All Functions ({allFunctions.length})</option>
+          <option value="">{t('analysis.allFunctions')} ({allFunctions.length})</option>
           {allFunctions.map((fn) => (
             <option key={fn} value={fn}>{fn}</option>
           ))}
@@ -558,22 +420,17 @@ function InputScatterTab({
       </div>
     </div>
   );
-}
+});
 
 // ========================
 // Bottleneck Tab (D13)
 // ========================
-function BottleneckTab({
+const BottleneckTab = memo(function BottleneckTab({
   data,
   loading,
   fnFilter,
   setFnFilter,
-}: {
-  data: BottleneckCluster[];
-  loading: boolean;
-  fnFilter: string;
-  setFnFilter: (v: string) => void;
-}) {
+}: BottleneckTabProps) {
   const { t } = useTranslation();
 
   if (loading) {
@@ -610,7 +467,7 @@ function BottleneckTab({
           type="text"
           value={fnFilter}
           onChange={(e) => setFnFilter(e.target.value)}
-          placeholder="Filter by function name..."
+          placeholder={t('analysis.functionNamePlaceholder')}
           className={cn(
             'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
             'text-xs text-text-primary placeholder:text-text-muted',
@@ -626,7 +483,7 @@ function BottleneckTab({
           {data.map((cluster) => (
             <div key={cluster.cluster_id} className="flex items-center gap-3">
               <div className="w-20 text-xs text-text-muted shrink-0">
-                Cluster {cluster.cluster_id}
+                {t('analysis.cluster')} {cluster.cluster_id}
               </div>
               <div className="flex-1 h-6 bg-bg-elevated rounded-[6px] overflow-hidden relative">
                 <div
@@ -641,7 +498,7 @@ function BottleneckTab({
                 </span>
               </div>
               <div className="w-14 text-xs text-text-muted text-right shrink-0">
-                {cluster.count} execs
+                {cluster.count} {t('analysis.executionsLabel')}
               </div>
               {cluster.is_bottleneck && (
                 <span className="text-[10px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red shrink-0">
@@ -662,11 +519,11 @@ function BottleneckTab({
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Cluster</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Avg Duration</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Count</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Representative</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnCluster')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnAvgDuration')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnCount')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnRepresentative')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnStatus')}</th>
               </tr>
             </thead>
             <tbody>
@@ -681,7 +538,7 @@ function BottleneckTab({
                       'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
                       cluster.is_bottleneck ? 'bg-neon-red-dim text-neon-red' : 'bg-neon-cyan-dim text-neon-cyan'
                     )}>
-                      {cluster.is_bottleneck ? 'BOTTLENECK' : 'NORMAL'}
+                      {cluster.is_bottleneck ? t('analysis.bottleneckLabel') : t('analysis.normalLabel')}
                     </span>
                   </td>
                 </tr>
@@ -692,18 +549,15 @@ function BottleneckTab({
       </div>
     </div>
   );
-}
+});
 
 // ========================
 // Error Clusters Tab (C9)
 // ========================
-function ErrorClustersTab({
+const ErrorClustersTab = memo(function ErrorClustersTab({
   data,
   loading,
-}: {
-  data: ErrorCluster[];
-  loading: boolean;
-}) {
+}: ErrorClustersTabProps) {
   const { t } = useTranslation();
 
   if (loading) {
@@ -736,9 +590,9 @@ function ErrorClustersTab({
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-[11px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red">
-                Cluster #{cluster.cluster_id}
+                {t('analysis.cluster')} #{cluster.cluster_id}
               </span>
-              <span className="text-xs text-text-muted">{cluster.count} errors</span>
+              <span className="text-xs text-text-muted">{cluster.count} {t('analysis.errors')}</span>
             </div>
           </div>
 
@@ -753,7 +607,7 @@ function ErrorClustersTab({
           {/* Error codes */}
           {cluster.error_codes.length > 0 && (
             <div className="mb-2">
-              <p className="text-[10px] text-text-muted mb-1">Error Codes</p>
+              <p className="text-[10px] text-text-muted mb-1">{t('analysis.errorCodes')}</p>
               <div className="flex gap-1 flex-wrap">
                 {cluster.error_codes.map((code) => (
                   <span key={code} className="text-[10px] px-2 py-0.5 bg-bg-elevated rounded-md text-text-secondary font-mono">
@@ -767,7 +621,7 @@ function ErrorClustersTab({
           {/* Functions */}
           {cluster.functions.length > 0 && (
             <div>
-              <p className="text-[10px] text-text-muted mb-1">Functions</p>
+              <p className="text-[10px] text-text-muted mb-1">{t('analysis.functions')}</p>
               <div className="flex gap-1 flex-wrap">
                 {cluster.functions.map((fn) => (
                   <span key={fn} className="text-[10px] px-2 py-0.5 bg-neon-cyan-dim rounded-md text-neon-cyan">
@@ -781,12 +635,12 @@ function ErrorClustersTab({
       ))}
     </div>
   );
-}
+});
 
 // ========================
-// Drift Tab (from old cache page)
+// Drift Tab
 // ========================
-function DriftTab({
+const DriftTab = memo(function DriftTab({
   driftItems,
   loadingDrift,
   simFn,
@@ -795,36 +649,29 @@ function DriftTab({
   setSimText,
   simResult,
   simulateMutation,
-}: {
-  driftItems: { function_name: string; status: string; avg_distance: number; threshold: number; sample_count: number }[];
-  loadingDrift: boolean;
-  simFn: string;
-  setSimFn: (v: string) => void;
-  simText: string;
-  setSimText: (v: string) => void;
-  simResult: DriftSimulationResult | null;
-  simulateMutation: { mutate: () => void; isPending: boolean };
-}) {
+}: DriftTabProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
         <div className="px-5 py-3 border-b border-border-default">
-          <h3 className="text-sm font-medium text-text-secondary">Drift Summary</h3>
+          <h3 className="text-sm font-medium text-text-secondary">{t('analysis.driftSummary')}</h3>
         </div>
         {loadingDrift ? (
           <div className="flex justify-center py-12"><Loader2 size={20} className="animate-spin text-neon-lime" /></div>
         ) : driftItems.length === 0 ? (
-          <div className="text-center py-12 text-sm text-text-muted">No drift data</div>
+          <div className="text-center py-12 text-sm text-text-muted">{t('analysis.noDriftData')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border-default">
-                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Function</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Avg Distance</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Threshold</th>
-                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Samples</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnFunction')}</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnStatus')}</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.avgDistance')}</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnThreshold')}</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('analysis.columnSamples')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -852,13 +699,13 @@ function DriftTab({
 
       {/* Drift simulator */}
       <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
-        <h3 className="text-sm font-medium text-text-secondary mb-4">Drift Simulator</h3>
+        <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.driftSimulator')}</h3>
         <div className="space-y-3">
           <input
             type="text"
             value={simFn}
             onChange={(e) => setSimFn(e.target.value)}
-            placeholder="Function name..."
+            placeholder={t('analysis.functionNamePlaceholder')}
             className={cn(
               'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
@@ -870,7 +717,7 @@ function DriftTab({
               type="text"
               value={simText}
               onChange={(e) => setSimText(e.target.value)}
-              placeholder="Input text to simulate..."
+              placeholder={t('analysis.inputTextPlaceholder')}
               className={cn(
                 'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
@@ -901,7 +748,7 @@ function DriftTab({
                   <CheckCircle2 size={16} className="text-neon-cyan" />
                 )}
                 <span className={cn('text-sm font-semibold', simResult.is_drift ? 'text-neon-red' : 'text-neon-cyan')}>
-                  {simResult.is_drift ? 'Drift Detected' : 'Normal'}
+                  {simResult.is_drift ? t('analysis.driftDetected') : t('analysis.normal')}
                 </span>
                 <span className="text-xs text-text-muted ml-auto">
                   Distance: {(simResult.avg_distance ?? 0).toFixed(4)} / Threshold: {(simResult.threshold ?? 0).toFixed(2)}
@@ -924,7 +771,7 @@ function DriftTab({
       </div>
     </div>
   );
-}
+});
 
 // ========================
 // Shared components
@@ -962,6 +809,195 @@ function LegendItem({ color, label, value }: { color: string; label: string; val
       <div className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
       <span className="text-xs text-text-secondary flex-1">{label}</span>
       <span className="text-xs text-text-primary font-medium">{formatNumber(value)}</span>
+    </div>
+  );
+}
+
+// ========================
+// Main Page Component
+// ========================
+export default function AnalysisPage() {
+  const { t } = useTranslation();
+  const { timeRangeMinutes } = useDashboardStore();
+
+  const [activeTab, setActiveTab] = useState<TabKey>('cacheReport');
+  const [simFn, setSimFn] = useState('');
+  const [simText, setSimText] = useState('');
+  const [simResult, setSimResult] = useState<DriftSimulationResult | null>(null);
+  const [scatterFnFilter, setScatterFnFilter] = useState<string>('');
+  const [bottleneckFnFilter, setBottleneckFnFilter] = useState<string>('');
+
+  // Debounce text inputs that trigger API queries
+  const debouncedBottleneckFnFilter = useDebounce(bottleneckFnFilter, 300);
+  const debouncedScatterFnFilter = useDebounce(scatterFnFilter, 300);
+
+  // Cache analytics
+  const { data: analytics, isLoading: loadingAnalytics } = useQuery({
+    queryKey: ['cacheAnalytics', timeRangeMinutes],
+    queryFn: () => cacheService.analytics(timeRangeMinutes),
+  });
+
+  // Token usage
+  const { data: tokenData } = useQuery({
+    queryKey: ['tokenUsage'],
+    queryFn: () => analyticsService.tokens(),
+    enabled: activeTab === 'costSavings',
+  });
+
+  // KPI
+  const { data: kpiData } = useQuery({
+    queryKey: ['kpi', timeRangeMinutes],
+    queryFn: () => analyticsService.kpi(timeRangeMinutes),
+    enabled: activeTab === 'costSavings',
+  });
+
+  // Drift
+  const { data: driftData, isLoading: loadingDrift } = useQuery({
+    queryKey: ['driftSummary'],
+    queryFn: () => cacheService.driftSummary(),
+    enabled: activeTab === 'drift',
+  });
+
+  const simulateMutation = useMutation({
+    mutationFn: () => cacheService.driftSimulate({ text: simText, function_name: simFn }),
+    onSuccess: (result) => setSimResult(result),
+  });
+
+  // Semantic: Input Scatter (always fetch all, filter client-side)
+  const { data: scatterDataRaw, isLoading: loadingScatter } = useQuery({
+    queryKey: ['semanticScatter'],
+    queryFn: () => semanticService.scatter(undefined, 500),
+    enabled: activeTab === 'inputScatter',
+  });
+
+  const scatterData = useMemo(
+    () =>
+      debouncedScatterFnFilter
+        ? (scatterDataRaw || []).filter((d) => d.function_name === debouncedScatterFnFilter)
+        : scatterDataRaw || [],
+    [scatterDataRaw, debouncedScatterFnFilter]
+  );
+
+  const allScatterFunctions = useMemo(
+    () => [...new Set((scatterDataRaw || []).map((d) => d.function_name))].filter(Boolean),
+    [scatterDataRaw]
+  );
+
+  // Semantic: Bottleneck (debounced filter triggers API query)
+  const { data: bottleneckData, isLoading: loadingBottleneck } = useQuery({
+    queryKey: ['semanticBottleneck', debouncedBottleneckFnFilter],
+    queryFn: () => semanticService.bottleneck(debouncedBottleneckFnFilter || undefined, 5),
+    enabled: activeTab === 'bottleneck',
+  });
+
+  // Semantic: Error Clusters
+  const { data: errorClusterData, isLoading: loadingErrorClusters } = useQuery({
+    queryKey: ['semanticErrorClusters'],
+    queryFn: () => semanticService.errorClusters(5),
+    enabled: activeTab === 'errorClusters',
+  });
+
+  const driftItems = driftData?.items || [];
+
+  // Cost savings calculations
+  const costCalc = useMemo(() => {
+    if (!analytics?.has_data) return null;
+    const totalTokens = tokenData?.total_tokens ?? 0;
+    const totalExec = kpiData?.total_executions ?? analytics.total_executions;
+    const avgTokensPerExec = totalExec > 0 ? totalTokens / totalExec : 0;
+    const tokensSaved = analytics.cache_hit_count * avgTokensPerExec;
+    const costSaved = (tokensSaved * BLENDED_RATE) / 1_000_000;
+    return { tokensSaved, costSaved, avgTokensPerExec };
+  }, [analytics, tokenData, kpiData]);
+
+  const tabs: { key: TabKey; labelKey: string }[] = [
+    { key: 'cacheReport', labelKey: 'analysis.cacheReport' },
+    { key: 'costSavings', labelKey: 'analysis.costSavings' },
+    { key: 'inputScatter', labelKey: 'analysis.inputScatter' },
+    { key: 'bottleneck', labelKey: 'analysis.bottleneck' },
+    { key: 'errorClusters', labelKey: 'analysis.errorClusters' },
+    { key: 'drift', labelKey: 'analysis.drift' },
+  ];
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold text-text-primary">{t('analysis.title')}</h1>
+        <div className="flex items-center gap-2">
+          <TimeRangeSelector />
+          <div className="flex gap-1 bg-bg-card rounded-[12px] p-1 border border-border-default">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
+                  activeTab === tab.key ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                )}
+              >
+                {t(tab.labelKey)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* === Cache Report Tab === */}
+      {activeTab === 'cacheReport' && (
+        <CacheReportTab analytics={analytics} loading={loadingAnalytics} />
+      )}
+
+      {/* === Cost Savings Tab === */}
+      {activeTab === 'costSavings' && (
+        <CostSavingsTab
+          analytics={analytics}
+          costCalc={costCalc}
+          loading={loadingAnalytics}
+        />
+      )}
+
+      {/* === Input Scatter Tab === */}
+      {activeTab === 'inputScatter' && (
+        <InputScatterTab
+          data={scatterData}
+          allFunctions={allScatterFunctions}
+          loading={loadingScatter}
+          fnFilter={scatterFnFilter}
+          setFnFilter={setScatterFnFilter}
+        />
+      )}
+
+      {/* === Bottleneck Tab === */}
+      {activeTab === 'bottleneck' && (
+        <BottleneckTab
+          data={bottleneckData || []}
+          loading={loadingBottleneck}
+          fnFilter={bottleneckFnFilter}
+          setFnFilter={setBottleneckFnFilter}
+        />
+      )}
+
+      {/* === Error Clusters Tab === */}
+      {activeTab === 'errorClusters' && (
+        <ErrorClustersTab
+          data={errorClusterData || []}
+          loading={loadingErrorClusters}
+        />
+      )}
+
+      {/* === Drift Tab === */}
+      {activeTab === 'drift' && (
+        <DriftTab
+          driftItems={driftItems}
+          loadingDrift={loadingDrift}
+          simFn={simFn}
+          setSimFn={setSimFn}
+          simText={simText}
+          setSimText={setSimText}
+          simResult={simResult}
+          simulateMutation={simulateMutation}
+        />
+      )}
     </div>
   );
 }

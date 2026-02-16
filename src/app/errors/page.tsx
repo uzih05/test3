@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -33,13 +34,17 @@ export default function ErrorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'filter' | 'semantic'>('filter');
 
+  const debouncedFunctionFilter = useDebounce(functionFilter, 300);
+  const debouncedErrorCodeFilter = useDebounce(errorCodeFilter, 300);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Error list
   const { data: errorData, isLoading: loadingErrors } = useQuery({
-    queryKey: ['errors', functionFilter, errorCodeFilter, timeRangeMinutes],
+    queryKey: ['errors', debouncedFunctionFilter, debouncedErrorCodeFilter, timeRangeMinutes],
     queryFn: () =>
       errorsService.list({
-        function_name: functionFilter || undefined,
-        error_code: errorCodeFilter || undefined,
+        function_name: debouncedFunctionFilter || undefined,
+        error_code: debouncedErrorCodeFilter || undefined,
         time_range: timeRangeMinutes,
         limit: 50,
       }),
@@ -48,9 +53,9 @@ export default function ErrorsPage() {
 
   // Semantic search
   const { data: searchData, isLoading: loadingSearch } = useQuery({
-    queryKey: ['errorSearch', searchQuery],
-    queryFn: () => errorsService.search(searchQuery),
-    enabled: searchMode === 'semantic' && searchQuery.length > 1,
+    queryKey: ['errorSearch', debouncedSearchQuery],
+    queryFn: () => errorsService.search(debouncedSearchQuery),
+    enabled: searchMode === 'semantic' && debouncedSearchQuery.length > 1,
   });
 
   // Summary
@@ -90,14 +95,14 @@ export default function ErrorsPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <SummaryCard
             icon={AlertTriangle}
-            label="Total Errors"
+            label={t('errors.totalErrors')}
             value={formatNumber(summaryData.total_errors)}
             color="text-neon-red"
             bg="bg-neon-red-dim"
           />
           <SummaryCard
             icon={Hash}
-            label="Unique Codes"
+            label={t('errors.uniqueCodes')}
             value={String(summaryData.unique_error_codes)}
             color="text-neon-orange"
             bg="bg-[rgba(255,159,67,0.15)]"
@@ -123,13 +128,13 @@ export default function ErrorsPage() {
           {trendChartData.length > 0 ? (
             <SurferChart data={trendChartData} color="#FF4D6A" height={180} />
           ) : (
-            <div className="h-[180px] flex items-center justify-center text-text-muted text-sm">No trend data</div>
+            <div className="h-[180px] flex items-center justify-center text-text-muted text-sm">{t('errors.noTrendData')}</div>
           )}
         </div>
 
         {/* Error distribution */}
         <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
-          <h3 className="text-sm font-medium text-text-secondary mb-4">Error Distribution</h3>
+          <h3 className="text-sm font-medium text-text-secondary mb-4">{t('errors.distribution')}</h3>
           {summaryData && (summaryData.most_common_errors || []).length > 0 ? (
             <div className="space-y-3">
               {(summaryData.most_common_errors || []).slice(0, 5).map((err, i) => (
@@ -148,7 +153,7 @@ export default function ErrorsPage() {
               ))}
             </div>
           ) : (
-            <div className="h-[160px] flex items-center justify-center text-text-muted text-sm">No data</div>
+            <div className="h-[160px] flex items-center justify-center text-text-muted text-sm">{t('errors.noData')}</div>
           )}
         </div>
       </div>
@@ -168,7 +173,7 @@ export default function ErrorsPage() {
                 setFunctionFilter(e.target.value);
               }
             }}
-            placeholder={searchMode === 'semantic' ? t('errors.search') : 'Filter by function name...'}
+            placeholder={searchMode === 'semantic' ? t('errors.search') : t('errors.filterPlaceholder')}
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
@@ -183,7 +188,7 @@ export default function ErrorsPage() {
             type="text"
             value={errorCodeFilter}
             onChange={(e) => setErrorCodeFilter(e.target.value)}
-            placeholder="Error code..."
+            placeholder={t('errors.errorCodePlaceholder')}
             className={cn(
               'w-40 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
@@ -201,7 +206,7 @@ export default function ErrorsPage() {
               searchMode === 'filter' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
-            Filter
+            {t('errors.filter')}
           </button>
           <button
             onClick={() => setSearchMode('semantic')}
@@ -210,7 +215,7 @@ export default function ErrorsPage() {
               searchMode === 'semantic' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
-            Semantic
+            {t('errors.semantic')}
           </button>
         </div>
       </div>
@@ -221,11 +226,11 @@ export default function ErrorsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Function</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Error Code</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden md:table-cell">Message</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('errors.columnFunction')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('errors.columnErrorCode')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden md:table-cell">{t('errors.columnMessage')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('errors.columnDuration')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('errors.columnTime')}</th>
                 <th className="text-left px-5 py-3 text-xs font-medium text-text-muted w-10"></th>
               </tr>
             </thead>
@@ -273,7 +278,7 @@ export default function ErrorsPage() {
                         <Link
                           href={`/traces/${err.trace_id}`}
                           className="p-1 text-text-muted hover:text-neon-lime transition-colors"
-                          title="View Trace"
+                          title={t('errors.viewTrace')}
                         >
                           <ExternalLink size={14} />
                         </Link>

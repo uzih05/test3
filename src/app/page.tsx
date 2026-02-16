@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Check, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { widgetsService } from '@/services/widgets';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -22,25 +22,25 @@ import { RecentErrors } from '@/components/dashboard/widgets/RecentErrors';
 import { SystemStatus } from '@/components/dashboard/widgets/SystemStatus';
 
 const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
-  kpi_overview: KpiOverview,
-  token_usage: TokenUsage,
-  cache_hit: CacheHitRate,
-  error_rate: ErrorRate,
-  execution_timeline: ExecutionTimeline,
-  function_distribution: FunctionDistribution,
-  recent_errors: RecentErrors,
-  system_status: SystemStatus,
+  kpi_overview: memo(KpiOverview),
+  token_usage: memo(TokenUsage),
+  cache_hit: memo(CacheHitRate),
+  error_rate: memo(ErrorRate),
+  execution_timeline: memo(ExecutionTimeline),
+  function_distribution: memo(FunctionDistribution),
+  recent_errors: memo(RecentErrors),
+  system_status: memo(SystemStatus),
 };
 
-const WIDGET_TITLES: Record<string, string> = {
-  kpi_overview: 'KPI Overview',
-  token_usage: 'Token Usage',
-  cache_hit: 'Cache Hit Rate',
-  error_rate: 'Error Rate',
-  execution_timeline: 'Execution Timeline',
-  function_distribution: 'Function Distribution',
-  recent_errors: 'Recent Errors',
-  system_status: 'System Status',
+const WIDGET_TITLE_KEYS: Record<string, string> = {
+  kpi_overview: 'dashboard.widgetKpiOverview',
+  token_usage: 'dashboard.widgetTokenUsage',
+  cache_hit: 'dashboard.widgetCacheHit',
+  error_rate: 'dashboard.widgetErrorRate',
+  execution_timeline: 'dashboard.widgetExecutionTimeline',
+  function_distribution: 'dashboard.widgetFunctionDistribution',
+  recent_errors: 'dashboard.widgetRecentErrors',
+  system_status: 'dashboard.widgetSystemStatus',
 };
 
 export default function DashboardPage() {
@@ -56,21 +56,61 @@ export default function DashboardPage() {
 
   const widgets = widgetData?.items || [];
 
+  type WidgetList = { items: Array<{ id: string; widget_type: string; size: string; position_order: number }> };
+
   const addWidget = useMutation({
     mutationFn: ({ type, size }: { type: string; size: string }) =>
       widgetsService.add(type, size),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+    onMutate: async ({ type, size }: { type: string; size: string }) => {
+      await queryClient.cancelQueries({ queryKey: ['widgets'] });
+      const prev = queryClient.getQueryData<WidgetList>(['widgets']);
+      queryClient.setQueryData<WidgetList>(['widgets'], (old) => ({
+        ...old,
+        items: [...(old?.items || []), { id: `temp-${Date.now()}`, widget_type: type, size, position_order: (old?.items?.length ?? 0) + 1 }],
+      }));
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['widgets'], ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
   });
 
   const removeWidget = useMutation({
     mutationFn: (id: string) => widgetsService.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['widgets'] });
+      const prev = queryClient.getQueryData<WidgetList>(['widgets']);
+      queryClient.setQueryData<WidgetList>(['widgets'], (old) => ({
+        ...old,
+        items: (old?.items || []).filter((w) => w.id !== id),
+      }));
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['widgets'], ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
   });
 
   const updateWidget = useMutation({
     mutationFn: ({ id, size }: { id: string; size: string }) =>
       widgetsService.update(id, size),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
+    onMutate: async ({ id, size }: { id: string; size: string }) => {
+      await queryClient.cancelQueries({ queryKey: ['widgets'] });
+      const prev = queryClient.getQueryData<WidgetList>(['widgets']);
+      queryClient.setQueryData<WidgetList>(['widgets'], (old) => ({
+        ...old,
+        items: (old?.items || []).map((w) =>
+          w.id === id ? { ...w, size } : w
+        ),
+      }));
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['widgets'], ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
   });
 
   const handleRefresh = () => {
@@ -123,8 +163,8 @@ export default function DashboardPage() {
           <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-neon-lime-dim flex items-center justify-center">
             <Plus size={24} className="text-neon-lime" />
           </div>
-          <h3 className="text-lg font-medium text-text-primary mb-2">No widgets yet</h3>
-          <p className="text-sm text-text-muted mb-4">Add widgets to customize your dashboard</p>
+          <h3 className="text-lg font-medium text-text-primary mb-2">{t('dashboard.noWidgets')}</h3>
+          <p className="text-sm text-text-muted mb-4">{t('dashboard.noWidgetsDesc')}</p>
           <button
             onClick={() => setShowPicker(true)}
             className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] neon-glow"
@@ -142,7 +182,7 @@ export default function DashboardPage() {
               return (
                 <WidgetCard
                   key={widget.id}
-                  title={WIDGET_TITLES[widget.widget_type] || widget.widget_type}
+                  title={t(WIDGET_TITLE_KEYS[widget.widget_type] || widget.widget_type)}
                   size={widget.size}
                   isEditing={isEditing}
                   onRemove={() => removeWidget.mutate(widget.id)}

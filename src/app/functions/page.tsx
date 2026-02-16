@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import {
   Search,
@@ -34,6 +35,8 @@ export default function FunctionsPage() {
   const [askQuery, setAskQuery] = useState('');
   const [showAsk, setShowAsk] = useState(false);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // All functions
   const { data: allData, isLoading: loadingAll } = useQuery({
     queryKey: ['functions'],
@@ -42,12 +45,12 @@ export default function FunctionsPage() {
 
   // Search results
   const { data: searchData, isLoading: searching } = useQuery({
-    queryKey: ['functionSearch', searchQuery, searchMode, alpha],
+    queryKey: ['functionSearch', debouncedSearchQuery, searchMode, alpha],
     queryFn: () =>
       searchMode === 'semantic'
-        ? functionsService.search(searchQuery, 20)
-        : functionsService.hybridSearch(searchQuery, alpha),
-    enabled: searchQuery.length > 1,
+        ? functionsService.search(debouncedSearchQuery, 20)
+        : functionsService.hybridSearch(debouncedSearchQuery, alpha),
+    enabled: debouncedSearchQuery.length > 1,
   });
 
   // AI QnA
@@ -57,7 +60,7 @@ export default function FunctionsPage() {
     enabled: !!askQuery && showAsk,
   });
 
-  const functions: FunctionInfo[] = searchQuery.length > 1
+  const functions: FunctionInfo[] = debouncedSearchQuery.length > 1
     ? (searchData?.items || [])
     : (allData?.items || []);
 
@@ -75,7 +78,7 @@ export default function FunctionsPage() {
     return buildTree(sorted);
   }, [sorted, viewMode]);
 
-  const isLoading = loadingAll || (searchQuery.length > 1 && searching);
+  const isLoading = loadingAll || (debouncedSearchQuery.length > 1 && searching);
 
   const handleAsk = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +99,7 @@ export default function FunctionsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search functions..."
+              placeholder={t('functions.searchPlaceholder')}
               className={cn(
                 'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
@@ -147,7 +150,7 @@ export default function FunctionsPage() {
         {/* Hybrid alpha slider */}
         {searchMode === 'hybrid' && searchQuery.length > 1 && (
           <div className="flex items-center gap-3 px-1">
-            <span className="text-xs text-text-muted">Keyword</span>
+            <span className="text-xs text-text-muted">{t('functions.keyword')}</span>
             <input
               type="range"
               min={0} max={1} step={0.1}
@@ -155,19 +158,19 @@ export default function FunctionsPage() {
               onChange={(e) => setAlpha(parseFloat(e.target.value))}
               className="flex-1 h-1 accent-neon-lime"
             />
-            <span className="text-xs text-text-muted">Vector</span>
+            <span className="text-xs text-text-muted">{t('functions.vector')}</span>
             <span className="text-xs text-neon-lime font-mono w-8 text-right">{(alpha * 100).toFixed(0)}%</span>
           </div>
         )}
 
         {/* Sort */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">Sort:</span>
+          <span className="text-xs text-text-muted">{t('functions.sortLabel')}</span>
           {([
-            { key: 'execution_count' as SortKey, label: 'Executions' },
-            { key: 'error_rate' as SortKey, label: 'Error Rate' },
-            { key: 'avg_duration_ms' as SortKey, label: 'Duration' },
-            { key: 'name' as SortKey, label: 'Name' },
+            { key: 'execution_count' as SortKey, label: t('functions.sortExecutions') },
+            { key: 'error_rate' as SortKey, label: t('functions.sortErrorRate') },
+            { key: 'avg_duration_ms' as SortKey, label: t('functions.sortDuration') },
+            { key: 'name' as SortKey, label: t('functions.sortName') },
           ]).map((s) => (
             <button
               key={s.key}
@@ -209,13 +212,13 @@ export default function FunctionsPage() {
               )}
               <div className="flex items-center gap-4 text-xs">
                 <span className="text-text-secondary">
-                  <span className="text-neon-lime font-semibold">{formatNumber(fn.execution_count || 0)}</span> runs
+                  <span className="text-neon-lime font-semibold">{formatNumber(fn.execution_count || 0)}</span> {t('functions.runs')}
                 </span>
                 <span className="text-text-secondary">
-                  <span className="text-neon-cyan font-semibold">{formatDuration(fn.avg_duration_ms || 0)}</span> avg
+                  <span className="text-neon-cyan font-semibold">{formatDuration(fn.avg_duration_ms || 0)}</span> {t('functions.avg')}
                 </span>
                 {(fn.error_rate || 0) > 0 && (
-                  <span className="text-neon-red font-semibold">{formatPercentage(fn.error_rate || 0)} err</span>
+                  <span className="text-neon-red font-semibold">{formatPercentage(fn.error_rate || 0)} {t('functions.err')}</span>
                 )}
               </div>
               {fn.team && (
@@ -255,7 +258,7 @@ export default function FunctionsPage() {
             type="text"
             value={askQuery}
             onChange={(e) => { setAskQuery(e.target.value); setShowAsk(false); }}
-            placeholder="Ask about your functions..."
+            placeholder={t('functions.askPlaceholder')}
             className={cn(
               'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',

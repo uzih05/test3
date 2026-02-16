@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -42,6 +43,37 @@ const NAV_ITEMS_BOTTOM = [
   { key: 'projects', path: '/projects', icon: FolderOpen },
   { key: 'settings', path: '/settings', icon: Settings },
 ];
+
+interface NavItemProps {
+  navKey: string;
+  path: string;
+  icon: React.ComponentType<{ size: number; strokeWidth: number }>;
+  isActive: boolean;
+  label: string;
+  glow?: boolean;
+  onClose: () => void;
+}
+
+const NavItem = memo(function NavItem({ path, icon: Icon, isActive, label, glow, onClose }: NavItemProps) {
+  return (
+    <li>
+      <Link
+        href={path}
+        onClick={onClose}
+        className={cn(
+          'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
+          'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
+          isActive
+            ? cn('bg-neon-lime-dim text-neon-lime', glow && 'neon-glow')
+            : 'text-text-muted hover:text-text-primary hover:bg-bg-card'
+        )}
+      >
+        <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+        <span className="text-xs font-medium">{label}</span>
+      </Link>
+    </li>
+  );
+});
 
 interface SidebarProps {
   open: boolean;
@@ -119,23 +151,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Top nav */}
         <nav className="flex-1 py-4 overflow-y-auto">
           <ul className="space-y-1 px-2">
-            {NAV_ITEMS_TOP.map(({ key, path, icon: Icon }) => (
-              <li key={key}>
-                <Link
-                  href={path}
-                  onClick={onClose}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
-                    'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
-                    isActive(path)
-                      ? 'bg-neon-lime-dim text-neon-lime neon-glow'
-                      : 'text-text-muted hover:text-text-primary hover:bg-bg-card'
-                  )}
-                >
-                  <Icon size={20} strokeWidth={isActive(path) ? 2.5 : 1.5} />
-                  <span className="text-xs font-medium">{t(`nav.${key}`)}</span>
-                </Link>
-              </li>
+            {NAV_ITEMS_TOP.map(({ key, path, icon }) => (
+              <NavItem
+                key={key}
+                navKey={key}
+                path={path}
+                icon={icon}
+                isActive={isActive(path)}
+                label={t(`nav.${key}`)}
+                glow
+                onClose={onClose}
+              />
             ))}
           </ul>
         </nav>
@@ -143,23 +169,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Bottom nav */}
         <div className="border-t border-border-default py-4 px-2">
           <ul className="space-y-1">
-            {NAV_ITEMS_BOTTOM.map(({ key, path, icon: Icon }) => (
-              <li key={key}>
-                <Link
-                  href={path}
-                  onClick={onClose}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
-                    'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
-                    isActive(path)
-                      ? 'bg-neon-lime-dim text-neon-lime'
-                      : 'text-text-muted hover:text-text-primary hover:bg-bg-card'
-                  )}
-                >
-                  <Icon size={20} strokeWidth={isActive(path) ? 2.5 : 1.5} />
-                  <span className="text-xs font-medium">{t(`nav.${key}`)}</span>
-                </Link>
-              </li>
+            {NAV_ITEMS_BOTTOM.map(({ key, path, icon }) => (
+              <NavItem
+                key={key}
+                navKey={key}
+                path={path}
+                icon={icon}
+                isActive={isActive(path)}
+                label={t(`nav.${key}`)}
+                onClose={onClose}
+              />
             ))}
           </ul>
 

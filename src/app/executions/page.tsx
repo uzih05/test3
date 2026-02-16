@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -37,13 +38,15 @@ export default function ExecutionsPage() {
   const [selectedSpan, setSelectedSpan] = useState<string | null>(null);
   const [showSlowest, setShowSlowest] = useState(true);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   const { data, isLoading } = useQuery({
-    queryKey: ['executions', page, searchQuery, statusFilter],
+    queryKey: ['executions', page, debouncedSearchQuery, statusFilter],
     queryFn: () =>
       executionsService.list({
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
-        function_name: searchQuery || undefined,
+        function_name: debouncedSearchQuery || undefined,
         status: statusFilter || undefined,
       }),
   });
@@ -51,6 +54,7 @@ export default function ExecutionsPage() {
   const { data: slowestData } = useQuery({
     queryKey: ['slowest'],
     queryFn: () => executionsService.slowest(),
+    staleTime: 5 * 60_000,
   });
 
   const items = data?.items || [];
@@ -141,11 +145,11 @@ export default function ExecutionsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border-default">
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Function</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Status</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Duration</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden sm:table-cell">Error</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">Time</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('executions.columnFunction')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('executions.columnStatus')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('executions.columnDuration')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted hidden sm:table-cell">{t('executions.columnError')}</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('executions.columnTime')}</th>
               </tr>
             </thead>
             <tbody>

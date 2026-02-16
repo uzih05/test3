@@ -65,16 +65,19 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
     setActiveIndex(0);
   }, [query]);
 
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
   useEffect(() => {
     const handleGlobalKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
       }
     };
     window.addEventListener('keydown', handleGlobalKey);
     return () => window.removeEventListener('keydown', handleGlobalKey);
-  }, [onClose]);
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -100,7 +103,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Type a command or search..."
+            placeholder={t('commandPalette.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -115,7 +118,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
         <div className="max-h-[300px] overflow-y-auto py-2">
           {filtered.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-text-muted">
-              No results found
+              {t('commandPalette.noResults')}
             </div>
           ) : (
             filtered.map((cmd, i) => {
