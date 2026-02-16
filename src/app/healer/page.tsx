@@ -40,7 +40,15 @@ export default function HealerPage() {
   const [functionFilter, setFunctionFilter] = useState('');
   const [timeRangeFilter, setTimeRangeFilter] = useState(1440);
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
-  const [lookback, setLookback] = useState(60);
+  const [lookback, setLookback] = useState(1440);
+
+  const handleTimeRangeChange = (value: number) => {
+    setTimeRangeFilter(value);
+    const newLookback = value === 0 ? 10080 : value;
+    setLookback(newLookback);
+  };
+
+  const lookbackMax = timeRangeFilter === 0 ? 10080 : timeRangeFilter;
   const [checkedFunctions, setCheckedFunctions] = useState<Set<string>>(new Set());
 
   // Single diagnosis result
@@ -51,7 +59,7 @@ export default function HealerPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['healerFunctions', timeRangeFilter],
-    queryFn: () => healerService.functions(timeRangeFilter || undefined),
+    queryFn: () => healerService.functions(timeRangeFilter),
   });
 
   const functions = (data?.items || []).filter(
@@ -144,7 +152,7 @@ export default function HealerPage() {
               {TIME_RANGE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => setTimeRangeFilter(opt.value)}
+                  onClick={() => handleTimeRangeChange(opt.value)}
                   className={cn(
                     'px-2 py-1 rounded-[6px] text-[10px] font-medium transition-colors',
                     timeRangeFilter === opt.value
@@ -160,12 +168,14 @@ export default function HealerPage() {
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-text-muted">{t('healer.lookback')}</span>
               <input
-                type="range" min={5} max={1440} step={5}
-                value={lookback}
+                type="range" min={5} max={lookbackMax} step={lookbackMax >= 1440 ? 60 : 5}
+                value={Math.min(lookback, lookbackMax)}
                 onChange={(e) => setLookback(parseInt(e.target.value))}
                 className="flex-1 h-1 accent-neon-lime"
               />
-              <span className="text-[10px] text-neon-lime font-mono w-12 text-right">{lookback}m</span>
+              <span className="text-[10px] text-neon-lime font-mono w-16 text-right">
+                {lookback >= 1440 ? `${(lookback / 1440).toFixed(1)}d` : lookback >= 60 ? `${(lookback / 60).toFixed(1)}h` : `${lookback}m`}
+              </span>
             </div>
           </div>
 
@@ -214,7 +224,7 @@ export default function HealerPage() {
                     <div>
                       <h3 className="text-sm font-semibold text-text-primary">{selectedFunction}</h3>
                       <p className="text-xs text-text-muted mt-0.5">
-                        {t('healer.lookback')} {lookback} {t('healer.minutes')}
+                        {t('healer.lookback')} {lookback >= 1440 ? `${(lookback / 1440).toFixed(1)}d` : lookback >= 60 ? `${(lookback / 60).toFixed(1)}h` : `${lookback}m`}
                       </p>
                     </div>
                     <button
