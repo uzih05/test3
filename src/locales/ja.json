@@ -470,7 +470,7 @@
     "bookmarked": "ブックマーク済み",
     "noBookmarks": "ブックマークされた応答はありません",
     "bookmark": "ブックマーク",
-    "freeLimit": "Freeプラン：24時間以前の応答はロックされています。Proにアップグレードすると無制限に閲覧できます。",
+    "freeLimit": "Freeプラン：24時間経過した応答はロックされています。Proにアップグレードすると無制限に閲覧できます。",
     "sourceAll": "全て",
     "sourceAskAi": "AI質問",
     "sourceHealer": "ヒーラー"

@@ -52,6 +52,7 @@ export default function SavedPage() {
         bookmarked: filterTab === 'bookmarked' ? true : undefined,
         limit: 100,
       }),
+    staleTime: 0,
   });
 
   const bookmarkMutation = useMutation({
