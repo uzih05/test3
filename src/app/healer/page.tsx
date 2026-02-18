@@ -423,56 +423,81 @@ function DiagnosisCard({
 
   return (
     <div className="space-y-4">
-      {/* Diagnosis */}
-      <div>
-        <p className="text-xs text-text-muted mb-1.5">{t('healer.diagnosis')}</p>
-        <div className="bg-bg-elevated rounded-[12px] p-4 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
-          {result.diagnosis}
-        </div>
-      </div>
-
-      {/* Suggested fix */}
-      {result.suggested_fix && (
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-text-muted">{t('healer.suggestedFix')}</p>
-            <div className="flex items-center gap-2">
-              {isPro ? (
-                <button
-                  onClick={handleSave}
-                  disabled={saved || saving}
-                  className={cn(
-                    'flex items-center gap-1 text-xs transition-colors',
-                    saved ? 'text-neon-lime' : 'text-text-muted hover:text-neon-lime'
-                  )}
-                >
-                  <Bookmark size={12} />
-                  {saved ? 'Saved' : 'Save'}
-                </button>
-              ) : (
-                <span className="text-[9px] text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded uppercase">Pro</span>
-              )}
-              <button
-                onClick={() => onCopy(result.suggested_fix!)}
-                className="flex items-center gap-1 text-xs text-text-muted hover:text-neon-lime transition-colors"
-              >
-                <Copy size={12} />
-                Copy
-              </button>
-            </div>
-          </div>
-          <pre className="bg-bg-elevated rounded-[12px] p-4 text-xs text-neon-lime/80 whitespace-pre-wrap font-mono overflow-x-auto max-h-[300px] overflow-y-auto">
-            {result.suggested_fix}
-          </pre>
-        </div>
-      )}
-
-      {result.status === 'no_errors' && (
+      {result.status === 'no_errors' ? (
         <div className="flex items-center gap-2 px-4 py-3 bg-neon-cyan-dim rounded-[12px] text-sm text-neon-cyan">
           <CheckCircle2 size={16} />
           {t('healer.noErrors')}
         </div>
+      ) : (
+        <div className={cn('grid gap-4', result.suggested_fix ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1')}>
+          {/* Diagnosis */}
+          <div>
+            <p className="text-xs text-text-muted mb-1.5">{t('healer.diagnosis')}</p>
+            <div className="bg-bg-elevated rounded-[12px] p-4 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed h-full max-h-[350px] overflow-y-auto">
+              {result.diagnosis}
+            </div>
+          </div>
+
+          {/* Suggested fix */}
+          {result.suggested_fix && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-xs text-text-muted">{t('healer.suggestedFix')}</p>
+                <div className="flex items-center gap-2">
+                  {isPro ? (
+                    <button
+                      onClick={handleSave}
+                      disabled={saved || saving}
+                      className={cn(
+                        'flex items-center gap-1 text-xs transition-colors',
+                        saved ? 'text-neon-lime' : 'text-text-muted hover:text-neon-lime'
+                      )}
+                    >
+                      <Bookmark size={12} />
+                      {saved ? 'Saved' : 'Save'}
+                    </button>
+                  ) : (
+                    <span className="text-[9px] text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded uppercase">Pro</span>
+                  )}
+                  <button
+                    onClick={() => onCopy(result.suggested_fix!)}
+                    className="flex items-center gap-1 text-xs text-text-muted hover:text-neon-lime transition-colors"
+                  >
+                    <Copy size={12} />
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <pre className="bg-[#0d1117] border border-border-default rounded-[12px] p-4 text-xs whitespace-pre-wrap font-mono overflow-x-auto max-h-[350px] overflow-y-auto">
+                <code dangerouslySetInnerHTML={{ __html: highlightPython(result.suggested_fix) }} />
+              </pre>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
+}
+
+function highlightPython(code: string): string {
+  const escaped = code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return escaped
+    // Comments
+    .replace(/(#.*)/g, '<span style="color:#6a9955">$1</span>')
+    // Strings (double and single quoted)
+    .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span style="color:#ce9178">$&</span>')
+    // Keywords
+    .replace(/\b(def|return|if|elif|else|for|while|in|not|and|or|is|None|True|False|try|except|finally|raise|import|from|class|with|as|pass|break|continue|lambda|yield)\b/g,
+      '<span style="color:#c586c0">$1</span>')
+    // Built-in functions
+    .replace(/\b(print|len|range|int|str|float|list|dict|set|tuple|type|isinstance|round|max|min|abs|sum|sorted|enumerate|zip|map|filter)\b/g,
+      '<span style="color:#dcdcaa">$1</span>')
+    // Numbers
+    .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#b5cea8">$1</span>')
+    // Function definitions
+    .replace(/\b(def)\s+(\w+)/g, '<span style="color:#c586c0">$1</span> <span style="color:#dcdcaa">$2</span>');
 }

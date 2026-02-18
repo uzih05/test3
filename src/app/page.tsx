@@ -20,6 +20,7 @@ import { ExecutionTimeline } from '@/components/dashboard/widgets/ExecutionTimel
 import { FunctionDistribution } from '@/components/dashboard/widgets/FunctionDistribution';
 import { RecentErrors } from '@/components/dashboard/widgets/RecentErrors';
 import { SystemStatus } from '@/components/dashboard/widgets/SystemStatus';
+import { SuggestOverview } from '@/components/dashboard/widgets/SuggestOverview';
 
 const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   kpi_overview: memo(KpiOverview),
@@ -30,6 +31,7 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType> = {
   function_distribution: memo(FunctionDistribution),
   recent_errors: memo(RecentErrors),
   system_status: memo(SystemStatus),
+  suggest_overview: memo(SuggestOverview),
 };
 
 const WIDGET_TITLE_KEYS: Record<string, string> = {
@@ -41,6 +43,7 @@ const WIDGET_TITLE_KEYS: Record<string, string> = {
   function_distribution: 'dashboard.widgetFunctionDistribution',
   recent_errors: 'dashboard.widgetRecentErrors',
   system_status: 'dashboard.widgetSystemStatus',
+  suggest_overview: 'dashboard.widgetSuggestOverview',
 };
 
 export default function DashboardPage() {

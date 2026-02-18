@@ -24,6 +24,7 @@ WIDGET_CATALOG = [
     {"type": "recent_errors", "name": "Recent Errors", "sizes": ["M", "L"], "default_size": "M"},
     {"type": "system_status", "name": "System Status", "sizes": ["S", "M"], "default_size": "S"},
     {"type": "kpi_overview", "name": "KPI Overview", "sizes": ["M", "L"], "default_size": "M"},
+    {"type": "suggest_overview", "name": "Suggestions", "sizes": ["M", "L"], "default_size": "M"},
 ]
 
 
