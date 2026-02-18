@@ -28,7 +28,7 @@ import { formatNumber, formatDuration, formatPercentage, formatCost, cn } from '
 import { TruncatedText } from '@/components/TruncatedText';
 import type { CacheAnalytics, DriftItem, DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
 
-type TabKey = 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
+type TabKey = 'overview' | 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
 
 const DRIFT_COLORS: Record<string, { bg: string; text: string }> = {
   ANOMALY: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
@@ -702,17 +702,22 @@ const DriftTab = memo(function DriftTab({
       <div className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
         <h3 className="text-sm font-medium text-text-secondary mb-4">{t('analysis.driftSimulator')}</h3>
         <div className="space-y-3">
-          <input
-            type="text"
+          <select
             value={simFn}
             onChange={(e) => setSimFn(e.target.value)}
-            placeholder={t('analysis.functionNamePlaceholder')}
             className={cn(
               'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
-              'text-sm text-text-primary placeholder:text-text-muted',
+              'text-sm text-text-primary',
               'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
             )}
-          />
+          >
+            <option value="">{t('analysis.functionNamePlaceholder')}</option>
+            {driftItems.map((item) => (
+              <option key={item.function_name} value={item.function_name}>
+                {item.function_name} ({item.status})
+              </option>
+            ))}
+          </select>
           <div className="flex gap-2">
             <input
               type="text"
@@ -826,7 +831,7 @@ export default function AnalysisPage() {
   const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
 
-  const [activeTab, setActiveTab] = useState<TabKey>('cacheReport');
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [simFn, setSimFn] = useState('');
   const [simText, setSimText] = useState('');
   const [simResult, setSimResult] = useState<DriftSimulationResult | null>(null);
@@ -848,7 +853,7 @@ export default function AnalysisPage() {
   const { data: tokenData } = useQuery({
     queryKey: ['tokenUsage'],
     queryFn: () => analyticsService.tokens(),
-    enabled: activeTab === 'costSavings',
+    enabled: activeTab === 'costSavings' || activeTab === 'overview',
     refetchInterval: 60_000,
   });
 
@@ -856,7 +861,7 @@ export default function AnalysisPage() {
   const { data: kpiData } = useQuery({
     queryKey: ['kpi', timeRangeMinutes],
     queryFn: () => analyticsService.kpi(timeRangeMinutes),
-    enabled: activeTab === 'costSavings',
+    enabled: activeTab === 'costSavings' || activeTab === 'overview',
     refetchInterval: 60_000,
   });
 
@@ -864,7 +869,7 @@ export default function AnalysisPage() {
   const { data: driftData, isLoading: loadingDrift } = useQuery({
     queryKey: ['driftSummary'],
     queryFn: () => cacheService.driftSummary(),
-    enabled: activeTab === 'drift',
+    enabled: activeTab === 'drift' || activeTab === 'overview',
     refetchInterval: 60_000,
   });
 
@@ -923,13 +928,14 @@ export default function AnalysisPage() {
     return { tokensSaved, costSaved, avgTokensPerExec };
   }, [analytics, tokenData, kpiData]);
 
-  const tabs: { key: TabKey; labelKey: string }[] = [
-    { key: 'cacheReport', labelKey: 'analysis.cacheReport' },
-    { key: 'costSavings', labelKey: 'analysis.costSavings' },
-    { key: 'inputScatter', labelKey: 'analysis.inputScatter' },
-    { key: 'bottleneck', labelKey: 'analysis.bottleneck' },
-    { key: 'errorClusters', labelKey: 'analysis.errorClusters' },
-    { key: 'drift', labelKey: 'analysis.drift' },
+  const tabs: { key: TabKey; labelKey: string; icon?: React.ComponentType<{ size: number; className?: string }> }[] = [
+    { key: 'overview', labelKey: 'analysis.overview', icon: Layers },
+    { key: 'cacheReport', labelKey: 'analysis.cacheReport', icon: Database },
+    { key: 'costSavings', labelKey: 'analysis.costSavings', icon: DollarSign },
+    { key: 'inputScatter', labelKey: 'analysis.inputScatter', icon: ScatterChart },
+    { key: 'bottleneck', labelKey: 'analysis.bottleneck', icon: Timer },
+    { key: 'errorClusters', labelKey: 'analysis.errorClusters', icon: AlertTriangle },
+    { key: 'drift', labelKey: 'analysis.drift', icon: TrendingUp },
   ];
 
   return (
@@ -954,6 +960,42 @@ export default function AnalysisPage() {
           </div>
         </div>
       </div>
+
+      {/* === Overview Tab === */}
+      {activeTab === 'overview' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tabs.filter(t => t.key !== 'overview').map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow hover:border-neon-lime/40 transition-colors text-left group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  {Icon && <Icon size={18} className="text-neon-lime" />}
+                  <h3 className="text-sm font-semibold text-text-primary">{t(tab.labelKey)}</h3>
+                </div>
+                <p className="text-xs text-text-muted mb-3">
+                  {tab.key === 'cacheReport' && (analytics?.has_data
+                    ? `${formatPercentage(analytics.cache_hit_rate)} hit rate, ${formatNumber(analytics.total_executions)} executions`
+                    : t('analysis.noDataYet') || 'No data yet')}
+                  {tab.key === 'costSavings' && (costCalc
+                    ? `~$${costCalc.costSaved.toFixed(2)} saved, ${formatNumber(Math.round(costCalc.tokensSaved))} tokens`
+                    : t('analysis.noDataYet') || 'No data yet')}
+                  {tab.key === 'inputScatter' && (t('analysis.inputScatterDesc') || 'Visualize input vector distribution')}
+                  {tab.key === 'bottleneck' && (t('analysis.bottleneckDesc') || 'Identify slow execution clusters')}
+                  {tab.key === 'errorClusters' && (t('analysis.errorClustersDesc') || 'Group similar errors by pattern')}
+                  {tab.key === 'drift' && `${driftItems.length} functions monitored`}
+                </p>
+                <span className="text-[11px] text-neon-lime opacity-0 group-hover:opacity-100 transition-opacity">
+                  {t('analysis.viewDetail') || 'View detail →'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* === Cache Report Tab === */}
       {activeTab === 'cacheReport' && (
