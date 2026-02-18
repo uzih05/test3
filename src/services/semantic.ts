@@ -50,6 +50,8 @@ export const semanticService = {
         status: string;
         duration_ms: number;
         timestamp_utc: string;
+        input_preview?: string;
+        output_preview?: string;
         score: number;
         candidate_type: 'DISCOVERY' | 'STEADY';
         distance_to_nearest_golden: number;

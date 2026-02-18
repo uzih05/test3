@@ -149,6 +149,8 @@ export interface GoldenRecord {
   note: string;
   tags: string[];
   created_at: string;
+  input_preview?: string;
+  output_preview?: string;
 }
 
 // === Healer ===
@@ -184,10 +186,19 @@ export interface GitHubPR {
   body?: string;
 }
 
+export interface GitHubPRFile {
+  filename: string;
+  status: string;
+  additions: number;
+  deletions: number;
+  changes: number;
+}
+
 export interface GitHubPRDetail extends GitHubPR {
   changed_files: number;
   additions: number;
   deletions: number;
+  files?: GitHubPRFile[];
 }
 
 export interface GitHubRepo {

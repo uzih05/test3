@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Star,
@@ -50,6 +50,7 @@ export default function GoldenPage() {
   const [registeredUuids, setRegisteredUuids] = useState<Set<string>>(new Set());
   const [selectedUuids, setSelectedUuids] = useState<Set<string>>(new Set());
   const [batchRegistering, setBatchRegistering] = useState(false);
+  const [expandedCandidateId, setExpandedCandidateId] = useState<string | null>(null);
 
   // Functions list for recommend/coverage tab
   const { data: fnListData } = useQuery({
@@ -600,9 +601,14 @@ export default function GoldenPage() {
                     <tbody>
                       {diverseRecData.candidates.map((c) => {
                         const isRegistered = registeredUuids.has(c.uuid);
+                        const isExpanded = expandedCandidateId === c.uuid;
                         return (
-                          <tr key={c.uuid} className="border-b border-border-default hover:bg-bg-card-hover transition-colors">
-                            <td className="w-10 px-3 py-3.5">
+                          <React.Fragment key={c.uuid}>
+                          <tr
+                            className="border-b border-border-default hover:bg-bg-card-hover transition-colors cursor-pointer"
+                            onClick={() => setExpandedCandidateId(isExpanded ? null : c.uuid)}
+                          >
+                            <td className="w-10 px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
                               {isRegistered ? (
                                 <CheckCircle2 size={16} className="text-neon-lime mx-auto" />
                               ) : (
@@ -646,7 +652,7 @@ export default function GoldenPage() {
                             <td className="px-5 py-3.5 text-xs text-text-muted" title={c.timestamp_utc}>
                               {timeAgo(c.timestamp_utc)}
                             </td>
-                            <td className="px-5 py-3.5 text-center">
+                            <td className="px-5 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
                               {isRegistered ? (
                                 <CheckCircle2 size={16} className="inline text-neon-lime" />
                               ) : (
@@ -662,6 +668,31 @@ export default function GoldenPage() {
                               )}
                             </td>
                           </tr>
+                          {isExpanded && (c.input_preview || c.output_preview) && (
+                            <tr className="border-b border-border-default bg-bg-elevated/50">
+                              <td colSpan={8} className="px-5 py-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {c.input_preview && (
+                                    <div>
+                                      <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Input</p>
+                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-text-secondary font-mono max-h-[100px] overflow-y-auto whitespace-pre-wrap break-all">
+                                        {c.input_preview}
+                                      </pre>
+                                    </div>
+                                  )}
+                                  {c.output_preview && (
+                                    <div>
+                                      <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Output</p>
+                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[100px] overflow-y-auto whitespace-pre-wrap break-all">
+                                        {c.output_preview}
+                                      </pre>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                          </React.Fragment>
                         );
                       })}
                     </tbody>
@@ -999,6 +1030,22 @@ function GoldenRecordRow({
                   {tag}
                 </span>
               ))}
+            </div>
+          )}
+          {record.input_preview && (
+            <div>
+              <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Input</p>
+              <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-text-secondary font-mono max-h-[120px] overflow-y-auto whitespace-pre-wrap break-all">
+                {record.input_preview}
+              </pre>
+            </div>
+          )}
+          {record.output_preview && (
+            <div>
+              <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Output</p>
+              <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[120px] overflow-y-auto whitespace-pre-wrap break-all">
+                {typeof record.output_preview === 'object' ? JSON.stringify(record.output_preview, null, 2) : record.output_preview}
+              </pre>
             </div>
           )}
           <div className="flex justify-end">

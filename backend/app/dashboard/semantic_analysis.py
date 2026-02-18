@@ -5,6 +5,7 @@ Vector-based analytics using PCA, KMeans, NearestNeighbors.
 Requires: numpy, scikit-learn
 """
 
+import json
 import logging
 from typing import Dict, Any, Optional, List
 
@@ -19,6 +20,18 @@ import weaviate.classes.query as wvc_query
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_str(value: Any) -> str:
+    """Convert value to string, using json.dumps for dict/list to avoid Python repr."""
+    if value is None:
+        return ""
+    if isinstance(value, (dict, list)):
+        try:
+            return json.dumps(value, ensure_ascii=False)
+        except (TypeError, ValueError):
+            return str(value)
+    return str(value)
 
 
 class SemanticAnalysisService:
@@ -344,6 +357,8 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
+                    "input_preview": _safe_str(props.get("input_preview", ""))[:500],
+                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:500],
                     "distance_to_nearest_golden": round(float(distances[i][0]), 6),
                     "candidate_type": "",
                     "score": 0.0,
@@ -362,6 +377,8 @@ class SemanticAnalysisService:
                         "status": props.get("status", ""),
                         "duration_ms": float(props.get("duration_ms", 0)),
                         "timestamp_utc": str(props.get("timestamp_utc", "")),
+                        "input_preview": str(props.get("input_preview", ""))[:500],
+                        "output_preview": str(props.get("output_preview") or props.get("return_value", ""))[:500],
                         "distance_to_nearest_golden": -1.0,
                         "candidate_type": "DISCOVERY",
                         "score": 1.0,
@@ -383,6 +400,8 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
+                    "input_preview": _safe_str(props.get("input_preview", ""))[:500],
+                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:500],
                     "distance_to_nearest_golden": round(float(avg_distances[i]), 6),
                     "candidate_type": "",
                     "score": 0.0,
