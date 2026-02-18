@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Check, RefreshCw } from 'lucide-react';
-import { useState, memo } from 'react';
+import { useState, useRef, useCallback, memo } from 'react';
 import { widgetsService } from '@/services/widgets';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -117,9 +117,19 @@ export default function DashboardPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['widgets'] }),
   });
 
-  const handleRefresh = () => {
+  const refreshCooldownRef = useRef(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    if (refreshCooldownRef.current) return;
+    refreshCooldownRef.current = true;
+    setIsRefreshing(true);
     queryClient.invalidateQueries();
-  };
+    setTimeout(() => {
+      refreshCooldownRef.current = false;
+      setIsRefreshing(false);
+    }, 5_000); // 5s cooldown
+  }, [queryClient]);
 
   return (
     <div>
@@ -133,10 +143,16 @@ export default function DashboardPage() {
 
           <button
             onClick={handleRefresh}
-            className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card"
+            disabled={isRefreshing}
+            className={cn(
+              'p-2 transition-colors rounded-[12px]',
+              isRefreshing
+                ? 'text-text-muted/40 cursor-not-allowed'
+                : 'text-text-muted hover:text-neon-lime hover:bg-bg-card'
+            )}
             title={t('dashboard.refresh')}
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
           </button>
 
           <button
