@@ -23,6 +23,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",      # Next.js dev
         "http://127.0.0.1:3000",
         "http://localhost:8000",      # FastAPI dev
+        "https://vectorsurfer.com",
+        "https://www.vectorsurfer.com",
     ]
     
     # VectorWave (inherit from VectorWave's ..env)
