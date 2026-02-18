@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { Menu, Search, Sun, Moon, Monitor, Globe } from 'lucide-react';
 import { useThemeStore } from '@/stores/themeStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
+import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -13,6 +15,7 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle }: HeaderProps) {
   const { mode, setMode } = useThemeStore();
+  const projectSelected = usePagePreferencesStore((s) => s.projectSelected);
   const { t, language, setLanguage } = useTranslation();
   const [showPalette, setShowPalette] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -67,6 +70,9 @@ export function Header({ onMenuToggle }: HeaderProps) {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
+          {/* Global time range selector */}
+          {projectSelected && <TimeRangeSelector />}
+
           {/* Theme toggle */}
           <button
             onClick={nextTheme}

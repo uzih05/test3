@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 
 import { WidgetCard } from '@/components/dashboard/WidgetCard';
 import { WidgetPicker } from '@/components/dashboard/WidgetPicker';
-import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { FillModeSelector } from '@/components/dashboard/FillModeSelector';
 
 import { KpiOverview } from '@/components/dashboard/widgets/KpiOverview';
@@ -139,7 +138,6 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <FillModeSelector />
-          <TimeRangeSelector />
 
           <button
             onClick={handleRefresh}

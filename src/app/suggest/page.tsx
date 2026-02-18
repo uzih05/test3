@@ -15,7 +15,6 @@ import Link from 'next/link';
 import { suggestService } from '@/services/suggest';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
-import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { Suggestion, SuggestionPriority, SuggestionType } from '@/types';
@@ -93,7 +92,6 @@ export default function SuggestPage() {
           <h1 className="text-xl font-bold text-text-primary">{t('suggest.title')}</h1>
           <p className="text-xs text-text-muted mt-0.5">{t('suggest.subtitle')}</p>
         </div>
-        <TimeRangeSelector />
       </div>
 
       {/* Summary cards */}

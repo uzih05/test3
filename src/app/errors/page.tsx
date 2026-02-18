@@ -19,7 +19,6 @@ import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { StatusBadge } from '@/components/StatusBadge';
 import { SurferChart } from '@/components/charts/SurferChart';
-import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, timeAgo, cn } from '@/lib/utils';
 import { useChartColors } from '@/lib/hooks/useChartColors';
 
@@ -93,7 +92,6 @@ export default function ErrorsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-text-primary">{t('errors.title')}</h1>
-        <TimeRangeSelector />
       </div>
 
       {/* Summary cards */}
