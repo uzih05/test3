@@ -52,6 +52,7 @@ export default function ProjectsPage() {
   const [formApiKey, setFormApiKey] = useState('');
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [activateError, setActivateError] = useState<string | null>(null);
 
   useEffect(() => {
     const dismissed = localStorage.getItem('quickStartDismissed');
@@ -79,9 +80,13 @@ export default function ProjectsPage() {
   const activateMutation = useMutation({
     mutationFn: (id: string) => connectionsService.activate(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['connections'] });
+      queryClient.removeQueries();
       usePagePreferencesStore.getState().setProjectSelected(true);
       router.push('/');
+    },
+    onError: (err) => {
+      setActivatingId(null);
+      setActivateError(err instanceof Error ? err.message : 'Failed to activate project');
     },
   });
 
@@ -125,7 +130,9 @@ export default function ProjectsPage() {
   };
 
   const handleSelect = (conn: WeaviateConnection) => {
+    setActivateError(null);
     if (conn.is_active) {
+      queryClient.removeQueries();
       usePagePreferencesStore.getState().setProjectSelected(true);
       router.push('/');
     } else {
@@ -223,6 +230,17 @@ export default function ProjectsPage() {
               className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
             >
               {t('projects.newConnection')}
+            </button>
+          </div>
+        )}
+
+        {/* Activate error */}
+        {activateError && (
+          <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-[14px] bg-neon-red-dim text-neon-red text-sm">
+            <WifiOff size={16} />
+            {activateError}
+            <button onClick={() => setActivateError(null)} className="ml-auto p-0.5 hover:opacity-70">
+              <X size={14} />
             </button>
           </div>
         )}
