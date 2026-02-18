@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Github,
@@ -33,7 +33,21 @@ export default function GitHubPage() {
   const [view, setView] = useState<PageView>('repos');
   const [tokenInput, setTokenInput] = useState('');
   const [repoSearch, setRepoSearch] = useState('');
-  const [selectedRepo, setSelectedRepo] = useState<{ owner: string; repo: string } | null>(null);
+  const [selectedRepo, setSelectedRepo] = useState<{ owner: string; repo: string } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const saved = localStorage.getItem('github_selected_repo');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
+
+  useEffect(() => {
+    if (selectedRepo) {
+      localStorage.setItem('github_selected_repo', JSON.stringify(selectedRepo));
+    } else {
+      localStorage.removeItem('github_selected_repo');
+    }
+  }, [selectedRepo]);
   const [prFilter, setPrFilter] = useState<'open' | 'closed' | 'all'>('open');
   const [selectedPR, setSelectedPR] = useState<number | null>(null);
 
@@ -470,6 +484,28 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
           </div>
         </div>
       </div>
+
+      {/* Changed Files */}
+      {detail.files && detail.files.length > 0 && (
+        <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
+          <div className="px-5 py-3 border-b border-border-default">
+            <p className="text-sm font-medium text-text-secondary">Changed Files ({detail.files.length})</p>
+          </div>
+          <div className="divide-y divide-border-default max-h-[300px] overflow-y-auto">
+            {detail.files.map((file) => (
+              <div key={file.filename} className="flex items-center gap-3 px-5 py-2.5">
+                <FileCode size={14} className={cn(
+                  'shrink-0',
+                  file.status === 'added' ? 'text-neon-lime' : file.status === 'removed' ? 'text-neon-red' : 'text-neon-orange'
+                )} />
+                <span className="text-sm text-text-primary truncate flex-1 font-mono">{file.filename}</span>
+                {file.additions > 0 && <span className="text-[11px] text-neon-lime font-mono">+{file.additions}</span>}
+                {file.deletions > 0 && <span className="text-[11px] text-neon-red font-mono">-{file.deletions}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Labels & Reviewers */}
       {((detail.labels || []).length > 0 || (detail.reviewers || []).length > 0) && (

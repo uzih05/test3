@@ -223,6 +223,22 @@ async def get_pull_detail(
     token = await _get_token(user, db)
     pr = await _github_get(token, f"/repos/{owner}/{repo}/pulls/{number}")
 
+    # Fetch changed files list
+    try:
+        files_raw = await _github_get(token, f"/repos/{owner}/{repo}/pulls/{number}/files")
+        files = [
+            {
+                "filename": f["filename"],
+                "status": f.get("status", "modified"),
+                "additions": f.get("additions", 0),
+                "deletions": f.get("deletions", 0),
+                "changes": f.get("changes", 0),
+            }
+            for f in (files_raw if isinstance(files_raw, list) else [])[:50]
+        ]
+    except Exception:
+        files = []
+
     return {
         "number": pr["number"],
         "title": pr["title"],
@@ -245,4 +261,5 @@ async def get_pull_detail(
             rv["login"] for rv in pr.get("requested_reviewers", [])
         ],
         "html_url": pr["html_url"],
+        "files": files,
     }
