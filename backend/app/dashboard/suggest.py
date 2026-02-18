@@ -230,15 +230,21 @@ class SuggestService:
                 continue
             hit_rate = round((cache_hits / total) * 100, 1)
             if hit_rate < 5:
+                potential_savings = total - cache_hits
+                priority = "high" if total >= 50 and hit_rate < 1 else "medium"
                 suggestions.append({
                     "type": "cache_optimization",
-                    "priority": "medium",
+                    "priority": priority,
                     "function_name": fname,
-                    "message": f"Cache hit rate is only {hit_rate}% with {total} executions",
+                    "message": (
+                        f"Cache hit rate is only {hit_rate}% ({cache_hits}/{total} executions). "
+                        f"Setting up semantic caching with golden data could save ~{potential_savings} redundant API calls."
+                    ),
                     "metrics": {
                         "total_count": total,
                         "cache_hit_count": cache_hits,
                         "cache_hit_rate": hit_rate,
+                        "potential_savings": potential_savings,
                     },
                 })
         return suggestions

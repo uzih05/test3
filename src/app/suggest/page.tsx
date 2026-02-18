@@ -184,11 +184,34 @@ export default function SuggestPage() {
           <Lightbulb size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
           <p className="text-sm text-text-muted">{t('suggest.noSuggestions')}</p>
         </div>
-      ) : (
-        <div className="space-y-3">
+      ) : priorityFilter !== 'all' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map((s, i) => (
             <SuggestionCard key={`${s.function_name}-${s.type}-${i}`} suggestion={s} />
           ))}
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {ALL_PRIORITIES.map((priority) => {
+            const group = filtered.filter((s) => s.priority === priority);
+            if (group.length === 0) return null;
+            const style = PRIORITY_STYLES[priority];
+            return (
+              <div key={priority}>
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className={cn('text-[11px] font-semibold uppercase px-2.5 py-1 rounded-[8px]', style.bg, style.text)}>
+                    {t(PRIORITY_I18N[priority])}
+                  </span>
+                  <span className="text-xs text-text-muted">{group.length}</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {group.map((s, i) => (
+                    <SuggestionCard key={`${s.function_name}-${s.type}-${i}`} suggestion={s} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -207,13 +230,13 @@ function SuggestionCard({ suggestion: s }: { suggestion: Suggestion }) {
     : s.type === 'no_golden_data'
     ? '/golden'
     : s.type === 'cache_optimization'
-    ? '/cache'
+    ? '/golden'
     : '/functions';
 
   const actionLabel = s.type === 'high_error_rate'
     ? t('suggest.viewErrors')
     : s.type === 'cache_optimization'
-    ? t('suggest.viewCache')
+    ? t('suggest.setupCaching') || 'Set up Caching'
     : s.type === 'no_golden_data'
     ? t('suggest.viewGolden')
     : t('suggest.viewFunction');
