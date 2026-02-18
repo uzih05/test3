@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import { connectionsService } from '@/services/connections';
 import { useAuthStore } from '@/stores/authStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { WeaviateConnection } from '@/types';
@@ -79,7 +80,7 @@ export default function ProjectsPage() {
     mutationFn: (id: string) => connectionsService.activate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['connections'] });
-      sessionStorage.setItem('project_selected', 'true');
+      usePagePreferencesStore.getState().setProjectSelected(true);
       router.push('/');
     },
   });
@@ -125,7 +126,7 @@ export default function ProjectsPage() {
 
   const handleSelect = (conn: WeaviateConnection) => {
     if (conn.is_active) {
-      sessionStorage.setItem('project_selected', 'true');
+      usePagePreferencesStore.getState().setProjectSelected(true);
       router.push('/');
     } else {
       setActivatingId(conn.id);

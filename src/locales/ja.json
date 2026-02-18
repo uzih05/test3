@@ -189,6 +189,7 @@
     "executionCount": "実行回数",
     "avgRatio": "平均比",
     "noData": "分析データがありません",
+    "bottleneckEmptyHint": "ボトルネック分析にはベクトルデータを持つ実行が2件以上必要です。トレースを追加してから再度お試しください。",
     "blendedRate": "ブレンドレート",
     "basedOn": "OpenAI GPT-4o価格基準",
     "inputScatter": "入力分布",

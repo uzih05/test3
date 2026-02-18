@@ -17,6 +17,7 @@ import {
 import { healerService } from '@/services/healer';
 import { savedService } from '@/services/saved';
 import { useAuthStore } from '@/stores/authStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { timeAgo, cn } from '@/lib/utils';
 import type { DiagnosisResult, HealableFunction } from '@/types';
@@ -36,9 +37,11 @@ export default function HealerPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
 
-  const [mode, setMode] = useState<'single' | 'batch'>('single');
+  const mode = usePagePreferencesStore((s) => s.healerMode);
+  const setMode = usePagePreferencesStore((s) => s.setHealerMode);
   const [functionFilter, setFunctionFilter] = useState('');
-  const [timeRangeFilter, setTimeRangeFilter] = useState(1440);
+  const timeRangeFilter = usePagePreferencesStore((s) => s.healerTimeRangeFilter);
+  const setTimeRangeFilter = usePagePreferencesStore((s) => s.setHealerTimeRangeFilter);
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
   const [lookback, setLookback] = useState(1440);
 

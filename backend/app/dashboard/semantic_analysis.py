@@ -128,7 +128,7 @@ class SemanticAnalysisService:
             if obj.vector and obj.vector.get("default")
         ]
 
-        if len(objects_with_vectors) < n_clusters:
+        if len(objects_with_vectors) < 2:
             return []
 
         vectors = np.array([obj.vector["default"] for obj in objects_with_vectors])
@@ -158,7 +158,7 @@ class SemanticAnalysisService:
                 "avg_duration_ms": round(float(avg_dur), 2),
                 "count": int(np.sum(mask)),
                 "representative_input": representative,
-                "is_bottleneck": float(avg_dur) > global_avg * 2,
+                "is_bottleneck": bool(float(avg_dur) > float(global_avg) * 2),
             })
 
         clusters.sort(key=lambda c: c["avg_duration_ms"], reverse=True)
@@ -357,8 +357,11 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
-                    "input_preview": _safe_str(props.get("input_preview", ""))[:500],
-                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:500],
+                    "input_preview": _safe_str(props.get("input_preview", ""))[:1500],
+                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:1500],
+                    "trace_id": props.get("trace_id", ""),
+                    "error_code": props.get("error_code", ""),
+                    "error_message": _safe_str(props.get("error_message", "")),
                     "distance_to_nearest_golden": round(float(distances[i][0]), 6),
                     "candidate_type": "",
                     "score": 0.0,
@@ -377,8 +380,11 @@ class SemanticAnalysisService:
                         "status": props.get("status", ""),
                         "duration_ms": float(props.get("duration_ms", 0)),
                         "timestamp_utc": str(props.get("timestamp_utc", "")),
-                        "input_preview": str(props.get("input_preview", ""))[:500],
-                        "output_preview": str(props.get("output_preview") or props.get("return_value", ""))[:500],
+                        "input_preview": _safe_str(props.get("input_preview", ""))[:1500],
+                        "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:1500],
+                        "trace_id": props.get("trace_id", ""),
+                        "error_code": props.get("error_code", ""),
+                        "error_message": _safe_str(props.get("error_message", "")),
                         "distance_to_nearest_golden": -1.0,
                         "candidate_type": "DISCOVERY",
                         "score": 1.0,
@@ -400,8 +406,11 @@ class SemanticAnalysisService:
                     "status": props.get("status", ""),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
-                    "input_preview": _safe_str(props.get("input_preview", ""))[:500],
-                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:500],
+                    "input_preview": _safe_str(props.get("input_preview", ""))[:1500],
+                    "output_preview": _safe_str(props.get("output_preview") or props.get("return_value", ""))[:1500],
+                    "trace_id": props.get("trace_id", ""),
+                    "error_code": props.get("error_code", ""),
+                    "error_message": _safe_str(props.get("error_message", "")),
                     "distance_to_nearest_golden": round(float(avg_distances[i]), 6),
                     "candidate_type": "",
                     "score": 0.0,
@@ -502,8 +511,8 @@ class SemanticAnalysisService:
                     "distance": round(avg_dist, 4),
                     "duration_ms": float(props.get("duration_ms", 0)),
                     "timestamp_utc": str(props.get("timestamp_utc", "")),
-                    "input_preview": str(props.get("input_preview", ""))[:200],
-                    "output_preview": str(props.get("return_value", props.get("output_preview", "")))[:200],
+                    "input_preview": _safe_str(props.get("input_preview", ""))[:200],
+                    "output_preview": _safe_str(props.get("return_value") or props.get("output_preview", ""))[:200],
                 })
 
         candidates.sort(key=lambda c: c["distance"], reverse=True)

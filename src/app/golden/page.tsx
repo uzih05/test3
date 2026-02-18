@@ -16,7 +16,9 @@ import {
   CheckCircle2,
   Map,
   Info,
+  ExternalLink,
 } from 'lucide-react';
+import Link from 'next/link';
 import { cacheService } from '@/services/cache';
 import { semanticService } from '@/services/semantic';
 import { functionsService } from '@/services/functions';
@@ -24,14 +26,26 @@ import { executionsService } from '@/services/executions';
 import { useTranslation } from '@/lib/i18n';
 import { formatNumber, formatPercentage, formatDuration, timeAgo, cn } from '@/lib/utils';
 import { TruncatedText } from '@/components/TruncatedText';
+import { StatusBadge } from '@/components/StatusBadge';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import type { GoldenRecord, ScatterPoint, CoverageResult } from '@/types';
+
+function tryPrettyJson(raw: string): string {
+  try {
+    const parsed = JSON.parse(raw);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return raw;
+  }
+}
 
 export default function GoldenPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [functionFilter, setFunctionFilter] = useState('');
-  const [activeTab, setActiveTab] = useState<'records' | 'recommend' | 'coverage'>('records');
+  const activeTab = usePagePreferencesStore((s) => s.goldenActiveTab) as 'records' | 'recommend' | 'coverage';
+  const setActiveTab = usePagePreferencesStore((s) => s.setGoldenActiveTab);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Records sub-mode
@@ -668,23 +682,61 @@ export default function GoldenPage() {
                               )}
                             </td>
                           </tr>
-                          {isExpanded && (c.input_preview || c.output_preview) && (
+                          {isExpanded && (
                             <tr className="border-b border-border-default bg-bg-elevated/50">
-                              <td colSpan={8} className="px-5 py-3">
+                              <td colSpan={8} className="px-5 py-4">
+                                {/* Header bar */}
+                                <div className="flex items-center gap-3 mb-3">
+                                  <StatusBadge status={c.status} />
+                                  <span className="text-xs font-mono text-text-secondary">{c.function_name}</span>
+                                  <span className="text-xs text-text-muted">{formatDuration(c.duration_ms)}</span>
+                                  <span className="text-xs text-text-muted ml-auto">{c.timestamp_utc}</span>
+                                </div>
+
+                                {/* Meta grid */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3 text-xs">
+                                  <div>
+                                    <span className="text-text-muted">Span ID</span>
+                                    <p className="font-mono text-text-secondary truncate">{c.span_id}</p>
+                                  </div>
+                                  {c.trace_id && (
+                                    <div>
+                                      <span className="text-text-muted">Trace ID</span>
+                                      <p className="font-mono text-text-secondary">
+                                        <Link href={`/traces/${c.trace_id}`} className="text-neon-cyan hover:underline inline-flex items-center gap-1">
+                                          {c.trace_id.slice(0, 12)}...
+                                          <ExternalLink size={10} />
+                                        </Link>
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Error block */}
+                                {c.error_code && (
+                                  <div className="bg-neon-red-dim rounded-[8px] p-2.5 mb-3">
+                                    <p className="text-[10px] text-neon-red uppercase tracking-wider mb-1">Error: {c.error_code}</p>
+                                    {c.error_message && (
+                                      <p className="text-xs text-neon-red/80 font-mono whitespace-pre-wrap break-all">{c.error_message}</p>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Input / Output */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                   {c.input_preview && (
                                     <div>
                                       <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Input</p>
-                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-text-secondary font-mono max-h-[100px] overflow-y-auto whitespace-pre-wrap break-all">
-                                        {c.input_preview}
+                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-text-secondary font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all">
+                                        {tryPrettyJson(c.input_preview)}
                                       </pre>
                                     </div>
                                   )}
                                   {c.output_preview && (
                                     <div>
                                       <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Output</p>
-                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[100px] overflow-y-auto whitespace-pre-wrap break-all">
-                                        {c.output_preview}
+                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all">
+                                        {tryPrettyJson(c.output_preview)}
                                       </pre>
                                     </div>
                                   )}

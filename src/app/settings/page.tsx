@@ -22,6 +22,7 @@ import { authService } from '@/services/auth';
 import { connectionsService } from '@/services/connections';
 import { useAuthStore } from '@/stores/authStore';
 import { useThemeStore } from '@/stores/themeStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -360,7 +361,8 @@ const AccountSection = memo(function AccountSection() {
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('appearance');
+  const activeTab = usePagePreferencesStore((s) => s.settingsActiveTab) as SettingsTab;
+  const setActiveTab = usePagePreferencesStore((s) => s.setSettingsActiveTab);
 
   const tabs: { key: SettingsTab; label: string; icon: React.ComponentType<{ size: number; className?: string }> }[] = [
     { key: 'appearance', label: t('settings.appearance'), icon: Palette },

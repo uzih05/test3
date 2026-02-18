@@ -189,6 +189,7 @@
     "executionCount": "실행 횟수",
     "avgRatio": "평균 대비",
     "noData": "분석 데이터가 없습니다",
+    "bottleneckEmptyHint": "병목 분석에는 벡터 데이터가 있는 실행이 최소 2개 필요합니다. 트레이스를 더 수집한 뒤 다시 시도해주세요.",
     "blendedRate": "혼합 단가",
     "basedOn": "OpenAI GPT-4o 기준 가격",
     "inputScatter": "입력 분포",

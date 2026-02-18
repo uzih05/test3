@@ -21,6 +21,7 @@ import { cacheService } from '@/services/cache';
 import { analyticsService } from '@/services/analytics';
 import { semanticService } from '@/services/semantic';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
@@ -447,6 +448,7 @@ const BottleneckTab = memo(function BottleneckTab({
       <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
         <Timer size={28} className="mx-auto mb-3 text-text-muted opacity-40" />
         <p className="text-sm text-text-muted">{t('analysis.noData')}</p>
+        <p className="text-xs text-text-muted/60 mt-2">{t('analysis.bottleneckEmptyHint')}</p>
       </div>
     );
   }
@@ -831,7 +833,8 @@ export default function AnalysisPage() {
   const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
 
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const activeTab = usePagePreferencesStore((s) => s.analysisActiveTab) as TabKey;
+  const setActiveTab = usePagePreferencesStore((s) => s.setAnalysisActiveTab);
   const [simFn, setSimFn] = useState('');
   const [simText, setSimText] = useState('');
   const [simResult, setSimResult] = useState<DriftSimulationResult | null>(null);

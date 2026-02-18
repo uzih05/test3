@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/types';
 import { api, ApiError } from '@/lib/api';
+import { usePagePreferencesStore } from './pagePreferencesStore';
 
 interface AuthState {
   user: User | null;
@@ -74,9 +75,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false, error: null });
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('project_selected');
-        }
+        usePagePreferencesStore.getState().resetAll();
       },
 
       checkAuth: async () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Github,
@@ -22,6 +22,7 @@ import {
 import { githubService } from '@/services/github';
 import { useTranslation } from '@/lib/i18n';
 import { timeAgo, cn } from '@/lib/utils';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import type { GitHubRepo, GitHubPR, GitHubPRDetail } from '@/types';
 
 type PageView = 'connect' | 'repos' | 'pulls' | 'detail';
@@ -33,21 +34,8 @@ export default function GitHubPage() {
   const [view, setView] = useState<PageView>('repos');
   const [tokenInput, setTokenInput] = useState('');
   const [repoSearch, setRepoSearch] = useState('');
-  const [selectedRepo, setSelectedRepo] = useState<{ owner: string; repo: string } | null>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const saved = localStorage.getItem('github_selected_repo');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
-
-  useEffect(() => {
-    if (selectedRepo) {
-      localStorage.setItem('github_selected_repo', JSON.stringify(selectedRepo));
-    } else {
-      localStorage.removeItem('github_selected_repo');
-    }
-  }, [selectedRepo]);
+  const selectedRepo = usePagePreferencesStore((s) => s.githubSelectedRepo);
+  const setSelectedRepo = usePagePreferencesStore((s) => s.setGithubSelectedRepo);
   const [prFilter, setPrFilter] = useState<'open' | 'closed' | 'all'>('open');
   const [selectedPR, setSelectedPR] = useState<number | null>(null);
 

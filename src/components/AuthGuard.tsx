@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 
 const PUBLIC_PATHS = ['/login', '/signup'];
 const FULLSCREEN_PATHS = ['/login', '/signup', '/projects', '/projects/quickstart', '/account'];
@@ -11,6 +12,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, checkAuth } = useAuthStore();
+  const projectSelected = usePagePreferencesStore((s) => s.projectSelected);
   const [checked, setChecked] = useState(false);
 
   // Dev mode: skip auth guard
@@ -40,12 +42,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     if (isAuthenticated && !FULLSCREEN_PATHS.includes(pathname)) {
-      const projectSelected = sessionStorage.getItem('project_selected');
       if (!projectSelected) {
         router.replace('/projects');
       }
     }
-  }, [checked, isAuthenticated, pathname, router, isDev]);
+  }, [checked, isAuthenticated, pathname, router, isDev, projectSelected]);
 
   if (!checked) {
     return (

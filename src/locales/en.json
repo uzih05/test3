@@ -189,6 +189,7 @@
     "executionCount": "Executions",
     "avgRatio": "vs Average",
     "noData": "No analysis data available",
+    "bottleneckEmptyHint": "Bottleneck analysis requires at least 2 executions with vector data. Run more traces and try again.",
     "blendedRate": "Blended Rate",
     "basedOn": "Based on OpenAI GPT-4o pricing",
     "inputScatter": "Input Scatter",

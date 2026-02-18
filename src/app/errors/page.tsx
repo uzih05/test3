@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { errorsService } from '@/services/errors';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { StatusBadge } from '@/components/StatusBadge';
 import { SurferChart } from '@/components/charts/SurferChart';
@@ -32,7 +33,8 @@ export default function ErrorsPage() {
   const [functionFilter, setFunctionFilter] = useState(initialFn);
   const [errorCodeFilter, setErrorCodeFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchMode, setSearchMode] = useState<'filter' | 'semantic'>('filter');
+  const searchMode = usePagePreferencesStore((s) => s.errorsSearchMode);
+  const setSearchMode = usePagePreferencesStore((s) => s.setErrorsSearchMode);
 
   const debouncedFunctionFilter = useDebounce(functionFilter, 300);
   const debouncedErrorCodeFilter = useDebounce(errorCodeFilter, 300);

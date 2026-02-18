@@ -52,6 +52,9 @@ export const semanticService = {
         timestamp_utc: string;
         input_preview?: string;
         output_preview?: string;
+        trace_id?: string;
+        error_code?: string;
+        error_message?: string;
         score: number;
         candidate_type: 'DISCOVERY' | 'STEADY';
         distance_to_nearest_golden: number;

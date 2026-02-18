@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import { suggestService } from '@/services/suggest';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -65,7 +66,8 @@ const ALL_TYPES: SuggestionType[] = [
 export default function SuggestPage() {
   const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
-  const [priorityFilter, setPriorityFilter] = useState<SuggestionPriority | 'all'>('all');
+  const priorityFilter = usePagePreferencesStore((s) => s.suggestPriorityFilter) as SuggestionPriority | 'all';
+  const setPriorityFilter = usePagePreferencesStore((s) => s.setSuggestPriorityFilter);
   const [typeFilter, setTypeFilter] = useState<SuggestionType | 'all'>('all');
 
   const { data, isLoading, isError } = useQuery({

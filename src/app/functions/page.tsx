@@ -16,6 +16,7 @@ import {
   Code2,
 } from 'lucide-react';
 import { functionsService } from '@/services/functions';
+import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { FunctionDetail } from '@/components/FunctionDetail';
 import { formatNumber, formatDuration, formatPercentage, getErrorRateSeverity, cn } from '@/lib/utils';
@@ -30,8 +31,10 @@ export default function FunctionsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'semantic' | 'hybrid'>('hybrid');
   const [alpha, setAlpha] = useState(0.5);
-  const [viewMode, setViewMode] = useState<'grid' | 'tree'>('grid');
-  const [sortBy, setSortBy] = useState<SortKey>('execution_count');
+  const viewMode = usePagePreferencesStore((s) => s.functionsViewMode);
+  const setViewMode = usePagePreferencesStore((s) => s.setFunctionsViewMode);
+  const sortBy = usePagePreferencesStore((s) => s.functionsSortBy) as SortKey;
+  const setSortBy = usePagePreferencesStore((s) => s.setFunctionsSortBy);
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
   const [askQuery, setAskQuery] = useState('');
   const [showAsk, setShowAsk] = useState(false);
