@@ -82,24 +82,10 @@ class HealerService:
                 filters=wvc_query.Filter.by_property("function_name").equal(function_name),
                 limit=1,
             )
-            if not func_result.objects:
-                return {
-                    "function_name": function_name,
-                    "diagnosis": f"Function definition not found: {function_name}",
-                    "suggested_fix": None,
-                    "lookback_minutes": lookback_minutes,
-                    "status": "error"
-                }
 
-            source_code = func_result.objects[0].properties.get('source_code', '')
-            if not source_code:
-                return {
-                    "function_name": function_name,
-                    "diagnosis": "No stored source code found.",
-                    "suggested_fix": None,
-                    "lookback_minutes": lookback_minutes,
-                    "status": "error"
-                }
+            source_code = ''
+            if func_result.objects:
+                source_code = func_result.objects[0].properties.get('source_code', '')
 
             # 2. Collect recent error logs
             time_limit = (datetime.now(timezone.utc) - timedelta(minutes=lookback_minutes)).isoformat()
@@ -136,10 +122,15 @@ class HealerService:
                 sort_ascending=False
             )
 
-            # 4. Construct prompt
-            prompt_context = self._construct_prompt(
-                function_name, source_code, error_logs, success_logs, lookback_minutes
-            )
+            # 4. Construct prompt (with or without source code)
+            if source_code:
+                prompt_context = self._construct_prompt(
+                    function_name, source_code, error_logs, success_logs, lookback_minutes
+                )
+            else:
+                prompt_context = self._construct_prompt_without_source(
+                    function_name, error_logs, success_logs, lookback_minutes
+                )
 
             # 5. Call LLM
             result = llm.chat(
@@ -235,6 +226,55 @@ You are an expert Python debugger. Your goal is to fix a buggy function based on
     - Start exactly with `def {func_name}(...):`.
     - **DO NOT** include the `@vectorize` decorator or any other decorators in the output.
     - **DO NOT** include any markdown formatting (like ```python), comments outside the function, or explanations.
+'''
+        return prompt
+
+    def _construct_prompt_without_source(self, func_name, errors, successes, lookback_minutes) -> str:
+        """Construct debugging prompt when source code is not available."""
+        error_details = []
+        for err in errors:
+            inputs = {k: v for k, v in err.items()
+                      if k not in ['trace_id', 'span_id', 'error_message', 'source_code', 'return_value']}
+            error_details.append(f"""
+- Timestamp: {err.get('timestamp_utc')}
+- Error Code: {err.get('error_code')}
+- Error Message: {err.get('error_message')}
+- Inputs causing error: {json.dumps(inputs, default=str)}
+            """)
+
+        success_details = []
+        for suc in successes:
+            inputs = {k: v for k, v in suc.items()
+                      if k not in ['trace_id', 'span_id', 'return_value']}
+            output = suc.get('return_value')
+            success_details.append(f"""
+- Inputs: {json.dumps(inputs, default=str)}
+- Output: {output}
+            """)
+
+        prompt = fr'''
+# Debugging Task for Function: `{func_name}`
+
+## 1. Context
+You are an expert Python debugger. The source code for this function is NOT available.
+Analyze the execution logs below and provide a diagnosis and suggested fix.
+
+## 2. Recent Errors (last {lookback_minutes} minutes)
+{''.join(error_details)}
+
+## 3. Successful Executions (Reference)
+{''.join(success_details) if success_details else "No success logs available."}
+
+## 4. Instructions
+1. **Analyze**: Based on the function name `{func_name}` and the execution patterns, infer the intended functionality.
+2. **Diagnose**: Identify the root cause of the errors from the error messages and input patterns.
+3. **Fix**: Write a corrected implementation of the function that would handle all inputs correctly.
+    - Infer the expected input→output pattern from successful executions.
+    - Fix the root logic. DO NOT simply add defensive try/except wrappers.
+4. **Constraint**:
+    - Return **ONLY** the full, corrected function definition.
+    - Start exactly with `def {func_name}(...):`.
+    - **DO NOT** include decorators, markdown formatting, or explanations.
 '''
         return prompt
 
