@@ -317,6 +317,11 @@
       "system": "システム"
     },
     "account": "アカウント",
+    "colorTheme": "カラーテーマ",
+    "colorThemeNeon": "ネオン",
+    "colorThemeSignature": "シグネチャー",
+    "neonColorDesc": "ライム & シアンアクセント",
+    "signatureColorDesc": "パープル & ピンクアクセント",
     "neonDarkDesc": "ネオンダークモード",
     "cleanLightDesc": "クリーンライトモード",
     "followOsDesc": "OS設定に従う",

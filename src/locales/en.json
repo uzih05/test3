@@ -317,6 +317,11 @@
       "system": "System"
     },
     "account": "Account",
+    "colorTheme": "Color Theme",
+    "colorThemeNeon": "Neon",
+    "colorThemeSignature": "Signature",
+    "neonColorDesc": "Lime & cyan accents",
+    "signatureColorDesc": "Purple & pink accents",
     "neonDarkDesc": "Neon dark mode",
     "cleanLightDesc": "Clean light mode",
     "followOsDesc": "Follow OS preference",

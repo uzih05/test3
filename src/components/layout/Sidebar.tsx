@@ -66,7 +66,7 @@ const NavItem = memo(function NavItem({ path, icon: Icon, isActive, label, glow,
           'flex items-center gap-3 px-3 py-2.5 rounded-[14px] transition-colors duration-200',
           'lg:flex-col lg:gap-1 lg:py-3 lg:px-2 lg:text-center',
           isActive
-            ? cn('bg-neon-lime-dim text-neon-lime', glow && 'neon-glow')
+            ? cn('bg-accent-primary-dim text-accent-primary', glow && 'accent-glow')
             : 'text-text-muted hover:text-text-primary hover:bg-bg-card'
         )}
       >
@@ -133,7 +133,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="h-[80px] flex items-center justify-center border-b border-border-default px-3">
           <Link href="/" className="flex items-center gap-2" onClick={onClose}>
-            <span className="text-base font-black text-neon-lime">VectorSurfer</span>
+            <span className="text-base font-black text-accent-primary">VectorSurfer</span>
           </Link>
           {/* Mobile close */}
           <button
@@ -183,7 +183,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {user && (
             <div className="mt-4 pt-4 border-t border-border-default flex items-center gap-3 px-3 lg:flex-col">
               <div className="relative">
-                <div className="w-8 h-8 rounded-full bg-neon-lime flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-accent-primary flex items-center justify-center shrink-0">
                   <span className="text-text-inverse text-sm font-bold">
                     {user.display_name?.[0]?.toUpperCase() || 'U'}
                   </span>
@@ -198,7 +198,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   className={cn(
                     'text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider cursor-pointer transition-colors',
                     user.plan === 'pro'
-                      ? 'bg-neon-lime-dim text-neon-lime hover:bg-neon-lime/30'
+                      ? 'bg-accent-primary-dim text-accent-primary hover:bg-accent-primary/30'
                       : 'bg-bg-card text-text-muted hover:bg-bg-card/80'
                   )}
                   title="Click to toggle plan (demo)"
@@ -208,7 +208,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               </div>
               <button
                 onClick={handleLogout}
-                className="ml-auto lg:ml-0 p-1.5 text-text-muted hover:text-neon-red transition-colors"
+                className="ml-auto lg:ml-0 p-1.5 text-text-muted hover:text-status-error transition-colors"
                 aria-label={t('auth.logout')}
               >
                 <LogOut size={16} />

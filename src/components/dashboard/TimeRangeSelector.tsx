@@ -60,7 +60,7 @@ export function TimeRangeSelector() {
                   className={cn(
                     'py-1.5 rounded-[8px] text-xs font-medium transition-colors',
                     timeRange.preset === p.value
-                      ? 'bg-neon-lime text-text-inverse'
+                      ? 'bg-accent-primary text-text-inverse'
                       : 'bg-bg-elevated text-text-muted hover:text-text-primary'
                   )}
                 >
@@ -76,18 +76,18 @@ export function TimeRangeSelector() {
                 type="datetime-local"
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded-[8px] text-xs text-text-primary mb-1.5 outline-none focus:border-neon-lime"
+                className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded-[8px] text-xs text-text-primary mb-1.5 outline-none focus:border-accent-primary"
               />
               <input
                 type="datetime-local"
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded-[8px] text-xs text-text-primary mb-2 outline-none focus:border-neon-lime"
+                className="w-full px-2 py-1.5 bg-bg-input border border-border-default rounded-[8px] text-xs text-text-primary mb-2 outline-none focus:border-accent-primary"
               />
               <button
                 onClick={handleCustomApply}
                 disabled={!customStart || !customEnd}
-                className="w-full py-1.5 bg-neon-lime text-text-inverse rounded-[8px] text-xs font-medium disabled:opacity-40"
+                className="w-full py-1.5 bg-accent-primary text-text-inverse rounded-[8px] text-xs font-medium disabled:opacity-40"
               >
                 {t('dashboard.apply')}
               </button>

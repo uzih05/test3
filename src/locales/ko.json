@@ -317,6 +317,11 @@
       "system": "시스템"
     },
     "account": "계정",
+    "colorTheme": "컬러 테마",
+    "colorThemeNeon": "네온",
+    "colorThemeSignature": "시그니쳐",
+    "neonColorDesc": "라임 & 시안 액센트",
+    "signatureColorDesc": "보라 & 핑크 액센트",
     "neonDarkDesc": "네온 다크 모드",
     "cleanLightDesc": "클린 라이트 모드",
     "followOsDesc": "OS 설정 따르기",

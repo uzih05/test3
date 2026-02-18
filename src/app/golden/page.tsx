@@ -28,6 +28,7 @@ import { formatNumber, formatPercentage, formatDuration, timeAgo, cn } from '@/l
 import { TruncatedText } from '@/components/TruncatedText';
 import { StatusBadge } from '@/components/StatusBadge';
 import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 import type { GoldenRecord, ScatterPoint, CoverageResult } from '@/types';
 
 function tryPrettyJson(raw: string): string {
@@ -229,7 +230,7 @@ export default function GoldenPage() {
                 onClick={() => setActiveTab(tab)}
                 className={cn(
                   'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors capitalize',
-                  activeTab === tab ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                  activeTab === tab ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
                 )}
               >
                 {t(`golden.${tab}`)}
@@ -239,7 +240,7 @@ export default function GoldenPage() {
           {activeTab === 'records' && (
             <button
               onClick={() => setShowRegister(!showRegister)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[filter] focus-visible:ring-2 focus-visible:ring-accent-primary/50"
             >
               <Plus size={14} />
               {t('golden.register')}
@@ -256,7 +257,7 @@ export default function GoldenPage() {
             className={cn(
               'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
               !functionFilter
-                ? 'bg-neon-lime-dim border-neon-lime/30 text-neon-lime'
+                ? 'bg-accent-primary-dim border-accent-primary/30 text-accent-primary'
                 : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
             )}
           >
@@ -269,7 +270,7 @@ export default function GoldenPage() {
               className={cn(
                 'shrink-0 px-3 py-1.5 rounded-[10px] text-xs font-medium border transition-colors',
                 functionFilter === s.function_name
-                  ? 'bg-neon-orange/15 border-neon-orange/30 text-neon-orange'
+                  ? 'bg-status-warning/15 border-status-warning/30 text-status-warning'
                   : 'bg-bg-card border-border-default text-text-muted hover:text-text-primary'
               )}
             >
@@ -292,7 +293,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors font-mono'
+                'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors font-mono'
               )}
             />
             <input
@@ -303,7 +304,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+                'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
               )}
             />
             <input
@@ -314,7 +315,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+                'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
               )}
             />
             <div className="flex justify-end gap-2">
@@ -327,7 +328,7 @@ export default function GoldenPage() {
               <button
                 onClick={() => registerMutation.mutate()}
                 disabled={!regUuid || registerMutation.isPending}
-                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+                className="px-4 py-2 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-accent-primary/50"
               >
                 {registerMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -337,7 +338,7 @@ export default function GoldenPage() {
               </button>
             </div>
             {registerMutation.isError && (
-              <p className="text-xs text-neon-red">
+              <p className="text-xs text-status-error">
                 {(registerMutation.error as Error).message}
               </p>
             )}
@@ -356,7 +357,7 @@ export default function GoldenPage() {
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium transition-colors',
                   recordsMode === 'golden'
-                    ? 'bg-neon-lime-dim text-neon-lime'
+                    ? 'bg-accent-primary-dim text-accent-primary'
                     : 'text-text-muted hover:text-text-primary'
                 )}
               >
@@ -367,7 +368,7 @@ export default function GoldenPage() {
                 className={cn(
                   'px-3 py-1.5 text-xs font-medium transition-colors',
                   recordsMode === 'browse'
-                    ? 'bg-neon-lime-dim text-neon-lime'
+                    ? 'bg-accent-primary-dim text-accent-primary'
                     : 'text-text-muted hover:text-text-primary'
                 )}
               >
@@ -385,7 +386,7 @@ export default function GoldenPage() {
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-xs text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+                  'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
                 )}
               />
             </div>
@@ -395,7 +396,7 @@ export default function GoldenPage() {
             /* Golden Records sub-tab */
             loadingGolden ? (
               <div className="flex justify-center py-12">
-                <Loader2 size={20} className="animate-spin text-neon-lime" />
+                <Loader2 size={20} className="animate-spin text-accent-primary" />
               </div>
             ) : records.length === 0 ? (
               <div className="text-center py-16">
@@ -420,7 +421,7 @@ export default function GoldenPage() {
             /* Browse Executions sub-tab */
             loadingBrowse ? (
               <div className="flex justify-center py-12">
-                <Loader2 size={20} className="animate-spin text-neon-lime" />
+                <Loader2 size={20} className="animate-spin text-accent-primary" />
               </div>
             ) : !browseData?.items?.length ? (
               <div className="text-center py-16">
@@ -449,9 +450,9 @@ export default function GoldenPage() {
                             <td className="px-5 py-3.5">
                               <span className={cn(
                                 'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
-                                exec.status === 'SUCCESS' ? 'bg-neon-lime-dim text-neon-lime' :
-                                exec.status === 'ERROR' ? 'bg-neon-red-dim text-neon-red' :
-                                'bg-neon-cyan-dim text-neon-cyan'
+                                exec.status === 'SUCCESS' ? 'bg-accent-primary-dim text-accent-primary' :
+                                exec.status === 'ERROR' ? 'bg-status-error-dim text-status-error' :
+                                'bg-accent-secondary-dim text-accent-secondary'
                               )}>
                                 {exec.status}
                               </span>
@@ -462,12 +463,12 @@ export default function GoldenPage() {
                             </td>
                             <td className="px-5 py-3.5 text-center">
                               {isGolden ? (
-                                <CheckCircle2 size={16} className="inline text-neon-lime" />
+                                <CheckCircle2 size={16} className="inline text-accent-primary" />
                               ) : (
                                 <button
                                   onClick={() => quickRegisterMutation.mutate(exec.uuid)}
                                   disabled={quickRegisterMutation.isPending}
-                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40"
+                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-accent-primary hover:bg-accent-primary-dim transition-colors disabled:opacity-40"
                                   title={t('golden.register')}
                                 >
                                   <Plus size={14} />
@@ -521,13 +522,13 @@ export default function GoldenPage() {
             </p>
             <div className="flex gap-4 mt-2">
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-neon-orange" />
-                <span className="text-[10px] text-neon-orange font-medium">{t('analysis.discovery')}</span>
+                <span className="inline-block w-2 h-2 rounded-full bg-status-warning" />
+                <span className="text-[10px] text-status-warning font-medium">{t('analysis.discovery')}</span>
                 <span className="text-[10px] text-text-muted">— {t('analysis.discoveryDesc')}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-neon-cyan" />
-                <span className="text-[10px] text-neon-cyan font-medium">{t('analysis.steady')}</span>
+                <span className="inline-block w-2 h-2 rounded-full bg-accent-secondary" />
+                <span className="text-[10px] text-accent-secondary font-medium">{t('analysis.steady')}</span>
                 <span className="text-[10px] text-text-muted">— {t('analysis.steadyDesc')}</span>
               </div>
             </div>
@@ -541,7 +542,7 @@ export default function GoldenPage() {
               className={cn(
                 'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                 'text-xs text-text-primary',
-                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+                'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
               )}
             >
               <option value="" disabled>{t('analysis.selectFunction')}</option>
@@ -553,15 +554,15 @@ export default function GoldenPage() {
 
           {loadingDiverseRec ? (
             <div className="flex justify-center py-12">
-              <Loader2 size={20} className="animate-spin text-neon-lime" />
+              <Loader2 size={20} className="animate-spin text-accent-primary" />
             </div>
           ) : diverseRecData && diverseRecData.candidates.length > 0 ? (
             <>
               {/* Golden 0개 배너 */}
               {diverseRecData.golden_count === 0 && (
-                <div className="flex items-center gap-2 bg-neon-orange/10 border border-neon-orange/20 rounded-[12px] px-4 py-2.5">
-                  <Info size={14} className="text-neon-orange shrink-0" />
-                  <p className="text-xs text-neon-orange">
+                <div className="flex items-center gap-2 bg-status-warning/10 border border-status-warning/20 rounded-[12px] px-4 py-2.5">
+                  <Info size={14} className="text-status-warning shrink-0" />
+                  <p className="text-xs text-status-warning">
                     {t('golden.noGoldenBanner')}
                   </p>
                 </div>
@@ -569,7 +570,7 @@ export default function GoldenPage() {
               <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
                 <div className="px-5 py-3 border-b border-border-default flex items-center justify-between">
                   <h3 className="text-sm font-medium text-text-secondary">
-                    {t('golden.candidatesFor')} <span className="text-neon-lime">{diverseRecData.function_name}</span>
+                    {t('golden.candidatesFor')} <span className="text-accent-primary">{diverseRecData.function_name}</span>
                     <span className="ml-2 text-xs text-text-muted">
                       ({diverseRecData.golden_count} {t('golden.goldenPoint').toLowerCase()})
                     </span>
@@ -578,7 +579,7 @@ export default function GoldenPage() {
                     <button
                       onClick={handleBatchRegister}
                       disabled={batchRegistering}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
                     >
                       {batchRegistering ? (
                         <Loader2 size={12} className="animate-spin" />
@@ -598,7 +599,7 @@ export default function GoldenPage() {
                             type="checkbox"
                             checked={diverseRecData.candidates.filter((c) => !registeredUuids.has(c.uuid)).length > 0 && diverseRecData.candidates.filter((c) => !registeredUuids.has(c.uuid)).every((c) => selectedUuids.has(c.uuid))}
                             onChange={() => toggleSelectAll(diverseRecData.candidates)}
-                            className="rounded border-border-default accent-neon-lime"
+                            className="rounded border-border-default accent-accent-primary"
                           />
                         </th>
                         <th className="text-left px-5 py-3 text-xs font-medium text-text-muted">{t('golden.columnSpanId')}</th>
@@ -624,13 +625,13 @@ export default function GoldenPage() {
                           >
                             <td className="w-10 px-3 py-3.5" onClick={(e) => e.stopPropagation()}>
                               {isRegistered ? (
-                                <CheckCircle2 size={16} className="text-neon-lime mx-auto" />
+                                <CheckCircle2 size={16} className="text-accent-primary mx-auto" />
                               ) : (
                                 <input
                                   type="checkbox"
                                   checked={selectedUuids.has(c.uuid)}
                                   onChange={() => toggleSelect(c.uuid)}
-                                  className="rounded border-border-default accent-neon-lime"
+                                  className="rounded border-border-default accent-accent-primary"
                                 />
                               )}
                             </td>
@@ -639,8 +640,8 @@ export default function GoldenPage() {
                               <span className={cn(
                                 'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
                                 c.candidate_type === 'DISCOVERY'
-                                  ? 'bg-[rgba(255,159,67,0.15)] text-neon-orange'
-                                  : 'bg-neon-cyan-dim text-neon-cyan'
+                                  ? 'bg-status-warning-dim text-status-warning'
+                                  : 'bg-accent-secondary-dim text-accent-secondary'
                               )}>
                                 {c.candidate_type === 'DISCOVERY' ? t('analysis.discovery') : t('analysis.steady')}
                               </span>
@@ -652,7 +653,7 @@ export default function GoldenPage() {
                                   <div
                                     className={cn(
                                       'h-full rounded-full',
-                                      c.candidate_type === 'DISCOVERY' ? 'bg-neon-orange' : 'bg-neon-cyan'
+                                      c.candidate_type === 'DISCOVERY' ? 'bg-status-warning' : 'bg-accent-secondary'
                                     )}
                                     style={{ width: `${Math.min(c.score * 100, 100)}%` }}
                                   />
@@ -668,12 +669,12 @@ export default function GoldenPage() {
                             </td>
                             <td className="px-5 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
                               {isRegistered ? (
-                                <CheckCircle2 size={16} className="inline text-neon-lime" />
+                                <CheckCircle2 size={16} className="inline text-accent-primary" />
                               ) : (
                                 <button
                                   onClick={() => quickRegisterMutation.mutate(c.uuid)}
                                   disabled={quickRegisterMutation.isPending}
-                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-neon-lime hover:bg-neon-lime-dim transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+                                  className="p-1.5 rounded-[8px] text-text-muted hover:text-accent-primary hover:bg-accent-primary-dim transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-accent-primary/50"
                                   aria-label={t('golden.register')}
                                   title={t('golden.register')}
                                 >
@@ -703,7 +704,7 @@ export default function GoldenPage() {
                                     <div>
                                       <span className="text-text-muted">Trace ID</span>
                                       <p className="font-mono text-text-secondary">
-                                        <Link href={`/traces/${c.trace_id}`} className="text-neon-cyan hover:underline inline-flex items-center gap-1">
+                                        <Link href={`/traces/${c.trace_id}`} className="text-accent-secondary hover:underline inline-flex items-center gap-1">
                                           {c.trace_id.slice(0, 12)}...
                                           <ExternalLink size={10} />
                                         </Link>
@@ -714,10 +715,10 @@ export default function GoldenPage() {
 
                                 {/* Error block */}
                                 {c.error_code && (
-                                  <div className="bg-neon-red-dim rounded-[8px] p-2.5 mb-3">
-                                    <p className="text-[10px] text-neon-red uppercase tracking-wider mb-1">Error: {c.error_code}</p>
+                                  <div className="bg-status-error-dim rounded-[8px] p-2.5 mb-3">
+                                    <p className="text-[10px] text-status-error uppercase tracking-wider mb-1">Error: {c.error_code}</p>
                                     {c.error_message && (
-                                      <p className="text-xs text-neon-red/80 font-mono whitespace-pre-wrap break-all">{c.error_message}</p>
+                                      <p className="text-xs text-status-error/80 font-mono whitespace-pre-wrap break-all">{c.error_message}</p>
                                     )}
                                   </div>
                                 )}
@@ -735,7 +736,7 @@ export default function GoldenPage() {
                                   {c.output_preview && (
                                     <div>
                                       <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Output</p>
-                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all">
+                                      <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-accent-primary/70 font-mono max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all">
                                         {tryPrettyJson(c.output_preview)}
                                       </pre>
                                     </div>
@@ -783,11 +784,6 @@ export default function GoldenPage() {
 // ========================
 // Coverage Tab (D14)
 // ========================
-const COVERAGE_COLORS = {
-  golden: '#DFFF00',
-  execution: '#00FFCC',
-};
-
 function CoverageTab({
   data,
   loading,
@@ -803,6 +799,11 @@ function CoverageTab({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const chartColors = useChartColors();
+  const COVERAGE_COLORS = {
+    golden: chartColors.accentPrimary,
+    execution: chartColors.accentSecondary,
+  };
   const [hovered, setHovered] = useState<ScatterPoint | null>(null);
   const [clickedPoint, setClickedPoint] = useState<ScatterPoint | null>(null);
   const [covRegistered, setCovRegistered] = useState<Set<string>>(new Set());
@@ -835,7 +836,7 @@ function CoverageTab({
           className={cn(
             'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
             'text-xs text-text-primary',
-            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+            'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
           )}
         >
           <option value="">{t('golden.allFilter')}</option>
@@ -847,7 +848,7 @@ function CoverageTab({
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-neon-lime" />
+          <Loader2 size={28} className="animate-spin text-accent-primary" />
         </div>
       ) : !data ? (
         <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center card-shadow">
@@ -863,27 +864,27 @@ function CoverageTab({
               <div className="flex items-center gap-3">
                 <div className="relative w-14 h-14 shrink-0">
                   <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e1e" strokeWidth="8" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke={chartColors.bgElevated} strokeWidth="8" />
                     <circle
-                      cx="50" cy="50" r="42" fill="none" stroke="#DFFF00" strokeWidth="8" strokeLinecap="round"
+                      cx="50" cy="50" r="42" fill="none" stroke={chartColors.accentPrimary} strokeWidth="8" strokeLinecap="round"
                       strokeDasharray={`${2 * Math.PI * 42}`}
                       strokeDashoffset={`${2 * Math.PI * 42 * (1 - data.coverage_score)}`}
                       className="transition-[stroke-dashoffset] duration-700"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-bold text-neon-lime">{formatPercentage(data.coverage_score * 100)}</span>
+                    <span className="text-sm font-bold text-accent-primary">{formatPercentage(data.coverage_score * 100)}</span>
                   </div>
                 </div>
               </div>
             </div>
             <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
               <p className="text-xs text-text-muted mb-1">{t('golden.executionsCount')}</p>
-              <p className="text-xl font-bold text-neon-cyan">{formatNumber(data.total_executions)}</p>
+              <p className="text-xl font-bold text-accent-secondary">{formatNumber(data.total_executions)}</p>
             </div>
             <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
               <p className="text-xs text-text-muted mb-1">{t('golden.goldenRecords')}</p>
-              <p className="text-xl font-bold text-neon-lime">{formatNumber(data.golden_count)}</p>
+              <p className="text-xl font-bold text-accent-primary">{formatNumber(data.golden_count)}</p>
             </div>
           </div>
 
@@ -913,7 +914,7 @@ function CoverageTab({
                   >
                     {/* Grid */}
                     {[0.25, 0.5, 0.75].map((pct) => (
-                      <line key={`h-${pct}`} x1={pad} y1={pad + pct * (h - 2 * pad)} x2={w - pad} y2={pad + pct * (h - 2 * pad)} stroke="#222" strokeWidth="0.5" />
+                      <line key={`h-${pct}`} x1={pad} y1={pad + pct * (h - 2 * pad)} x2={w - pad} y2={pad + pct * (h - 2 * pad)} stroke={chartColors.borderDefault} strokeWidth="0.5" />
                     ))}
                     {/* Execution points (circles) */}
                     {data.scatter.filter((p) => !p.is_golden).map((pt, i) => {
@@ -975,7 +976,7 @@ function CoverageTab({
                               <button
                                 onClick={() => coverageRegisterMutation.mutate(clickedPoint.uuid!)}
                                 disabled={coverageRegisterMutation.isPending}
-                                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[8px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] w-full justify-center"
+                                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-accent-primary text-text-inverse rounded-[8px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] w-full justify-center"
                               >
                                 {coverageRegisterMutation.isPending ? (
                                   <Loader2 size={12} className="animate-spin" />
@@ -1030,7 +1031,7 @@ function GoldenRecordRow({
         className="flex items-center gap-3 px-5 py-3.5 hover:bg-bg-card-hover cursor-pointer transition-colors"
         onClick={onToggle}
       >
-        <Star size={14} className="text-neon-orange shrink-0" />
+        <Star size={14} className="text-status-warning shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-text-primary">{record.function_name}</span>
@@ -1077,7 +1078,7 @@ function GoldenRecordRow({
               {(record.tags || []).map((tag) => (
                 <span
                   key={tag}
-                  className="text-[10px] px-2 py-0.5 bg-neon-lime-dim text-neon-lime rounded-md"
+                  className="text-[10px] px-2 py-0.5 bg-accent-primary-dim text-accent-primary rounded-md"
                 >
                   {tag}
                 </span>
@@ -1095,7 +1096,7 @@ function GoldenRecordRow({
           {record.output_preview && (
             <div>
               <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Output</p>
-              <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-neon-lime/70 font-mono max-h-[120px] overflow-y-auto whitespace-pre-wrap break-all">
+              <pre className="bg-bg-elevated rounded-[8px] p-2.5 text-xs text-accent-primary/70 font-mono max-h-[120px] overflow-y-auto whitespace-pre-wrap break-all">
                 {typeof record.output_preview === 'object' ? JSON.stringify(record.output_preview, null, 2) : record.output_preview}
               </pre>
             </div>
@@ -1105,7 +1106,7 @@ function GoldenRecordRow({
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
               disabled={deleting}
               aria-label={t('golden.delete')}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neon-red hover:bg-neon-red-dim rounded-[8px] transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-neon-red/50"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-status-error hover:bg-status-error-dim rounded-[8px] transition-colors disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-status-error/50"
             >
               <Trash2 size={12} />
               {deleting ? t('golden.deleting') : t('golden.delete')}

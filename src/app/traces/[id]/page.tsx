@@ -15,6 +15,7 @@ import { tracesService } from '@/services/traces';
 import { useTranslation } from '@/lib/i18n';
 import { StatusBadge } from '@/components/StatusBadge';
 import { formatDuration, timeAgo, cn } from '@/lib/utils';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 import type { Span } from '@/types';
 
 export default function TraceDetailPage() {
@@ -46,7 +47,7 @@ export default function TraceDetailPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -81,9 +82,9 @@ export default function TraceDetailPage() {
 
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <SummaryCard label="Total Duration" value={formatDuration(traceData.total_duration_ms)} color="text-neon-lime" />
-        <SummaryCard label="Spans" value={String(traceData.span_count)} color="text-neon-cyan" />
-        <SummaryCard label="Status" value={traceData.status} color={traceData.status === 'ERROR' ? 'text-neon-red' : 'text-neon-cyan'} />
+        <SummaryCard label="Total Duration" value={formatDuration(traceData.total_duration_ms)} color="text-accent-primary" />
+        <SummaryCard label="Spans" value={String(traceData.span_count)} color="text-accent-secondary" />
+        <SummaryCard label="Status" value={traceData.status} color={traceData.status === 'ERROR' ? 'text-status-error' : 'text-accent-secondary'} />
         <SummaryCard label="Started" value={timeAgo(traceData.start_time)} color="text-text-secondary" />
       </div>
 
@@ -95,7 +96,7 @@ export default function TraceDetailPage() {
             onClick={() => setViewMode('tree')}
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-              viewMode === 'tree' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+              viewMode === 'tree' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
             <TreePine size={12} />
@@ -105,7 +106,7 @@ export default function TraceDetailPage() {
             onClick={() => setViewMode('waterfall')}
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-              viewMode === 'waterfall' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+              viewMode === 'waterfall' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
             <BarChart3 size={12} />
@@ -122,7 +123,7 @@ export default function TraceDetailPage() {
                 onClick={() => setLanguage(lang)}
                 className={cn(
                   'px-2 py-1 rounded-[6px] text-[10px] font-medium transition-colors',
-                  language === lang ? 'bg-neon-lime text-text-inverse' : 'text-text-muted'
+                  language === lang ? 'bg-accent-primary text-text-inverse' : 'text-text-muted'
                 )}
               >
                 {lang.toUpperCase()}
@@ -131,7 +132,7 @@ export default function TraceDetailPage() {
           </div>
           <button
             onClick={() => setShowAnalysis(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card border border-border-default rounded-[12px] text-xs text-text-secondary hover:text-neon-lime hover:border-neon-lime/30 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-card border border-border-default rounded-[12px] text-xs text-text-secondary hover:text-accent-primary hover:border-accent-primary/30 transition-colors"
           >
             <Sparkles size={12} />
             {t('traces.analyze')}
@@ -141,10 +142,10 @@ export default function TraceDetailPage() {
 
       {/* AI Analysis result */}
       {showAnalysis && (
-        <div className="bg-bg-card border border-neon-lime/20 rounded-[16px] p-5 mb-6 card-shadow">
+        <div className="bg-bg-card border border-accent-primary/20 rounded-[16px] p-5 mb-6 card-shadow">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={14} className="text-neon-lime" />
-            <h3 className="text-sm font-medium text-neon-lime">AI Analysis</h3>
+            <Sparkles size={14} className="text-accent-primary" />
+            <h3 className="text-sm font-medium text-accent-primary">AI Analysis</h3>
           </div>
           {analyzing ? (
             <div className="flex items-center gap-2 text-sm text-text-muted">
@@ -195,7 +196,7 @@ function SummaryCard({ label, value, color }: { label: string; value: string; co
 function SpanTreeNode({ span, depth, totalDuration }: { span: Span; depth: number; totalDuration: number }) {
   const pct = totalDuration > 0 ? (span.duration_ms / totalDuration) * 100 : 0;
   const barColor =
-    span.status === 'ERROR' ? '#FF4D6A' : span.status === 'CACHE_HIT' ? '#00FFCC' : '#DFFF00';
+    span.status === 'ERROR' ? 'var(--theme-status-error)' : span.status === 'CACHE_HIT' ? 'var(--theme-accent-secondary)' : 'var(--theme-accent-primary)';
 
   return (
     <div style={{ marginLeft: depth * 24 }}>
@@ -250,7 +251,7 @@ function WaterfallView({ spans, totalDuration, startTime }: { spans: Span[]; tot
         const offsetPct = totalDuration > 0 ? ((spanStart - startMs) / totalDuration) * 100 : 0;
         const widthPct = totalDuration > 0 ? (span.duration_ms / totalDuration) * 100 : 0;
         const barColor =
-          span.status === 'ERROR' ? '#FF4D6A' : span.status === 'CACHE_HIT' ? '#00FFCC' : '#DFFF00';
+          span.status === 'ERROR' ? 'var(--theme-status-error)' : span.status === 'CACHE_HIT' ? 'var(--theme-accent-secondary)' : 'var(--theme-accent-primary)';
 
         return (
           <div key={span.span_id} className="flex items-center gap-3 py-1">

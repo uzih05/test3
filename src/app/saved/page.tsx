@@ -75,8 +75,8 @@ export default function SavedPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-neon-lime/10">
-          <BookmarkCheck size={24} className="text-neon-lime" />
+        <div className="p-2 rounded-xl bg-accent-primary/10">
+          <BookmarkCheck size={24} className="text-accent-primary" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-text-primary">{t('saved.title', 'AI History')}</h1>
@@ -88,12 +88,12 @@ export default function SavedPage() {
 
       {/* Free plan info */}
       {!isPro && (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-neon-orange/10 border border-neon-orange/20">
-          <Lock size={16} className="text-neon-orange shrink-0" />
-          <p className="text-xs text-neon-orange flex-1">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-status-warning/10 border border-status-warning/20">
+          <Lock size={16} className="text-status-warning shrink-0" />
+          <p className="text-xs text-status-warning flex-1">
             {t('saved.freeLimit', 'Free plan: responses older than 24 hours are locked. Upgrade to Pro for unlimited access.')}
           </p>
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neon-lime/10 text-neon-lime text-xs font-medium shrink-0">
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-accent-primary/10 text-accent-primary text-xs font-medium shrink-0">
             <Crown size={12} />
             {t('plan.upgrade', 'Upgrade to Pro')}
           </div>
@@ -109,7 +109,7 @@ export default function SavedPage() {
             className={cn(
               'px-3 py-2 text-xs font-medium transition-colors',
               filterTab === 'all'
-                ? 'bg-neon-lime-dim text-neon-lime'
+                ? 'bg-accent-primary-dim text-accent-primary'
                 : 'text-text-muted hover:text-text-primary'
             )}
           >
@@ -120,7 +120,7 @@ export default function SavedPage() {
             className={cn(
               'flex items-center gap-1 px-3 py-2 text-xs font-medium transition-colors',
               filterTab === 'bookmarked'
-                ? 'bg-neon-lime-dim text-neon-lime'
+                ? 'bg-accent-primary-dim text-accent-primary'
                 : 'text-text-muted hover:text-text-primary'
             )}
           >
@@ -138,7 +138,7 @@ export default function SavedPage() {
               className={cn(
                 'px-3 py-2 text-xs font-medium transition-colors',
                 sourceFilter === opt.value
-                  ? 'bg-neon-cyan-dim text-neon-cyan'
+                  ? 'bg-accent-secondary-dim text-accent-secondary'
                   : 'text-text-muted hover:text-text-primary'
               )}
             >
@@ -155,7 +155,7 @@ export default function SavedPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('saved.search', 'Search responses...')}
-            className="w-full bg-bg-card border border-border-default rounded-xl pl-9 pr-4 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-neon-lime"
+            className="w-full bg-bg-card border border-border-default rounded-xl pl-9 pr-4 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary"
           />
         </div>
       </div>
@@ -200,10 +200,10 @@ export default function SavedPage() {
                 >
                   <div className={cn(
                     'p-1.5 rounded-lg shrink-0',
-                    item.source_type === 'ask_ai' ? 'bg-neon-cyan/10' : 'bg-neon-lime/10'
+                    item.source_type === 'ask_ai' ? 'bg-accent-secondary/10' : 'bg-accent-primary/10'
                   )}>
                     <Icon size={14} className={
-                      item.source_type === 'ask_ai' ? 'text-neon-cyan' : 'text-neon-lime'
+                      item.source_type === 'ask_ai' ? 'text-accent-secondary' : 'text-accent-primary'
                     } />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -217,7 +217,7 @@ export default function SavedPage() {
                       )}
                       <span className="text-xs text-text-muted">{timeAgo(item.created_at)}</span>
                       {item.is_bookmarked && (
-                        <Bookmark size={12} className="text-neon-lime fill-current" />
+                        <Bookmark size={12} className="text-accent-primary fill-current" />
                       )}
                     </div>
                   </div>
@@ -248,7 +248,7 @@ export default function SavedPage() {
                         className={cn(
                           'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
                           item.is_bookmarked
-                            ? 'bg-neon-lime/10 text-neon-lime'
+                            ? 'bg-accent-primary/10 text-accent-primary'
                             : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary'
                         )}
                       >
@@ -261,7 +261,7 @@ export default function SavedPage() {
                             deleteMutation.mutate(item.id);
                           }
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-neon-red hover:bg-neon-red/10 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-status-error hover:bg-status-error/10 transition-colors"
                       >
                         <Trash2 size={14} />
                         {t('common.delete')}

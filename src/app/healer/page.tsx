@@ -106,8 +106,8 @@ export default function HealerPage() {
     return (
       <div>
         <h1 className="text-xl font-bold text-text-primary mb-6">{t('healer.title')}</h1>
-        <div className="bg-bg-card border border-neon-orange/30 rounded-[20px] p-8 text-center card-shadow">
-          <KeyRound size={32} className="mx-auto mb-4 text-neon-orange" />
+        <div className="bg-bg-card border border-status-warning/30 rounded-[20px] p-8 text-center card-shadow">
+          <KeyRound size={32} className="mx-auto mb-4 text-status-warning" />
           <h3 className="text-lg font-semibold text-text-primary mb-2">{t('healer.apiKeyRequired')}</h3>
           <p className="text-sm text-text-muted max-w-md mx-auto">{t('healer.noOpenaiKey')}</p>
         </div>
@@ -127,7 +127,7 @@ export default function HealerPage() {
               onClick={() => { setMode(m); setDiagnosis(null); setBatchResults([]); }}
               className={cn(
                 'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors capitalize',
-                mode === m ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                mode === m ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
               )}
             >
               {t(`healer.${m}`)}
@@ -151,7 +151,7 @@ export default function HealerPage() {
                 className={cn(
                   'w-full pl-9 pr-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
                   'text-sm text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                  'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                 )}
               />
             </div>
@@ -163,7 +163,7 @@ export default function HealerPage() {
                   className={cn(
                     'px-2 py-1 rounded-[6px] text-[10px] font-medium transition-colors',
                     timeRangeFilter === opt.value
-                      ? 'bg-neon-lime text-text-inverse'
+                      ? 'bg-accent-primary text-text-inverse'
                       : 'bg-bg-elevated text-text-muted hover:text-text-primary'
                   )}
                 >
@@ -178,9 +178,9 @@ export default function HealerPage() {
                 type="range" min={lookbackMax >= 1440 ? 60 : 5} max={lookbackMax} step={lookbackMax >= 1440 ? 60 : 5}
                 value={Math.min(lookback, lookbackMax)}
                 onChange={(e) => setLookback(parseInt(e.target.value))}
-                className="flex-1 h-1 accent-neon-lime"
+                className="flex-1 h-1 accent-accent-primary"
               />
-              <span className="text-[10px] text-neon-lime font-mono w-16 text-right">
+              <span className="text-[10px] text-accent-primary font-mono w-16 text-right">
                 {lookback >= 1440 ? `${(lookback / 1440).toFixed(1)}d` : lookback >= 60 ? `${(lookback / 60).toFixed(1)}h` : `${lookback}m`}
               </span>
             </div>
@@ -190,7 +190,7 @@ export default function HealerPage() {
           {mode === 'batch' && functions.length > 0 && (
             <button
               onClick={handleSelectAll}
-              className="text-xs text-neon-lime hover:underline mb-3"
+              className="text-xs text-accent-primary hover:underline mb-3"
             >
               {checkedFunctions.size === functions.length ? t('healer.deselectAll') : t('healer.selectAll')}
             </button>
@@ -199,7 +199,7 @@ export default function HealerPage() {
           {/* Function list */}
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-neon-lime" />
+              <Loader2 size={20} className="animate-spin text-accent-primary" />
             </div>
           ) : functions.length === 0 ? (
             <div className="text-center py-8 text-sm text-text-muted">{t('healer.noFunctions')}</div>
@@ -239,7 +239,7 @@ export default function HealerPage() {
                       disabled={diagnoseMutation.isPending}
                       className={cn(
                         'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
-                        'bg-neon-lime text-text-inverse hover:brightness-110 neon-glow',
+                        'bg-accent-primary text-text-inverse hover:brightness-110 accent-glow',
                         'disabled:opacity-50 disabled:cursor-not-allowed'
                       )}
                     >
@@ -276,7 +276,7 @@ export default function HealerPage() {
                   disabled={checkedFunctions.size === 0 || batchMutation.isPending}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
-                    'bg-neon-lime text-text-inverse hover:brightness-110 neon-glow',
+                    'bg-accent-primary text-text-inverse hover:brightness-110 accent-glow',
                     'disabled:opacity-50 disabled:cursor-not-allowed'
                   )}
                 >
@@ -293,11 +293,11 @@ export default function HealerPage() {
               {batchMutation.isPending && (
                 <div className="bg-bg-card border border-border-default rounded-[16px] p-4 card-shadow">
                   <div className="flex items-center gap-3">
-                    <Loader2 size={16} className="animate-spin text-neon-lime" />
+                    <Loader2 size={16} className="animate-spin text-accent-primary" />
                     <span className="text-sm text-text-secondary">{t('healer.diagnosing')} {checkedFunctions.size} functions...</span>
                   </div>
                   <div className="mt-3 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
-                    <div className="h-full bg-neon-lime rounded-full w-full animate-pulse" />
+                    <div className="h-full bg-accent-primary rounded-full w-full animate-pulse" />
                   </div>
                 </div>
               )}
@@ -313,11 +313,11 @@ export default function HealerPage() {
                       >
                         <div className="flex items-center gap-2">
                           {result.status === 'success' ? (
-                            <CheckCircle2 size={14} className="text-neon-cyan" />
+                            <CheckCircle2 size={14} className="text-accent-secondary" />
                           ) : result.status === 'no_errors' ? (
-                            <CheckCircle2 size={14} className="text-neon-lime" />
+                            <CheckCircle2 size={14} className="text-accent-primary" />
                           ) : (
-                            <AlertTriangle size={14} className="text-neon-red" />
+                            <AlertTriangle size={14} className="text-status-error" />
                           )}
                           <span className="text-sm font-medium text-text-primary">{result.function_name}</span>
                         </div>
@@ -363,15 +363,15 @@ function FunctionItem({
       onClick={mode === 'single' ? onSelect : onCheck}
       className={cn(
         'flex items-center gap-3 px-3 py-2.5 rounded-[12px] cursor-pointer transition-colors',
-        isSelected ? 'bg-neon-lime-dim border border-neon-lime/30' :
-        isChecked ? 'bg-neon-lime-dim/50' :
+        isSelected ? 'bg-accent-primary-dim border border-accent-primary/30' :
+        isChecked ? 'bg-accent-primary-dim/50' :
         'hover:bg-bg-card-hover'
       )}
     >
       {mode === 'batch' && (
         <div className={cn(
           'w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors',
-          isChecked ? 'bg-neon-lime border-neon-lime' : 'border-border-default'
+          isChecked ? 'bg-accent-primary border-accent-primary' : 'border-border-default'
         )}>
           {isChecked && <CheckCircle2 size={10} className="text-text-inverse" />}
         </div>
@@ -379,13 +379,13 @@ function FunctionItem({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-text-primary truncate">{fn.function_name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] text-neon-red font-medium">{fn.error_count} {t('healer.errorCount')}</span>
+          <span className="text-[10px] text-status-error font-medium">{fn.error_count} {t('healer.errorCount')}</span>
           <span className="text-[10px] text-text-muted">{timeAgo(fn.last_error)}</span>
         </div>
       </div>
       <div className="flex flex-wrap gap-1 shrink-0">
         {(fn.error_codes || []).slice(0, 2).map((code) => (
-          <span key={code} className="text-[9px] px-1.5 py-0.5 bg-neon-red-dim text-neon-red rounded-md">
+          <span key={code} className="text-[9px] px-1.5 py-0.5 bg-status-error-dim text-status-error rounded-md">
             {code}
           </span>
         ))}
@@ -427,7 +427,7 @@ function DiagnosisCard({
   return (
     <div className="space-y-4">
       {result.status === 'no_errors' ? (
-        <div className="flex items-center gap-2 px-4 py-3 bg-neon-cyan-dim rounded-[12px] text-sm text-neon-cyan">
+        <div className="flex items-center gap-2 px-4 py-3 bg-accent-secondary-dim rounded-[12px] text-sm text-accent-secondary">
           <CheckCircle2 size={16} />
           {t('healer.noErrors')}
         </div>
@@ -453,7 +453,7 @@ function DiagnosisCard({
                       disabled={saved || saving}
                       className={cn(
                         'flex items-center gap-1 text-xs transition-colors',
-                        saved ? 'text-neon-lime' : 'text-text-muted hover:text-neon-lime'
+                        saved ? 'text-accent-primary' : 'text-text-muted hover:text-accent-primary'
                       )}
                     >
                       <Bookmark size={12} />
@@ -464,7 +464,7 @@ function DiagnosisCard({
                   )}
                   <button
                     onClick={() => onCopy(result.suggested_fix!)}
-                    className="flex items-center gap-1 text-xs text-text-muted hover:text-neon-lime transition-colors"
+                    className="flex items-center gap-1 text-xs text-text-muted hover:text-accent-primary transition-colors"
                   >
                     <Copy size={12} />
                     Copy

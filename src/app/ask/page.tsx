@@ -71,8 +71,8 @@ export default function AskAiPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-neon-cyan/10">
-            <MessageSquare size={24} className="text-neon-cyan" />
+          <div className="p-2 rounded-xl bg-accent-secondary/10">
+            <MessageSquare size={24} className="text-accent-secondary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-text-primary">{t('ask.title', 'Ask AI')}</h1>
@@ -88,7 +88,7 @@ export default function AskAiPage() {
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
-                  planInfo.usage_today >= (planInfo.daily_limit ?? 5) ? 'bg-neon-red' : 'bg-neon-cyan'
+                  planInfo.usage_today >= (planInfo.daily_limit ?? 5) ? 'bg-status-error' : 'bg-accent-secondary'
                 )}
                 style={{ width: `${Math.min((planInfo.usage_today / (planInfo.daily_limit ?? 5)) * 100, 100)}%` }}
               />
@@ -99,9 +99,9 @@ export default function AskAiPage() {
 
       {/* OpenAI key warning */}
       {!hasOpenAiKey && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-neon-orange/10 border border-neon-orange/30">
-          <KeyRound size={20} className="text-neon-orange shrink-0" />
-          <p className="text-sm text-neon-orange">{t('healer.noOpenaiKey')}</p>
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-status-warning/10 border border-status-warning/30">
+          <KeyRound size={20} className="text-status-warning shrink-0" />
+          <p className="text-sm text-status-warning">{t('healer.noOpenaiKey')}</p>
         </div>
       )}
 
@@ -113,7 +113,7 @@ export default function AskAiPage() {
           <select
             value={selectedFunction}
             onChange={(e) => setSelectedFunction(e.target.value)}
-            className="w-full bg-bg-secondary border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-neon-cyan"
+            className="w-full bg-bg-secondary border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent-secondary"
           >
             <option value="">{t('ask.allFunctions', 'All Functions')}</option>
             {functions.map((fn) => (
@@ -132,7 +132,7 @@ export default function AskAiPage() {
             onChange={(e) => setQuestion(e.target.value)}
             placeholder={t('ask.placeholder', 'Ask a question about your functions...')}
             rows={4}
-            className="w-full bg-bg-secondary border border-border-default rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:border-neon-cyan"
+            className="w-full bg-bg-secondary border border-border-default rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:border-accent-secondary"
           />
         </div>
 
@@ -140,7 +140,7 @@ export default function AskAiPage() {
         <div className="flex items-center justify-between">
           <div className="text-xs text-text-muted">
             {!canUseAi && !isPro && (
-              <span className="text-neon-orange">{t('ask.limitReached', 'Daily limit reached. Upgrade to Pro for unlimited access.')}</span>
+              <span className="text-status-warning">{t('ask.limitReached', 'Daily limit reached. Upgrade to Pro for unlimited access.')}</span>
             )}
           </div>
           <button
@@ -148,7 +148,7 @@ export default function AskAiPage() {
             disabled={!question.trim() || !hasOpenAiKey || !canUseAi || askMutation.isPending}
             className={cn(
               'flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all',
-              'bg-neon-cyan text-text-inverse hover:brightness-110',
+              'bg-accent-secondary text-text-inverse hover:brightness-110',
               'disabled:opacity-40 disabled:cursor-not-allowed'
             )}
           >
@@ -164,9 +164,9 @@ export default function AskAiPage() {
 
       {/* Error */}
       {askMutation.isError && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-neon-red/10 border border-neon-red/30">
-          <AlertTriangle size={20} className="text-neon-red shrink-0" />
-          <p className="text-sm text-neon-red">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-status-error/10 border border-status-error/30">
+          <AlertTriangle size={20} className="text-status-error shrink-0" />
+          <p className="text-sm text-status-error">
             {(askMutation.error as { message?: string })?.message || t('ask.failedResponse')}
           </p>
         </div>
@@ -178,8 +178,8 @@ export default function AskAiPage() {
           {/* Question */}
           <div className="px-6 py-4 border-b border-border-default bg-bg-secondary/50">
             <div className="flex items-start gap-3">
-              <div className="p-1.5 rounded-lg bg-neon-cyan/10 mt-0.5">
-                <MessageSquare size={14} className="text-neon-cyan" />
+              <div className="p-1.5 rounded-lg bg-accent-secondary/10 mt-0.5">
+                <MessageSquare size={14} className="text-accent-secondary" />
               </div>
               <div>
                 <p className="text-sm text-text-primary font-medium">{result.question}</p>
@@ -203,7 +203,7 @@ export default function AskAiPage() {
           <div className="px-6 py-3 border-t border-border-default flex items-center justify-between">
             <div className="flex items-center gap-2">
               {result.status === 'success' && (
-                <span className="flex items-center gap-1 text-xs text-neon-lime">
+                <span className="flex items-center gap-1 text-xs text-accent-primary">
                   <CheckCircle2 size={14} /> {t('ask.success', 'Success')}
                 </span>
               )}
@@ -215,7 +215,7 @@ export default function AskAiPage() {
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
                   bookmarked
-                    ? 'bg-neon-lime/10 text-neon-lime'
+                    ? 'bg-accent-primary/10 text-accent-primary'
                     : 'bg-bg-secondary text-text-muted hover:text-text-primary hover:bg-bg-card'
                 )}
               >

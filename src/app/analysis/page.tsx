@@ -27,25 +27,22 @@ import { useDebounce } from '@/lib/hooks/useDebounce';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, formatCost, cn } from '@/lib/utils';
 import { TruncatedText } from '@/components/TruncatedText';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 import type { CacheAnalytics, DriftItem, DriftSimulationResult, ScatterPoint, BottleneckCluster, ErrorCluster } from '@/types';
 
 type TabKey = 'overview' | 'cacheReport' | 'costSavings' | 'inputScatter' | 'bottleneck' | 'errorClusters' | 'drift';
 
 const DRIFT_COLORS: Record<string, { bg: string; text: string }> = {
-  ANOMALY: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
-  NORMAL: { bg: 'bg-neon-cyan-dim', text: 'text-neon-cyan' },
-  INSUFFICIENT_DATA: { bg: 'bg-[rgba(255,159,67,0.15)]', text: 'text-neon-orange' },
+  ANOMALY: { bg: 'bg-status-error-dim', text: 'text-status-error' },
+  NORMAL: { bg: 'bg-accent-secondary-dim', text: 'text-accent-secondary' },
+  INSUFFICIENT_DATA: { bg: 'bg-status-warning-dim', text: 'text-status-warning' },
   NO_VECTOR: { bg: 'bg-bg-elevated', text: 'text-text-muted' },
 };
 
 // OpenAI GPT-4o pricing (2026)
 const BLENDED_RATE = 5.0; // $ per 1M tokens (input:output ~ 60:40)
 
-const STATUS_COLORS: Record<string, string> = {
-  SUCCESS: '#00FFCC',
-  ERROR: '#FF4D6A',
-  CACHE_HIT: '#DFFF00',
-};
+// STATUS_COLORS moved inside InputScatterTab to use dynamic theme colors
 
 // ========================
 // Prop Interfaces
@@ -101,11 +98,12 @@ const CacheReportTab = memo(function CacheReportTab({
   loading,
 }: CacheReportTabProps) {
   const { t } = useTranslation();
+  const chartColors = useChartColors();
 
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -127,24 +125,24 @@ const CacheReportTab = memo(function CacheReportTab({
           label={t('analysis.hitRate')}
           value={formatPercentage(analytics.cache_hit_rate)}
           sub={`${analytics.cache_hit_count} / ${analytics.total_executions}`}
-          color="text-neon-cyan"
-          bg="bg-neon-cyan-dim"
+          color="text-accent-secondary"
+          bg="bg-accent-secondary-dim"
         />
         <StatCard
           icon={Clock}
           label={t('analysis.timeSaved')}
           value={formatDuration(analytics.time_saved_ms)}
           sub={`Avg: ${formatDuration(analytics.avg_cached_duration_ms)}`}
-          color="text-neon-lime"
-          bg="bg-neon-lime-dim"
+          color="text-accent-primary"
+          bg="bg-accent-primary-dim"
         />
         <StatCard
           icon={Star}
           label={t('analysis.goldenHits')}
           value={formatNumber(analytics.golden_hit_count)}
           sub={`${formatPercentage(analytics.golden_ratio)} of hits`}
-          color="text-neon-orange"
-          bg="bg-[rgba(255,159,67,0.15)]"
+          color="text-status-warning"
+          bg="bg-status-warning-dim"
         />
         <StatCard
           icon={Database}
@@ -162,16 +160,16 @@ const CacheReportTab = memo(function CacheReportTab({
         <div className="flex items-center gap-4">
           <div className="relative w-32 h-32 shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e1e" strokeWidth="10" />
+              <circle cx="50" cy="50" r="42" fill="none" stroke={chartColors.bgElevated} strokeWidth="10" />
               <circle
-                cx="50" cy="50" r="42" fill="none" stroke="#00FFCC" strokeWidth="10" strokeLinecap="round"
+                cx="50" cy="50" r="42" fill="none" stroke={chartColors.accentSecondary} strokeWidth="10" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}
                 strokeDashoffset={`${2 * Math.PI * 42 * (1 - analytics.cache_hit_rate / 100)}`}
                 className="transition-[stroke-dashoffset] duration-700"
               />
               {analytics.golden_ratio > 0 && (
                 <circle
-                  cx="50" cy="50" r="42" fill="none" stroke="#DFFF00" strokeWidth="10" strokeLinecap="round"
+                  cx="50" cy="50" r="42" fill="none" stroke={chartColors.accentPrimary} strokeWidth="10" strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 42}`}
                   strokeDashoffset={`${2 * Math.PI * 42 * (1 - (analytics.golden_ratio * analytics.cache_hit_rate / 10000))}`}
                   className="transition-[stroke-dashoffset] duration-700"
@@ -179,13 +177,13 @@ const CacheReportTab = memo(function CacheReportTab({
               )}
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-neon-cyan">{formatPercentage(analytics.cache_hit_rate)}</span>
+              <span className="text-2xl font-bold text-accent-secondary">{formatPercentage(analytics.cache_hit_rate)}</span>
             </div>
           </div>
           <div className="space-y-3 flex-1">
-            <LegendItem color="#00FFCC" label={t('analysis.standardCache')} value={analytics.standard_hit_count} />
-            <LegendItem color="#DFFF00" label={t('analysis.goldenCache')} value={analytics.golden_hit_count} />
-            <LegendItem color="#333" label={t('analysis.cacheMiss')} value={analytics.total_executions - analytics.cache_hit_count} />
+            <LegendItem color={chartColors.accentSecondary} label={t('analysis.standardCache')} value={analytics.standard_hit_count} />
+            <LegendItem color={chartColors.accentPrimary} label={t('analysis.goldenCache')} value={analytics.golden_hit_count} />
+            <LegendItem color={chartColors.borderDefault} label={t('analysis.cacheMiss')} value={analytics.total_executions - analytics.cache_hit_count} />
           </div>
         </div>
       </div>
@@ -202,11 +200,12 @@ const CostSavingsTab = memo(function CostSavingsTab({
   loading,
 }: CostSavingsTabProps) {
   const { t } = useTranslation();
+  const chartColors = useChartColors();
 
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -228,24 +227,24 @@ const CostSavingsTab = memo(function CostSavingsTab({
           label={t('analysis.tokensSaved')}
           value={formatNumber(Math.round(costCalc.tokensSaved))}
           sub={`~${formatNumber(Math.round(costCalc.avgTokensPerExec))} tokens/exec`}
-          color="text-neon-cyan"
-          bg="bg-neon-cyan-dim"
+          color="text-accent-secondary"
+          bg="bg-accent-secondary-dim"
         />
         <StatCard
           icon={DollarSign}
           label={t('analysis.costSaved')}
           value={formatCost(costCalc.costSaved)}
           sub={`${t('analysis.blendedRate')}: $${BLENDED_RATE}/1M`}
-          color="text-neon-lime"
-          bg="bg-neon-lime-dim"
+          color="text-accent-primary"
+          bg="bg-accent-primary-dim"
         />
         <StatCard
           icon={Clock}
           label={t('analysis.timeSaved')}
           value={formatDuration(analytics.time_saved_ms)}
           sub={`${analytics.cache_hit_count} cache hits`}
-          color="text-neon-orange"
-          bg="bg-[rgba(255,159,67,0.15)]"
+          color="text-status-warning"
+          bg="bg-status-warning-dim"
         />
         <StatCard
           icon={TrendingUp}
@@ -263,16 +262,16 @@ const CostSavingsTab = memo(function CostSavingsTab({
         <div className="flex items-center gap-6">
           <div className="relative w-28 h-28 shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e1e" strokeWidth="10" />
+              <circle cx="50" cy="50" r="42" fill="none" stroke={chartColors.bgElevated} strokeWidth="10" />
               <circle
-                cx="50" cy="50" r="42" fill="none" stroke="#00FFCC" strokeWidth="10" strokeLinecap="round"
+                cx="50" cy="50" r="42" fill="none" stroke={chartColors.accentSecondary} strokeWidth="10" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}
                 strokeDashoffset={`${2 * Math.PI * 42 * (1 - analytics.cache_hit_rate / 100)}`}
                 className="transition-[stroke-dashoffset] duration-700"
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xl font-bold text-neon-cyan">{formatPercentage(analytics.cache_hit_rate)}</span>
+              <span className="text-xl font-bold text-accent-secondary">{formatPercentage(analytics.cache_hit_rate)}</span>
             </div>
           </div>
           <div className="text-xs text-text-muted">
@@ -297,12 +296,18 @@ const InputScatterTab = memo(function InputScatterTab({
   setFnFilter,
 }: InputScatterTabProps) {
   const { t } = useTranslation();
+  const chartColors = useChartColors();
+  const STATUS_COLORS: Record<string, string> = useMemo(() => ({
+    SUCCESS: chartColors.accentSecondary,
+    ERROR: chartColors.statusError,
+    CACHE_HIT: chartColors.accentPrimary,
+  }), [chartColors]);
   const [hovered, setHovered] = useState<ScatterPoint | null>(null);
 
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -351,7 +356,7 @@ const InputScatterTab = memo(function InputScatterTab({
           className={cn(
             'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
             'text-xs text-text-primary',
-            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+            'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
           )}
         >
           <option value="">{t('analysis.allFunctions')} ({allFunctions.length})</option>
@@ -371,7 +376,7 @@ const InputScatterTab = memo(function InputScatterTab({
                 key={`h-${pct}`}
                 x1={pad} y1={pad + pct * (h - 2 * pad)}
                 x2={w - pad} y2={pad + pct * (h - 2 * pad)}
-                stroke="#222" strokeWidth="0.5"
+                stroke={chartColors.borderDefault} strokeWidth="0.5"
               />
             ))}
             {[0.25, 0.5, 0.75].map((pct) => (
@@ -379,7 +384,7 @@ const InputScatterTab = memo(function InputScatterTab({
                 key={`v-${pct}`}
                 x1={pad + pct * (w - 2 * pad)} y1={pad}
                 x2={pad + pct * (w - 2 * pad)} y2={h - pad}
-                stroke="#222" strokeWidth="0.5"
+                stroke={chartColors.borderDefault} strokeWidth="0.5"
               />
             ))}
             {/* Points */}
@@ -438,7 +443,7 @@ const BottleneckTab = memo(function BottleneckTab({
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -474,7 +479,7 @@ const BottleneckTab = memo(function BottleneckTab({
           className={cn(
             'w-full max-w-sm px-4 py-2 bg-bg-input border border-border-default rounded-[10px]',
             'text-xs text-text-primary placeholder:text-text-muted',
-            'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+            'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
           )}
         />
       </div>
@@ -492,7 +497,7 @@ const BottleneckTab = memo(function BottleneckTab({
                 <div
                   className={cn(
                     'h-full rounded-[6px] transition-[width] duration-500',
-                    cluster.is_bottleneck ? 'bg-neon-red' : 'bg-neon-cyan'
+                    cluster.is_bottleneck ? 'bg-status-error' : 'bg-accent-secondary'
                   )}
                   style={{ width: `${(cluster.avg_duration_ms / maxDur) * 100}%` }}
                 />
@@ -504,7 +509,7 @@ const BottleneckTab = memo(function BottleneckTab({
                 {cluster.count} {t('analysis.executionsLabel')}
               </div>
               {cluster.is_bottleneck && (
-                <span className="text-[10px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red shrink-0">
+                <span className="text-[10px] px-2 py-0.5 rounded-[8px] font-semibold bg-status-error-dim text-status-error shrink-0">
                   {t('analysis.isBottleneck')}
                 </span>
               )}
@@ -539,7 +544,7 @@ const BottleneckTab = memo(function BottleneckTab({
                   <td className="px-5 py-3.5">
                     <span className={cn(
                       'text-[11px] px-2 py-0.5 rounded-[8px] font-semibold',
-                      cluster.is_bottleneck ? 'bg-neon-red-dim text-neon-red' : 'bg-neon-cyan-dim text-neon-cyan'
+                      cluster.is_bottleneck ? 'bg-status-error-dim text-status-error' : 'bg-accent-secondary-dim text-accent-secondary'
                     )}>
                       {cluster.is_bottleneck ? t('analysis.bottleneckLabel') : t('analysis.normalLabel')}
                     </span>
@@ -566,7 +571,7 @@ const ErrorClustersTab = memo(function ErrorClustersTab({
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -592,7 +597,7 @@ const ErrorClustersTab = memo(function ErrorClustersTab({
         <div key={cluster.cluster_id} className="bg-bg-card border border-border-default rounded-[16px] p-5 card-shadow">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] px-2 py-0.5 rounded-[8px] font-semibold bg-neon-red-dim text-neon-red">
+              <span className="text-[11px] px-2 py-0.5 rounded-[8px] font-semibold bg-status-error-dim text-status-error">
                 {t('analysis.cluster')} #{cluster.cluster_id}
               </span>
               <span className="text-xs text-text-muted">{cluster.count} {t('analysis.errors')}</span>
@@ -602,7 +607,7 @@ const ErrorClustersTab = memo(function ErrorClustersTab({
           {/* Representative error */}
           <div className="mb-3">
             <p className="text-[10px] text-text-muted mb-1">{t('analysis.representativeError')}</p>
-            <p className="text-xs text-neon-red bg-neon-red-dim/50 rounded-[8px] px-3 py-2 font-mono break-all">
+            <p className="text-xs text-status-error bg-status-error-dim/50 rounded-[8px] px-3 py-2 font-mono break-all">
               {cluster.representative_error}
             </p>
           </div>
@@ -627,7 +632,7 @@ const ErrorClustersTab = memo(function ErrorClustersTab({
               <p className="text-[10px] text-text-muted mb-1">{t('analysis.functions')}</p>
               <div className="flex gap-1 flex-wrap">
                 {cluster.functions.map((fn) => (
-                  <span key={fn} className="text-[10px] px-2 py-0.5 bg-neon-cyan-dim rounded-md text-neon-cyan">
+                  <span key={fn} className="text-[10px] px-2 py-0.5 bg-accent-secondary-dim rounded-md text-accent-secondary">
                     {fn}
                   </span>
                 ))}
@@ -662,7 +667,7 @@ const DriftTab = memo(function DriftTab({
           <h3 className="text-sm font-medium text-text-secondary">{t('analysis.driftSummary')}</h3>
         </div>
         {loadingDrift ? (
-          <div className="flex justify-center py-12"><Loader2 size={20} className="animate-spin text-neon-lime" /></div>
+          <div className="flex justify-center py-12"><Loader2 size={20} className="animate-spin text-accent-primary" /></div>
         ) : driftItems.length === 0 ? (
           <div className="text-center py-12 text-sm text-text-muted">{t('analysis.noDriftData')}</div>
         ) : (
@@ -710,7 +715,7 @@ const DriftTab = memo(function DriftTab({
             className={cn(
               'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary',
-              'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+              'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
             )}
           >
             <option value="">{t('analysis.functionNamePlaceholder')}</option>
@@ -729,14 +734,14 @@ const DriftTab = memo(function DriftTab({
               className={cn(
                 'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus-visible:ring-2 focus-visible:ring-neon-lime/50 outline-none transition-colors'
+                'focus:border-accent-primary focus-visible:ring-2 focus-visible:ring-accent-primary/50 outline-none transition-colors'
               )}
             />
             <button
               onClick={() => simulateMutation.mutate()}
               disabled={!simFn || !simText || simulateMutation.isPending}
               aria-label="Simulate drift"
-              className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-neon-lime/50"
+              className="px-4 py-2.5 bg-accent-primary text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter] focus-visible:ring-2 focus-visible:ring-accent-primary/50"
             >
               {simulateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
             </button>
@@ -746,16 +751,16 @@ const DriftTab = memo(function DriftTab({
             <div className={cn(
               'rounded-[14px] p-4 border',
               simResult.is_drift
-                ? 'bg-neon-red-dim border-neon-red/20'
-                : 'bg-neon-cyan-dim border-neon-cyan/20'
+                ? 'bg-status-error-dim border-status-error/20'
+                : 'bg-accent-secondary-dim border-accent-secondary/20'
             )}>
               <div className="flex items-center gap-2 mb-2">
                 {simResult.is_drift ? (
-                  <AlertTriangle size={16} className="text-neon-red" />
+                  <AlertTriangle size={16} className="text-status-error" />
                 ) : (
-                  <CheckCircle2 size={16} className="text-neon-cyan" />
+                  <CheckCircle2 size={16} className="text-accent-secondary" />
                 )}
-                <span className={cn('text-sm font-semibold', simResult.is_drift ? 'text-neon-red' : 'text-neon-cyan')}>
+                <span className={cn('text-sm font-semibold', simResult.is_drift ? 'text-status-error' : 'text-accent-secondary')}>
                   {simResult.is_drift ? t('analysis.driftDetected') : t('analysis.normal')}
                 </span>
                 <span className="text-xs text-text-muted ml-auto">
@@ -954,7 +959,7 @@ export default function AnalysisPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className={cn(
                   'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-                  activeTab === tab.key ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                  activeTab === tab.key ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
                 )}
               >
                 {t(tab.labelKey)}
@@ -973,10 +978,10 @@ export default function AnalysisPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow hover:border-neon-lime/40 transition-colors text-left group"
+                className="bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow hover:border-accent-primary/40 transition-colors text-left group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  {Icon && <Icon size={18} className="text-neon-lime" />}
+                  {Icon && <Icon size={18} className="text-accent-primary" />}
                   <h3 className="text-sm font-semibold text-text-primary">{t(tab.labelKey)}</h3>
                 </div>
                 <p className="text-xs text-text-muted mb-3">
@@ -991,7 +996,7 @@ export default function AnalysisPage() {
                   {tab.key === 'errorClusters' && (t('analysis.errorClustersDesc') || 'Group similar errors by pattern')}
                   {tab.key === 'drift' && `${driftItems.length} functions monitored`}
                 </p>
-                <span className="text-[11px] text-neon-lime opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[11px] text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity">
                   {t('analysis.viewDetail') || 'View detail →'}
                 </span>
               </button>

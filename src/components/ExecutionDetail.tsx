@@ -37,11 +37,11 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
         <div className="p-6 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader2 size={24} className="animate-spin text-neon-lime" />
+              <Loader2 size={24} className="animate-spin text-accent-primary" />
             </div>
           ) : isError || !hasValidData ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <AlertTriangle size={24} className="text-neon-orange" />
+              <AlertTriangle size={24} className="text-status-warning" />
               <p className="text-sm text-text-muted">Execution not found</p>
               <p className="text-xs text-text-muted/60 font-mono">{spanId}</p>
             </div>
@@ -60,7 +60,7 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
                   <InfoItem label="Trace ID">
                     <Link
                       href={`/traces/${data.trace_id}`}
-                      className="text-xs text-neon-lime hover:underline flex items-center gap-1 font-mono"
+                      className="text-xs text-accent-primary hover:underline flex items-center gap-1 font-mono"
                     >
                       <TruncatedText text={data.trace_id} maxLength={12} />
                       <ExternalLink size={10} />
@@ -74,8 +74,8 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
 
               {/* Error info */}
               {data.error_code && (
-                <div className="bg-neon-red-dim border border-neon-red/20 rounded-[14px] p-4">
-                  <p className="text-xs text-neon-red font-semibold mb-1">{data.error_code}</p>
+                <div className="bg-status-error-dim border border-status-error/20 rounded-[14px] p-4">
+                  <p className="text-xs text-status-error font-semibold mb-1">{data.error_code}</p>
                   <p className="text-xs text-text-secondary">{data.error_message}</p>
                 </div>
               )}
@@ -94,7 +94,7 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
               {data.trace_id && (
                 <Link
                   href={`/traces/${data.trace_id}`}
-                  className="block w-full text-center py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-neon-lime hover:bg-bg-card-hover transition-colors"
+                  className="block w-full text-center py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-accent-primary hover:bg-bg-card-hover transition-colors"
                 >
                   View Trace
                 </Link>

@@ -1,13 +1,18 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/services/analytics';
 import { useTranslation } from '@/lib/i18n';
-
-const BAR_COLORS = ['#DFFF00', '#00FFCC', '#3B82F6', '#FF9F43', '#FF4D6A', '#A855F7', '#EF4444', '#14B8A6', '#F59E0B', '#6366F1'];
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 export function FunctionDistribution() {
   const { t } = useTranslation();
+  const chartColors = useChartColors();
+  const BAR_COLORS = useMemo(
+    () => [chartColors.accentPrimary, chartColors.accentSecondary, chartColors.statusInfo, chartColors.statusWarning, chartColors.statusError, '#A855F7', '#EF4444', '#14B8A6', '#F59E0B', '#6366F1'],
+    [chartColors]
+  );
   const { data, isLoading } = useQuery({
     queryKey: ['functionDist'],
     queryFn: () => analyticsService.functionDistribution(10),

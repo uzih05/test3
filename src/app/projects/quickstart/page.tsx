@@ -72,7 +72,7 @@ export default function QuickStartPage() {
       <div className="fixed top-4 left-4 z-50">
         <button
           onClick={goBack}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm text-text-muted hover:text-neon-lime hover:bg-white/5 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm text-text-muted hover:text-accent-primary hover:bg-white/5 transition-colors"
           aria-label={t('accessibility.goBack')}
         >
           <ArrowLeft size={16} />
@@ -134,8 +134,8 @@ export default function QuickStartPage() {
         {step === 'intro_vectorwave' && (
           <div className="w-full max-w-lg">
             <div className="bg-bg-card border border-border-default rounded-[20px] p-8 card-shadow text-center">
-              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-neon-cyan-dim flex items-center justify-center">
-                <BookOpen size={24} className="text-neon-cyan" />
+              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-accent-secondary-dim flex items-center justify-center">
+                <BookOpen size={24} className="text-accent-secondary" />
               </div>
               <h2 className="text-xl font-bold text-text-primary mb-3">{t('onboarding.intro')}</h2>
               <p className="text-sm text-text-secondary leading-relaxed mb-5">
@@ -151,7 +151,7 @@ export default function QuickStartPage() {
                   { icon: <Heart size={14} />, label: t('onboarding.featureHealing') },
                 ].map((f, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-[12px] bg-bg-elevated">
-                    <span className="text-neon-cyan">{f.icon}</span>
+                    <span className="text-accent-secondary">{f.icon}</span>
                     <span className="text-xs text-text-secondary">{f.label}</span>
                   </div>
                 ))}
@@ -166,14 +166,14 @@ export default function QuickStartPage() {
                 href="https://cozymori.vercel.app/docs/quickstart"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mb-6"
+                className="inline-flex items-center gap-1 text-xs text-accent-secondary hover:underline mb-6"
               >
                 {t('onboarding.docsLink')} <ExternalLink size={11} />
               </a>
               <div>
                 <button
                   onClick={() => goTo('q3_wcs_from_no')}
-                  className="px-8 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+                  className="px-8 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
                 >
                   {t('onboarding.continue')}
                 </button>
@@ -186,7 +186,7 @@ export default function QuickStartPage() {
         {step === 'end_ready' && (
           <div className="w-full max-w-lg">
             <EndCard
-              icon={<CheckCircle2 size={24} className="text-neon-lime" />}
+              icon={<CheckCircle2 size={24} className="text-accent-primary" />}
               title={t('onboarding.endReady')}
               description={t('onboarding.endReadyDesc')}
               ctaLabel={t('onboarding.goToProjects')}
@@ -230,7 +230,7 @@ export default function QuickStartPage() {
               key={i}
               className={cn(
                 'w-2 h-2 rounded-full transition-colors',
-                i <= getProgressIndex(step) ? 'bg-neon-cyan' : 'bg-white/10'
+                i <= getProgressIndex(step) ? 'bg-accent-secondary' : 'bg-white/10'
               )}
             />
           ))}
@@ -268,7 +268,7 @@ function QuestionCard({
       <div className="flex gap-4">
         <button
           onClick={onYes}
-          className="flex-1 py-3.5 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+          className="flex-1 py-3.5 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
         >
           {yesLabel}
         </button>
@@ -298,14 +298,14 @@ function EndCard({
 }) {
   return (
     <div className="bg-bg-card border border-border-default rounded-[20px] p-8 card-shadow w-full text-center">
-      <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-neon-lime-dim flex items-center justify-center">
+      <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-accent-primary-dim flex items-center justify-center">
         {icon}
       </div>
       <h2 className="text-xl font-bold text-text-primary mb-3">{title}</h2>
       <p className="text-sm text-text-secondary mb-8">{description}</p>
       <button
         onClick={onCta}
-        className="px-8 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+        className="px-8 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
       >
         {ctaLabel}
       </button>
@@ -323,7 +323,7 @@ function LabeledCodeBlock({ label, children, maxH }: { label?: string; children:
       )}
       <code
         className={cn(
-          'block bg-bg-primary px-4 py-3 text-xs font-mono text-neon-lime whitespace-pre-wrap',
+          'block bg-bg-primary px-4 py-3 text-xs font-mono text-accent-primary whitespace-pre-wrap',
           maxH && 'overflow-y-auto'
         )}
         style={maxH ? { maxHeight: maxH } : undefined}
@@ -336,7 +336,7 @@ function LabeledCodeBlock({ label, children, maxH }: { label?: string; children:
 
 function CodeBlock({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block bg-bg-primary border border-border-default rounded-[12px] px-4 py-3 text-xs font-mono text-neon-lime whitespace-pre-wrap">
+    <code className="block bg-bg-primary border border-border-default rounded-[12px] px-4 py-3 text-xs font-mono text-accent-primary whitespace-pre-wrap">
       {children}
     </code>
   );
@@ -345,8 +345,8 @@ function CodeBlock({ children }: { children: React.ReactNode }) {
 function EndpointRow({ label, value, description }: { label: string; value: string; description: string }) {
   return (
     <div className="flex flex-col gap-1 p-3 bg-bg-elevated rounded-[12px]">
-      <span className="text-xs font-semibold text-neon-cyan">{label}</span>
-      <code className="text-sm font-mono text-neon-lime">{value}</code>
+      <span className="text-xs font-semibold text-accent-secondary">{label}</span>
+      <code className="text-sm font-mono text-accent-primary">{value}</code>
       <span className="text-xs text-text-muted">{description}</span>
     </div>
   );
@@ -362,8 +362,8 @@ function WcsGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: () =
   return (
     <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow w-full">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-[12px] bg-neon-cyan-dim flex items-center justify-center shrink-0">
-          <Rocket size={20} className="text-neon-cyan" />
+        <div className="w-10 h-10 rounded-[12px] bg-accent-secondary-dim flex items-center justify-center shrink-0">
+          <Rocket size={20} className="text-accent-secondary" />
         </div>
         <h2 className="text-lg font-bold text-text-primary">{t('onboarding.wcsTitle')}</h2>
       </div>
@@ -375,7 +375,7 @@ function WcsGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: () =
           href="https://console.weaviate.cloud"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-neon-cyan hover:underline"
+          className="inline-flex items-center gap-1 text-sm text-accent-secondary hover:underline"
         >
           {t('onboarding.wcsConsole')} <ExternalLink size={12} />
         </a>
@@ -402,7 +402,7 @@ function WcsGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: () =
           />
         </div>
         <div className="flex items-start gap-2 mt-3 p-3 bg-bg-elevated/50 rounded-[12px]">
-          <Info size={14} className="text-neon-cyan shrink-0 mt-0.5" />
+          <Info size={14} className="text-accent-secondary shrink-0 mt-0.5" />
           <span className="text-xs text-text-muted">{t('onboarding.wcsWhereToFind')}</span>
         </div>
       </div>
@@ -418,7 +418,7 @@ function WcsGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: () =
         href="https://weaviate.io/developers/wcs"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline"
+        className="inline-flex items-center gap-1 text-xs text-accent-secondary hover:underline"
       >
         {t('onboarding.wcsDocsLink')} <ExternalLink size={11} />
       </a>
@@ -428,7 +428,7 @@ function WcsGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: () =
         <div className="mt-6 text-center">
           <button
             onClick={onCta}
-            className="px-8 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+            className="px-8 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
           >
             {t('onboarding.goToProjects')}
           </button>
@@ -442,8 +442,8 @@ function DockerGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: (
   return (
     <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow w-full">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-[12px] bg-neon-cyan-dim flex items-center justify-center shrink-0">
-          <Rocket size={20} className="text-neon-cyan" />
+        <div className="w-10 h-10 rounded-[12px] bg-accent-secondary-dim flex items-center justify-center shrink-0">
+          <Rocket size={20} className="text-accent-secondary" />
         </div>
         <h2 className="text-lg font-bold text-text-primary">{t('onboarding.dockerTitle')}</h2>
       </div>
@@ -483,7 +483,7 @@ function DockerGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: (
         href="https://cozymori.vercel.app/docs/vectorwave-installation"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline"
+        className="inline-flex items-center gap-1 text-xs text-accent-secondary hover:underline"
       >
         {t('onboarding.docsLink')} <ExternalLink size={11} />
       </a>
@@ -493,7 +493,7 @@ function DockerGuide({ t, onCta, hideCta }: { t: (k: string) => string; onCta: (
         <div className="mt-6 text-center">
           <button
             onClick={onCta}
-            className="px-8 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+            className="px-8 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
           >
             {t('onboarding.goToProjects')}
           </button>
@@ -517,8 +517,8 @@ function VectorWaveInstallGuide({
   return (
     <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow w-full">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-[12px] bg-neon-lime-dim flex items-center justify-center shrink-0">
-          <Zap size={20} className="text-neon-lime" />
+        <div className="w-10 h-10 rounded-[12px] bg-accent-primary-dim flex items-center justify-center shrink-0">
+          <Zap size={20} className="text-accent-primary" />
         </div>
         <h2 className="text-lg font-bold text-text-primary">{t('onboarding.installTitle')}</h2>
       </div>
@@ -562,7 +562,7 @@ function VectorWaveInstallGuide({
         href="https://cozymori.vercel.app/docs/vectorwave-installation"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline"
+        className="inline-flex items-center gap-1 text-xs text-accent-secondary hover:underline"
       >
         {t('onboarding.docsLink')} <ExternalLink size={11} />
       </a>
@@ -571,7 +571,7 @@ function VectorWaveInstallGuide({
       <div className="mt-6 text-center">
         <button
           onClick={onCta}
-          className="px-8 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+          className="px-8 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
         >
           {t('onboarding.goToProjects')}
         </button>

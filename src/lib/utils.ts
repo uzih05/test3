@@ -60,10 +60,10 @@ export function getDurationSeverity(ms: number, thresholdMs = 5000): Severity {
 }
 
 export const SEVERITY_COLORS: Record<Severity, { text: string; bg: string }> = {
-  critical: { text: 'text-neon-red', bg: 'bg-neon-red-dim' },
-  warning: { text: 'text-neon-orange', bg: 'bg-[rgba(255,159,67,0.15)]' },
+  critical: { text: 'text-status-error', bg: 'bg-status-error-dim' },
+  warning: { text: 'text-status-warning', bg: 'bg-status-warning-dim' },
   normal: { text: 'text-text-secondary', bg: 'bg-bg-elevated' },
-  good: { text: 'text-neon-cyan', bg: 'bg-neon-cyan-dim' },
+  good: { text: 'text-accent-secondary', bg: 'bg-accent-secondary-dim' },
 };
 
 export function formatCost(dollars: number): string {

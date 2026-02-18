@@ -15,7 +15,7 @@ export function TrendIndicator({ current, previous, invertColor = false, classNa
   if (previous === 0) {
     const isUp = current > 0;
     const isGood = invertColor ? !isUp : isUp;
-    const colorClass = isGood ? 'text-neon-cyan' : 'text-neon-red';
+    const colorClass = isGood ? 'text-accent-secondary' : 'text-status-error';
     const Icon = isUp ? TrendingUp : TrendingDown;
     return (
       <span className={`inline-flex items-center gap-0.5 text-[11px] ${colorClass} ${className || ''}`}>
@@ -39,7 +39,7 @@ export function TrendIndicator({ current, previous, invertColor = false, classNa
 
   const isUp = diff > 0;
   const isGood = invertColor ? !isUp : isUp;
-  const colorClass = isGood ? 'text-neon-cyan' : 'text-neon-red';
+  const colorClass = isGood ? 'text-accent-secondary' : 'text-status-error';
   const Icon = isUp ? TrendingUp : TrendingDown;
 
   return (

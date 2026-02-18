@@ -57,7 +57,7 @@ export default function TracesPage() {
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+              'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
             )}
           />
         </div>
@@ -71,7 +71,7 @@ export default function TracesPage() {
               className={cn(
                 'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
                 statusFilter === tab.value
-                  ? 'bg-neon-lime text-text-inverse'
+                  ? 'bg-accent-primary text-text-inverse'
                   : 'text-text-muted hover:text-text-primary'
               )}
             >
@@ -89,7 +89,7 @@ export default function TracesPage() {
               className={cn(
                 'px-2.5 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
                 limit === l
-                  ? 'bg-neon-lime text-text-inverse'
+                  ? 'bg-accent-primary text-text-inverse'
                   : 'text-text-muted hover:text-text-primary'
               )}
             >

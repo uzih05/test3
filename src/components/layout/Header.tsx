@@ -12,7 +12,7 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuToggle }: HeaderProps) {
-  const { theme, setTheme } = useThemeStore();
+  const { mode, setMode } = useThemeStore();
   const { t, language, setLanguage } = useTranslation();
   const [showPalette, setShowPalette] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -22,12 +22,12 @@ export function Header({ onMenuToggle }: HeaderProps) {
     dark: Moon,
     system: Monitor,
   };
-  const ThemeIcon = themeIcons[theme];
+  const ThemeIcon = themeIcons[mode];
 
   const nextTheme = () => {
     const order: Array<'light' | 'dark' | 'system'> = ['dark', 'light', 'system'];
-    const idx = order.indexOf(theme);
-    setTheme(order[(idx + 1) % order.length]);
+    const idx = order.indexOf(mode);
+    setMode(order[(idx + 1) % order.length]);
   };
 
   const langLabels: Record<string, string> = { en: 'EN', ko: 'KO', ja: 'JA' };
@@ -70,7 +70,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
           {/* Theme toggle */}
           <button
             onClick={nextTheme}
-            className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card"
+            className="p-2 text-text-muted hover:text-accent-primary transition-colors rounded-[12px] hover:bg-bg-card"
             aria-label={t('accessibility.toggleTheme')}
           >
             <ThemeIcon size={18} />
@@ -80,7 +80,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="p-2 text-text-muted hover:text-neon-lime transition-colors rounded-[12px] hover:bg-bg-card flex items-center gap-1"
+              className="p-2 text-text-muted hover:text-accent-primary transition-colors rounded-[12px] hover:bg-bg-card flex items-center gap-1"
               aria-label={t('accessibility.toggleLanguage')}
             >
               <Globe size={18} />
@@ -99,7 +99,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                       }}
                       className={cn(
                         'w-full px-4 py-2 text-sm text-left hover:bg-bg-card-hover transition-colors',
-                        language === lang ? 'text-neon-lime' : 'text-text-secondary'
+                        language === lang ? 'text-accent-primary' : 'text-text-secondary'
                       )}
                     >
                       {lang === 'en' ? 'English' : lang === 'ko' ? '한국어' : '日本語'}

@@ -103,7 +103,7 @@ export default function GitHubPage() {
   if (loadingStatus) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 size={28} className="animate-spin text-neon-lime" />
+        <Loader2 size={28} className="animate-spin text-accent-primary" />
       </div>
     );
   }
@@ -142,12 +142,12 @@ export default function GitHubPage() {
           {connected && (
             <>
               <span className="text-xs text-text-muted">
-                Connected as <span className="text-neon-lime font-medium">{status?.username}</span>
+                Connected as <span className="text-accent-primary font-medium">{status?.username}</span>
               </span>
               <button
                 onClick={() => deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
-                className="px-3 py-1.5 text-xs text-neon-red hover:bg-neon-red-dim rounded-[10px] transition-colors"
+                className="px-3 py-1.5 text-xs text-status-error hover:bg-status-error-dim rounded-[10px] transition-colors"
               >
                 {t('github.disconnect')}
               </button>
@@ -156,7 +156,7 @@ export default function GitHubPage() {
           {!connected && view !== 'connect' && (
             <button
               onClick={() => setView('connect')}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[opacity,filter]"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 transition-[opacity,filter]"
             >
               <KeyRound size={14} />
               {t('github.connect')}
@@ -175,7 +175,7 @@ export default function GitHubPage() {
           </p>
           <button
             onClick={() => setView('connect')}
-            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 transition-[opacity,filter]"
+            className="px-5 py-2.5 bg-accent-primary text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 transition-[opacity,filter]"
           >
             Connect with Token
           </button>
@@ -185,11 +185,11 @@ export default function GitHubPage() {
         <div className="max-w-lg mx-auto">
           <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
             <div className="flex items-center gap-2 mb-4">
-              <KeyRound size={16} className="text-neon-lime" />
+              <KeyRound size={16} className="text-accent-primary" />
               <h3 className="text-sm font-medium text-text-primary">GitHub Personal Access Token</h3>
             </div>
             <p className="text-xs text-text-muted mb-4">
-              Generate a token with <code className="text-neon-cyan">repo</code> scope from GitHub Settings &rarr; Developer Settings &rarr; Personal Access Tokens.
+              Generate a token with <code className="text-accent-secondary">repo</code> scope from GitHub Settings &rarr; Developer Settings &rarr; Personal Access Tokens.
             </p>
             <input
               type="password"
@@ -199,11 +199,11 @@ export default function GitHubPage() {
               className={cn(
                 'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted font-mono',
-                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
               )}
             />
             {saveMutation.isError && (
-              <p className="text-xs text-neon-red mt-2">
+              <p className="text-xs text-status-error mt-2">
                 {(saveMutation.error as Error).message || 'Failed to save token'}
               </p>
             )}
@@ -217,7 +217,7 @@ export default function GitHubPage() {
               <button
                 onClick={() => saveMutation.mutate()}
                 disabled={!tokenInput || saveMutation.isPending}
-                className="px-4 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+                className="px-4 py-2 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
               >
                 {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : 'Save Token'}
               </button>
@@ -241,7 +241,7 @@ export default function GitHubPage() {
                   onClick={() => setPrFilter(f)}
                   className={cn(
                     'px-2.5 py-1 rounded-[8px] text-xs font-medium transition-colors capitalize',
-                    prFilter === f ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                    prFilter === f ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
                   )}
                 >
                   {f === 'all' ? 'All' : t(`github.${f}`)}
@@ -254,7 +254,7 @@ export default function GitHubPage() {
           <div className="bg-bg-card border border-border-default rounded-[20px] overflow-hidden card-shadow">
             {loadingPRs ? (
               <div className="flex justify-center py-12">
-                <Loader2 size={20} className="animate-spin text-neon-lime" />
+                <Loader2 size={20} className="animate-spin text-accent-primary" />
               </div>
             ) : prs.length === 0 ? (
               <div className="text-center py-12 text-sm text-text-muted">No pull requests found</div>
@@ -280,14 +280,14 @@ export default function GitHubPage() {
               className={cn(
                 'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
               )}
             />
           </div>
 
           {loadingRepos ? (
             <div className="flex justify-center py-12">
-              <Loader2 size={20} className="animate-spin text-neon-lime" />
+              <Loader2 size={20} className="animate-spin text-accent-primary" />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -300,13 +300,13 @@ export default function GitHubPage() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
                       {repo.private ? (
-                        <Lock size={14} className="text-neon-orange shrink-0" />
+                        <Lock size={14} className="text-status-warning shrink-0" />
                       ) : (
-                        <Globe size={14} className="text-neon-cyan shrink-0" />
+                        <Globe size={14} className="text-accent-secondary shrink-0" />
                       )}
                       <span className="text-sm font-medium text-text-primary truncate">{repo.name}</span>
                     </div>
-                    <ChevronRight size={14} className="text-text-muted group-hover:text-neon-lime transition-colors shrink-0" />
+                    <ChevronRight size={14} className="text-text-muted group-hover:text-accent-primary transition-colors shrink-0" />
                   </div>
                   <p className="text-[11px] text-text-muted mb-1">{repo.owner}</p>
                   {repo.description && (
@@ -315,7 +315,7 @@ export default function GitHubPage() {
                   <div className="flex items-center gap-3 text-[10px] text-text-muted">
                     {repo.language && (
                       <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-neon-lime" />
+                        <span className="w-2 h-2 rounded-full bg-accent-primary" />
                         {repo.language}
                       </span>
                     )}
@@ -340,17 +340,17 @@ export default function GitHubPage() {
 function PRRow({ pr, onClick }: { pr: GitHubPR; onClick: () => void }) {
   const stateColor =
     pr.state === 'open'
-      ? 'text-neon-lime'
+      ? 'text-accent-primary'
       : pr.state === 'merged'
         ? 'text-[#a855f7]'
-        : 'text-neon-red';
+        : 'text-status-error';
 
   const stateBg =
     pr.state === 'open'
-      ? 'bg-neon-lime-dim'
+      ? 'bg-accent-primary-dim'
       : pr.state === 'merged'
         ? 'bg-[rgba(168,85,247,0.15)]'
-        : 'bg-neon-red-dim';
+        : 'bg-status-error-dim';
 
   return (
     <div
@@ -401,24 +401,24 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
   if (loading || !detail) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-neon-lime" />
+        <Loader2 size={24} className="animate-spin text-accent-primary" />
       </div>
     );
   }
 
   const stateColor =
     detail.state === 'open'
-      ? 'text-neon-lime'
+      ? 'text-accent-primary'
       : detail.state === 'merged'
         ? 'text-[#a855f7]'
-        : 'text-neon-red';
+        : 'text-status-error';
 
   const stateBg =
     detail.state === 'open'
-      ? 'bg-neon-lime-dim'
+      ? 'bg-accent-primary-dim'
       : detail.state === 'merged'
         ? 'bg-[rgba(168,85,247,0.15)]'
-        : 'bg-neon-red-dim';
+        : 'bg-status-error-dim';
 
   return (
     <div className="space-y-4">
@@ -439,14 +439,14 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
                 {detail.author}
               </span>
               <span>{timeAgo(detail.created_at)}</span>
-              {detail.draft && <span className="text-neon-orange">Draft</span>}
+              {detail.draft && <span className="text-status-warning">Draft</span>}
             </div>
           </div>
           <a
             href={detail.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 text-text-muted hover:text-neon-lime transition-colors shrink-0"
+            className="p-2 text-text-muted hover:text-accent-primary transition-colors shrink-0"
             aria-label="Open in GitHub"
           >
             <ExternalLink size={16} />
@@ -461,13 +461,13 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
             <p className="text-[10px] text-text-muted">Files Changed</p>
           </div>
           <div className="bg-bg-elevated rounded-[12px] p-3 text-center">
-            <Plus size={14} className="mx-auto mb-1 text-neon-lime" />
-            <p className="text-lg font-bold text-neon-lime">+{detail.additions}</p>
+            <Plus size={14} className="mx-auto mb-1 text-accent-primary" />
+            <p className="text-lg font-bold text-accent-primary">+{detail.additions}</p>
             <p className="text-[10px] text-text-muted">Additions</p>
           </div>
           <div className="bg-bg-elevated rounded-[12px] p-3 text-center">
-            <Minus size={14} className="mx-auto mb-1 text-neon-red" />
-            <p className="text-lg font-bold text-neon-red">-{detail.deletions}</p>
+            <Minus size={14} className="mx-auto mb-1 text-status-error" />
+            <p className="text-lg font-bold text-status-error">-{detail.deletions}</p>
             <p className="text-[10px] text-text-muted">Deletions</p>
           </div>
         </div>
@@ -484,11 +484,11 @@ function PRDetailView({ detail, loading }: { detail?: GitHubPRDetail; loading: b
               <div key={file.filename} className="flex items-center gap-3 px-5 py-2.5">
                 <FileCode size={14} className={cn(
                   'shrink-0',
-                  file.status === 'added' ? 'text-neon-lime' : file.status === 'removed' ? 'text-neon-red' : 'text-neon-orange'
+                  file.status === 'added' ? 'text-accent-primary' : file.status === 'removed' ? 'text-status-error' : 'text-status-warning'
                 )} />
                 <span className="text-sm text-text-primary truncate flex-1 font-mono">{file.filename}</span>
-                {file.additions > 0 && <span className="text-[11px] text-neon-lime font-mono">+{file.additions}</span>}
-                {file.deletions > 0 && <span className="text-[11px] text-neon-red font-mono">-{file.deletions}</span>}
+                {file.additions > 0 && <span className="text-[11px] text-accent-primary font-mono">+{file.additions}</span>}
+                {file.deletions > 0 && <span className="text-[11px] text-status-error font-mono">-{file.deletions}</span>}
               </div>
             ))}
           </div>

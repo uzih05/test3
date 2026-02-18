@@ -31,36 +31,83 @@ type SettingsTab = 'appearance' | 'ai' | 'connections' | 'account';
 /* === Appearance === */
 const AppearanceSection = memo(function AppearanceSection() {
   const { t } = useTranslation();
-  const { theme, setTheme } = useThemeStore();
+  const { mode, setMode, colorTheme, setColorTheme } = useThemeStore();
 
-  const themes = [
+  const colorThemes = [
+    {
+      key: 'neon' as const,
+      label: t('settings.colorThemeNeon'),
+      desc: t('settings.neonColorDesc'),
+      swatches: ['#DFFF00', '#00FFCC'],
+    },
+    {
+      key: 'signature' as const,
+      label: t('settings.colorThemeSignature'),
+      desc: t('settings.signatureColorDesc'),
+      swatches: ['#A78BFA', '#F472B6'],
+    },
+  ];
+
+  const modes = [
     { key: 'dark' as const, label: t('settings.theme.dark'), icon: Moon, desc: t('settings.neonDarkDesc') },
     { key: 'light' as const, label: t('settings.theme.light'), icon: Sun, desc: t('settings.cleanLightDesc') },
     { key: 'system' as const, label: t('settings.theme.system'), icon: Monitor, desc: t('settings.followOsDesc') },
   ];
 
   return (
-    <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
-      <h2 className="text-sm font-medium text-text-secondary mb-4">{t('settings.appearance')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {themes.map(({ key, label, icon: Icon, desc }) => (
-          <button
-            key={key}
-            onClick={() => setTheme(key)}
-            className={cn(
-              'p-4 rounded-[14px] border-2 text-left transition-[border-color,background-color]',
-              theme === key
-                ? 'border-neon-lime bg-neon-lime-dim'
-                : 'border-border-default hover:border-border-hover bg-bg-elevated'
-            )}
-          >
-            <Icon size={20} className={theme === key ? 'text-neon-lime mb-2' : 'text-text-muted mb-2'} />
-            <p className={cn('text-sm font-medium', theme === key ? 'text-neon-lime' : 'text-text-primary')}>
-              {label}
-            </p>
-            <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
-          </button>
-        ))}
+    <div className="space-y-4">
+      {/* Color Theme */}
+      <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
+        <h2 className="text-sm font-medium text-text-secondary mb-4">{t('settings.colorTheme')}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {colorThemes.map(({ key, label, desc, swatches }) => (
+            <button
+              key={key}
+              onClick={() => setColorTheme(key)}
+              className={cn(
+                'p-4 rounded-[14px] border-2 text-left transition-[border-color,background-color]',
+                colorTheme === key
+                  ? 'border-accent-primary bg-accent-primary-dim'
+                  : 'border-border-default hover:border-border-hover bg-bg-elevated'
+              )}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                {swatches.map((c) => (
+                  <div key={c} className="w-5 h-5 rounded-full border border-border-default" style={{ background: c }} />
+                ))}
+              </div>
+              <p className={cn('text-sm font-medium', colorTheme === key ? 'text-accent-primary' : 'text-text-primary')}>
+                {label}
+              </p>
+              <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mode */}
+      <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
+        <h2 className="text-sm font-medium text-text-secondary mb-4">{t('settings.appearance')}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {modes.map(({ key, label, icon: Icon, desc }) => (
+            <button
+              key={key}
+              onClick={() => setMode(key)}
+              className={cn(
+                'p-4 rounded-[14px] border-2 text-left transition-[border-color,background-color]',
+                mode === key
+                  ? 'border-accent-primary bg-accent-primary-dim'
+                  : 'border-border-default hover:border-border-hover bg-bg-elevated'
+              )}
+            >
+              <Icon size={20} className={mode === key ? 'text-accent-primary mb-2' : 'text-text-muted mb-2'} />
+              <p className={cn('text-sm font-medium', mode === key ? 'text-accent-primary' : 'text-text-primary')}>
+                {label}
+              </p>
+              <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -104,17 +151,17 @@ const AISection = memo(function AISection() {
       {/* Status */}
       <div className={cn(
         'flex items-center gap-2 px-4 py-3 rounded-[12px] mb-4',
-        user?.has_openai_key ? 'bg-neon-cyan-dim' : 'bg-[rgba(255,159,67,0.15)]'
+        user?.has_openai_key ? 'bg-accent-secondary-dim' : 'bg-status-warning-dim'
       )}>
         {user?.has_openai_key ? (
           <>
-            <CheckCircle2 size={16} className="text-neon-cyan" />
-            <span className="text-sm text-neon-cyan font-medium">{t('settings.apiKeyConfigured')}</span>
+            <CheckCircle2 size={16} className="text-accent-secondary" />
+            <span className="text-sm text-accent-secondary font-medium">{t('settings.apiKeyConfigured')}</span>
           </>
         ) : (
           <>
-            <AlertTriangle size={16} className="text-neon-orange" />
-            <span className="text-sm text-neon-orange font-medium">{t('settings.apiKeyNotSet')}</span>
+            <AlertTriangle size={16} className="text-status-warning" />
+            <span className="text-sm text-status-warning font-medium">{t('settings.apiKeyNotSet')}</span>
           </>
         )}
       </div>
@@ -132,13 +179,13 @@ const AISection = memo(function AISection() {
           className={cn(
             'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
             'text-sm text-text-primary placeholder:text-text-muted font-mono',
-            'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+            'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
           )}
         />
         <button
           onClick={() => saveMutation.mutate()}
           disabled={!apiKey || saveMutation.isPending}
-          className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+          className="px-4 py-2.5 bg-accent-primary text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
         >
           {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : t('common.save')}
         </button>
@@ -148,7 +195,7 @@ const AISection = memo(function AISection() {
         <button
           onClick={() => removeMutation.mutate()}
           disabled={removeMutation.isPending}
-          className="mt-3 flex items-center gap-1.5 text-xs text-neon-red hover:bg-neon-red-dim px-3 py-1.5 rounded-[8px] transition-colors"
+          className="mt-3 flex items-center gap-1.5 text-xs text-status-error hover:bg-status-error-dim px-3 py-1.5 rounded-[8px] transition-colors"
         >
           <Trash2 size={12} />
           {t('settings.removeApiKey')}
@@ -158,7 +205,7 @@ const AISection = memo(function AISection() {
       {message && (
         <div className={cn(
           'mt-3 flex items-center gap-2 px-3 py-2 rounded-[10px] text-xs',
-          message.type === 'success' ? 'bg-neon-cyan-dim text-neon-cyan' : 'bg-neon-red-dim text-neon-red'
+          message.type === 'success' ? 'bg-accent-secondary-dim text-accent-secondary' : 'bg-status-error-dim text-status-error'
         )}>
           {message.type === 'success' ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
           {message.text}
@@ -209,7 +256,7 @@ const ConnectionsSection = memo(function ConnectionsSection() {
 
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 size={20} className="animate-spin text-neon-lime" />
+          <Loader2 size={20} className="animate-spin text-accent-primary" />
         </div>
       ) : connections.length === 0 ? (
         <div className="text-center py-12 text-sm text-text-muted">{t('settings.noConnections')}</div>
@@ -221,7 +268,7 @@ const ConnectionsSection = memo(function ConnectionsSection() {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     'w-2.5 h-2.5 rounded-full',
-                    conn.is_active ? 'bg-neon-lime' : 'bg-text-muted'
+                    conn.is_active ? 'bg-accent-primary' : 'bg-text-muted'
                   )} />
                   <div>
                     <p className="text-sm font-medium text-text-primary">{conn.name}</p>
@@ -233,13 +280,13 @@ const ConnectionsSection = memo(function ConnectionsSection() {
                     {conn.connection_type}
                   </span>
                   {conn.is_active && (
-                    <span className="text-[10px] px-2 py-0.5 bg-neon-lime-dim text-neon-lime rounded-md font-medium">
+                    <span className="text-[10px] px-2 py-0.5 bg-accent-primary-dim text-accent-primary rounded-md font-medium">
                       {t('settings.connectionActive')}
                     </span>
                   )}
                   <button
                     onClick={() => { setKeyEditId(keyEditId === conn.id ? null : conn.id); setKeyInput(''); setKeyMessage(null); }}
-                    className="p-1.5 text-text-muted hover:text-neon-lime transition-colors"
+                    className="p-1.5 text-text-muted hover:text-accent-primary transition-colors"
                     title={t('settings.connectionApiKey')}
                   >
                     <Key size={14} />
@@ -247,7 +294,7 @@ const ConnectionsSection = memo(function ConnectionsSection() {
                   <button
                     onClick={() => deleteMutation.mutate(conn.id)}
                     disabled={deleteMutation.isPending}
-                    className="p-1.5 text-text-muted hover:text-neon-red transition-colors"
+                    className="p-1.5 text-text-muted hover:text-status-error transition-colors"
                     title={t('common.delete')}
                   >
                     <Trash2 size={14} />
@@ -270,13 +317,13 @@ const ConnectionsSection = memo(function ConnectionsSection() {
                       className={cn(
                         'flex-1 px-3 py-2 bg-bg-input border border-border-default rounded-[10px]',
                         'text-xs text-text-primary placeholder:text-text-muted font-mono',
-                        'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                        'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                       )}
                     />
                     <button
                       onClick={() => saveKeyMutation.mutate({ id: conn.id, key: keyInput })}
                       disabled={!keyInput || saveKeyMutation.isPending}
-                      className="px-3 py-2 bg-neon-lime text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+                      className="px-3 py-2 bg-accent-primary text-text-inverse rounded-[10px] text-xs font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
                     >
                       {saveKeyMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : t('common.save')}
                     </button>
@@ -284,7 +331,7 @@ const ConnectionsSection = memo(function ConnectionsSection() {
                   {keyMessage && (
                     <div className={cn(
                       'mt-2 flex items-center gap-1.5 text-[11px]',
-                      keyMessage.type === 'success' ? 'text-neon-cyan' : 'text-neon-red'
+                      keyMessage.type === 'success' ? 'text-accent-secondary' : 'text-status-error'
                     )}>
                       {keyMessage.type === 'success' ? <CheckCircle2 size={10} /> : <AlertTriangle size={10} />}
                       {keyMessage.text}
@@ -311,7 +358,7 @@ const AccountSection = memo(function AccountSection() {
       <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
         <h2 className="text-sm font-medium text-text-secondary mb-4">{t('settings.profile')}</h2>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-neon-lime-dim flex items-center justify-center text-neon-lime text-xl font-bold">
+          <div className="w-14 h-14 rounded-full bg-accent-primary-dim flex items-center justify-center text-accent-primary text-xl font-bold">
             {(user?.display_name || user?.email || '?')[0].toUpperCase()}
           </div>
           <div>
@@ -339,7 +386,7 @@ const AccountSection = memo(function AccountSection() {
             </div>
             <span className={cn(
               'text-xs px-2 py-0.5 rounded-md font-medium',
-              user?.has_openai_key ? 'bg-neon-cyan-dim text-neon-cyan' : 'bg-bg-elevated text-text-muted'
+              user?.has_openai_key ? 'bg-accent-secondary-dim text-accent-secondary' : 'bg-bg-elevated text-text-muted'
             )}>
               {user?.has_openai_key ? t('settings.configured') : t('settings.notSet')}
             </span>
@@ -350,7 +397,7 @@ const AccountSection = memo(function AccountSection() {
       {/* Logout */}
       <button
         onClick={logout}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-bg-card border border-border-default rounded-[16px] text-sm text-neon-red hover:bg-neon-red-dim transition-colors card-shadow"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-bg-card border border-border-default rounded-[16px] text-sm text-status-error hover:bg-status-error-dim transition-colors card-shadow"
       >
         <LogOut size={16} />
         {t('settings.logout')}
@@ -386,7 +433,7 @@ export default function SettingsPage() {
                 className={cn(
                   'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-sm transition-colors text-left',
                   activeTab === key
-                    ? 'bg-neon-lime text-text-inverse font-medium'
+                    ? 'bg-accent-primary text-text-inverse font-medium'
                     : 'text-text-muted hover:text-text-primary hover:bg-bg-card-hover'
                 )}
               >

@@ -21,12 +21,13 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { SurferChart } from '@/components/charts/SurferChart';
 import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, timeAgo, cn } from '@/lib/utils';
-
-const PIE_COLORS = ['#FF4D6A', '#FF9F43', '#DFFF00', '#00FFCC', '#3B82F6'];
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 export default function ErrorsPage() {
   const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
+  const chartColors = useChartColors();
+  const PIE_COLORS = [chartColors.statusError, chartColors.statusWarning, chartColors.accentPrimary, chartColors.accentSecondary, chartColors.statusInfo];
   const searchParams = useSearchParams();
   const initialFn = searchParams.get('function_name') || '';
 
@@ -102,15 +103,15 @@ export default function ErrorsPage() {
             icon={AlertTriangle}
             label={t('errors.totalErrors')}
             value={formatNumber(summaryData.total_errors)}
-            color="text-neon-red"
-            bg="bg-neon-red-dim"
+            color="text-status-error"
+            bg="bg-status-error-dim"
           />
           <SummaryCard
             icon={Hash}
             label={t('errors.uniqueCodes')}
             value={String(summaryData.unique_error_codes)}
-            color="text-neon-orange"
-            bg="bg-[rgba(255,159,67,0.15)]"
+            color="text-status-warning"
+            bg="bg-status-warning-dim"
           />
           {(summaryData.most_common_errors || []).slice(0, 2).map((err, i) => (
             <SummaryCard
@@ -118,8 +119,8 @@ export default function ErrorsPage() {
               icon={TrendingUp}
               label={err.error_code}
               value={`${err.count} (${formatPercentage(err.percentage)})`}
-              color={i === 0 ? 'text-neon-red' : 'text-neon-orange'}
-              bg={i === 0 ? 'bg-neon-red-dim' : 'bg-[rgba(255,159,67,0.15)]'}
+              color={i === 0 ? 'text-status-error' : 'text-status-warning'}
+              bg={i === 0 ? 'bg-status-error-dim' : 'bg-status-warning-dim'}
             />
           ))}
         </div>
@@ -131,7 +132,7 @@ export default function ErrorsPage() {
         <div className="lg:col-span-2 bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
           <h3 className="text-sm font-medium text-text-secondary mb-4">{t('errors.trends')}</h3>
           {trendChartData.length > 0 ? (
-            <SurferChart data={trendChartData} color="#FF4D6A" height={180} />
+            <SurferChart data={trendChartData} color={chartColors.statusError} height={180} />
           ) : (
             <div className="h-[180px] flex items-center justify-center text-text-muted text-sm">{t('errors.noTrendData')}</div>
           )}
@@ -182,7 +183,7 @@ export default function ErrorsPage() {
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+              'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
             )}
           />
         </div>
@@ -197,7 +198,7 @@ export default function ErrorsPage() {
             className={cn(
               'w-40 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+              'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
             )}
           />
         )}
@@ -208,7 +209,7 @@ export default function ErrorsPage() {
             onClick={() => setSearchMode('filter')}
             className={cn(
               'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-              searchMode === 'filter' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+              searchMode === 'filter' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
             {t('errors.filter')}
@@ -217,7 +218,7 @@ export default function ErrorsPage() {
             onClick={() => setSearchMode('semantic')}
             className={cn(
               'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-              searchMode === 'semantic' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+              searchMode === 'semantic' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
             {t('errors.semantic')}
@@ -263,7 +264,7 @@ export default function ErrorsPage() {
                       <span className="text-sm text-text-primary font-medium">{err.function_name}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs px-2 py-0.5 bg-neon-red-dim text-neon-red rounded-[8px] font-medium">
+                      <span className="text-xs px-2 py-0.5 bg-status-error-dim text-status-error rounded-[8px] font-medium">
                         {err.error_code || 'ERROR'}
                       </span>
                     </td>
@@ -282,7 +283,7 @@ export default function ErrorsPage() {
                       {err.trace_id && (
                         <Link
                           href={`/traces/${err.trace_id}`}
-                          className="p-1 text-text-muted hover:text-neon-lime transition-colors"
+                          className="p-1 text-text-muted hover:text-accent-primary transition-colors"
                           title={t('errors.viewTrace')}
                         >
                           <ExternalLink size={14} />

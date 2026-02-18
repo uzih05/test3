@@ -5,10 +5,12 @@ import { analyticsService } from '@/services/analytics';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTranslation } from '@/lib/i18n';
 import { SurferChart } from '@/components/charts/SurferChart';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 export function ExecutionTimeline() {
   const { t } = useTranslation();
   const { timeRangeMinutes } = useDashboardStore();
+  const chartColors = useChartColors();
 
   const bucket = timeRangeMinutes <= 60 ? 5 : timeRangeMinutes <= 360 ? 15 : timeRangeMinutes <= 1440 ? 60 : 360;
 
@@ -32,14 +34,14 @@ export function ExecutionTimeline() {
   return (
     <SurferChart
       data={chartData}
-      color="#DFFF00"
-      color2="#FF4D6A"
-      color3="#00FFCC"
+      color={chartColors.accentPrimary}
+      color2={chartColors.statusError}
+      color3={chartColors.accentSecondary}
       height={220}
       legend={[
-        { key: 'value', label: t('executions.success'), color: '#DFFF00' },
-        { key: 'value2', label: t('executions.error'), color: '#FF4D6A' },
-        { key: 'value3', label: t('executions.cacheHit'), color: '#00FFCC' },
+        { key: 'value', label: t('executions.success'), color: chartColors.accentPrimary },
+        { key: 'value2', label: t('executions.error'), color: chartColors.statusError },
+        { key: 'value3', label: t('executions.cacheHit'), color: chartColors.accentSecondary },
       ]}
     />
   );

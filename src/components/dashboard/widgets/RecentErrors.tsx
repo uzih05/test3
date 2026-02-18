@@ -46,7 +46,7 @@ export function RecentErrors() {
             <span className="text-[10px] text-text-muted">{timeAgo(err.timestamp_utc)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] px-1.5 py-0.5 bg-neon-red-dim text-neon-red rounded-md font-medium">
+            <span className="text-[10px] px-1.5 py-0.5 bg-status-error-dim text-status-error rounded-md font-medium">
               {err.error_code || 'ERROR'}
             </span>
             <span className="text-xs text-text-muted truncate">{err.error_message}</span>

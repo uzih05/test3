@@ -3,10 +3,10 @@
 import { cn } from '@/lib/utils';
 
 const STYLES: Record<string, { bg: string; text: string }> = {
-  SUCCESS: { bg: 'bg-neon-cyan-dim', text: 'text-neon-cyan' },
-  ERROR: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
-  CACHE_HIT: { bg: 'bg-neon-lime-dim', text: 'text-neon-lime' },
-  PARTIAL: { bg: 'bg-[rgba(255,159,67,0.15)]', text: 'text-neon-orange' },
+  SUCCESS: { bg: 'bg-accent-secondary-dim', text: 'text-accent-secondary' },
+  ERROR: { bg: 'bg-status-error-dim', text: 'text-status-error' },
+  CACHE_HIT: { bg: 'bg-accent-primary-dim', text: 'text-accent-primary' },
+  PARTIAL: { bg: 'bg-status-warning-dim', text: 'text-status-warning' },
 };
 
 interface StatusBadgeProps {

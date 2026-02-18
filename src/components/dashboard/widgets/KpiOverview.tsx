@@ -9,10 +9,12 @@ import { useTranslation } from '@/lib/i18n';
 import { formatNumber, formatDuration, formatPercentage, cn } from '@/lib/utils';
 import { Sparkline } from '@/components/Sparkline';
 import { TrendIndicator } from '@/components/TrendIndicator';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 export function KpiOverview() {
   const { timeRangeMinutes } = useDashboardStore();
   const { t } = useTranslation();
+  const chartColors = useChartColors();
 
   const { data: compareData, isLoading } = useQuery({
     queryKey: ['kpi-compare', timeRangeMinutes],
@@ -63,9 +65,9 @@ export function KpiOverview() {
       label: t('dashboard.kpi.total'),
       value: formatNumber(data.total_executions),
       icon: Activity,
-      color: 'text-neon-lime',
-      bg: 'bg-neon-lime-dim',
-      sparkColor: '#b6ff00',
+      color: 'text-accent-primary',
+      bg: 'bg-accent-primary-dim',
+      sparkColor: chartColors.accentPrimary,
       spark: sparkTotal,
       current: data.total_executions,
       previous: prev?.total_executions ?? 0,
@@ -76,9 +78,9 @@ export function KpiOverview() {
       label: t('dashboard.kpi.successRate'),
       value: formatPercentage(data.success_rate),
       icon: CheckCircle2,
-      color: 'text-neon-cyan',
-      bg: 'bg-neon-cyan-dim',
-      sparkColor: '#00FFCC',
+      color: 'text-accent-secondary',
+      bg: 'bg-accent-secondary-dim',
+      sparkColor: chartColors.accentSecondary,
       spark: sparkSuccess,
       current: data.success_rate,
       previous: prev?.success_rate ?? 0,
@@ -89,9 +91,9 @@ export function KpiOverview() {
       label: t('dashboard.kpi.errors'),
       value: formatNumber(data.error_count),
       icon: AlertTriangle,
-      color: 'text-neon-red',
-      bg: 'bg-neon-red-dim',
-      sparkColor: '#FF4D6A',
+      color: 'text-status-error',
+      bg: 'bg-status-error-dim',
+      sparkColor: chartColors.statusError,
       spark: sparkErrors,
       current: data.error_count,
       previous: prev?.error_count ?? 0,
@@ -104,9 +106,9 @@ export function KpiOverview() {
         ? formatPercentage((data.cache_hit_count / data.total_executions) * 100)
         : '0%',
       icon: Database,
-      color: 'text-neon-cyan',
-      bg: 'bg-neon-cyan-dim',
-      sparkColor: '#00FFCC',
+      color: 'text-accent-secondary',
+      bg: 'bg-accent-secondary-dim',
+      sparkColor: chartColors.accentSecondary,
       spark: sparkCache,
       current: data.cache_hit_count,
       previous: prev?.cache_hit_count ?? 0,
@@ -117,9 +119,9 @@ export function KpiOverview() {
       label: t('dashboard.kpi.avgDuration'),
       value: formatDuration(data.avg_duration_ms),
       icon: Clock,
-      color: 'text-neon-orange',
-      bg: 'bg-[rgba(255,159,67,0.15)]',
-      sparkColor: '#FF9F43',
+      color: 'text-status-warning',
+      bg: 'bg-status-warning-dim',
+      sparkColor: chartColors.statusWarning,
       spark: sparkAvgDuration,
       current: data.avg_duration_ms,
       previous: prev?.avg_duration_ms ?? 0,

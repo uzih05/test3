@@ -23,13 +23,13 @@ export function SystemStatus() {
       {/* DB Status */}
       <div className="flex items-center gap-3">
         {data.db_connected ? (
-          <CheckCircle2 size={20} className="text-neon-cyan shrink-0" />
+          <CheckCircle2 size={20} className="text-accent-secondary shrink-0" />
         ) : (
-          <XCircle size={20} className="text-neon-red shrink-0" />
+          <XCircle size={20} className="text-status-error shrink-0" />
         )}
         <div>
           <p className="text-sm text-text-primary">{t('dashboard.database')}</p>
-          <p className={cn('text-xs', data.db_connected ? 'text-neon-cyan' : 'text-neon-red')}>
+          <p className={cn('text-xs', data.db_connected ? 'text-accent-secondary' : 'text-status-error')}>
             {data.db_connected ? t('dashboard.connected') : t('dashboard.disconnected')}
           </p>
         </div>
@@ -37,10 +37,10 @@ export function SystemStatus() {
 
       {/* Functions */}
       <div className="flex items-center gap-3">
-        <Code2 size={20} className="text-neon-lime shrink-0" />
+        <Code2 size={20} className="text-accent-primary shrink-0" />
         <div>
           <p className="text-sm text-text-primary">{t('dashboard.registeredFunctions')}</p>
-          <p className="text-xs text-neon-lime">{data.registered_functions_count}</p>
+          <p className="text-xs text-accent-primary">{data.registered_functions_count}</p>
         </div>
       </div>
 

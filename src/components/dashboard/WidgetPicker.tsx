@@ -55,7 +55,7 @@ export function WidgetPicker({ existingTypes, onAdd, onClose }: WidgetPickerProp
                     {t('dashboard.sizes')}: {item.sizes.join(', ')}
                   </p>
                 </div>
-                {!exists && <Plus size={16} className="text-neon-lime shrink-0" />}
+                {!exists && <Plus size={16} className="text-accent-primary shrink-0" />}
                 {exists && <span className="text-xs text-text-muted">{t('dashboard.added')}</span>}
               </button>
             );

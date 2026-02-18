@@ -36,7 +36,7 @@ export default function LoginPage() {
       <div className="fixed top-4 right-4 z-50 relative">
         <button
           onClick={() => setShowLangMenu(!showLangMenu)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-text-muted hover:text-accent-primary hover:bg-bg-card transition-colors"
           aria-label={t('accessibility.toggleLanguage')}
         >
           <Globe size={16} />
@@ -52,7 +52,7 @@ export default function LoginPage() {
                   onClick={() => { setLanguage(lang); setShowLangMenu(false); }}
                   className={cn(
                     'w-full px-4 py-2 text-sm text-left hover:bg-bg-card-hover transition-colors',
-                    language === lang ? 'text-neon-lime' : 'text-text-secondary'
+                    language === lang ? 'text-accent-primary' : 'text-text-secondary'
                   )}
                 >
                   {langNames[lang]}
@@ -66,7 +66,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-neon-lime mb-1">VectorSurfer</h1>
+          <h1 className="text-3xl font-black text-accent-primary mb-1">VectorSurfer</h1>
           <p className="text-text-muted text-sm mt-1">{t('auth.subtitle')}</p>
         </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
           <h2 className="text-xl font-semibold text-text-primary mb-6">{t('auth.login')}</h2>
 
           {error && (
-            <div className="mb-4 px-4 py-3 bg-neon-red-dim border border-neon-red/30 rounded-[12px] text-sm text-neon-red">
+            <div className="mb-4 px-4 py-3 bg-status-error-dim border border-status-error/30 rounded-[12px] text-sm text-status-error">
               {error}
             </div>
           )}
@@ -93,7 +93,7 @@ export default function LoginPage() {
                 className={cn(
                   'w-full px-4 py-3 bg-bg-input border border-border-default rounded-[12px]',
                   'text-sm text-text-primary placeholder:text-text-muted',
-                  'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                  'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                 )}
               />
             </div>
@@ -111,7 +111,7 @@ export default function LoginPage() {
                   className={cn(
                     'w-full px-4 py-3 pr-11 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                    'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                   )}
                 />
                 <button
@@ -131,9 +131,9 @@ export default function LoginPage() {
               disabled={isLoading}
               className={cn(
                 'w-full py-3 rounded-[14px] text-sm font-semibold transition-[opacity,filter,transform] duration-200',
-                'bg-neon-lime text-text-inverse hover:brightness-110 active:scale-[0.98]',
+                'bg-accent-primary text-text-inverse hover:brightness-110 active:scale-[0.98]',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                'neon-glow'
+                'accent-glow'
               )}
             >
               {isLoading ? (
@@ -147,7 +147,7 @@ export default function LoginPage() {
           {/* Signup link */}
           <p className="mt-6 text-center text-sm text-text-muted">
             {t('auth.noAccount')}{' '}
-            <Link href="/signup" className="text-neon-lime hover:underline font-medium">
+            <Link href="/signup" className="text-accent-primary hover:underline font-medium">
               {t('auth.signup')}
             </Link>
           </p>

@@ -93,7 +93,7 @@ export default function ExecutionsPage() {
                     </span>
                     <StatusBadge status={exec.status} />
                   </div>
-                  <p className="text-lg font-bold text-neon-orange">
+                  <p className="text-lg font-bold text-status-warning">
                     {formatDuration(exec.duration_ms)}
                   </p>
                   <p className="text-[10px] text-text-muted mt-1">{timeAgo(exec.timestamp_utc)}</p>
@@ -117,7 +117,7 @@ export default function ExecutionsPage() {
             className={cn(
               'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+              'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
             )}
           />
         </div>
@@ -131,7 +131,7 @@ export default function ExecutionsPage() {
               className={cn(
                 'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
                 statusFilter === tab.value
-                  ? 'bg-neon-lime text-text-inverse'
+                  ? 'bg-accent-primary text-text-inverse'
                   : 'text-text-muted hover:text-text-primary'
               )}
             >
@@ -189,7 +189,7 @@ export default function ExecutionsPage() {
                     </td>
                     <td className="px-5 py-3.5 hidden sm:table-cell">
                       {exec.error_code ? (
-                        <span className="text-xs text-neon-red">{exec.error_code}</span>
+                        <span className="text-xs text-status-error">{exec.error_code}</span>
                       ) : (
                         <span className="text-xs text-text-muted">-</span>
                       )}

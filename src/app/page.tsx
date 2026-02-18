@@ -148,7 +148,7 @@ export default function DashboardPage() {
               'p-2 transition-colors rounded-[12px]',
               isRefreshing
                 ? 'text-text-muted/40 cursor-not-allowed'
-                : 'text-text-muted hover:text-neon-lime hover:bg-bg-card'
+                : 'text-text-muted hover:text-accent-primary hover:bg-bg-card'
             )}
             title={t('dashboard.refresh')}
           >
@@ -160,7 +160,7 @@ export default function DashboardPage() {
             className={cn(
               'flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm font-medium transition-colors',
               isEditing
-                ? 'bg-neon-lime text-text-inverse'
+                ? 'bg-accent-primary text-text-inverse'
                 : 'bg-bg-card border border-border-default text-text-secondary hover:text-text-primary'
             )}
           >
@@ -180,14 +180,14 @@ export default function DashboardPage() {
       ) : widgets.length === 0 ? (
         /* Empty state */
         <div className="bg-bg-card border border-dashed border-border-default rounded-[20px] p-12 text-center">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-neon-lime-dim flex items-center justify-center">
-            <Plus size={24} className="text-neon-lime" />
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-accent-primary-dim flex items-center justify-center">
+            <Plus size={24} className="text-accent-primary" />
           </div>
           <h3 className="text-lg font-medium text-text-primary mb-2">{t('dashboard.noWidgets')}</h3>
           <p className="text-sm text-text-muted mb-4">{t('dashboard.noWidgetsDesc')}</p>
           <button
             onClick={() => setShowPicker(true)}
-            className="px-5 py-2.5 bg-neon-lime text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] neon-glow"
+            className="px-5 py-2.5 bg-accent-primary text-text-inverse rounded-[14px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] accent-glow"
           >
             {t('dashboard.addWidget')}
           </button>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
           {isEditing && (
             <button
               onClick={() => setShowPicker(true)}
-              className="col-span-1 flex flex-col items-center justify-center gap-2 py-8 border border-dashed border-border-default rounded-[20px] text-text-muted hover:text-neon-lime hover:border-neon-lime/30 transition-colors"
+              className="col-span-1 flex flex-col items-center justify-center gap-2 py-8 border border-dashed border-border-default rounded-[20px] text-text-muted hover:text-accent-primary hover:border-accent-primary/30 transition-colors"
             >
               <Plus size={24} />
               <span className="text-sm">{t('dashboard.addWidget')}</span>

@@ -154,7 +154,7 @@ export default function ProjectsPage() {
         {/* Account (was Settings) */}
         <Link
           href="/account"
-          className="p-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+          className="p-2 rounded-[12px] text-text-muted hover:text-accent-primary hover:bg-bg-card transition-colors"
           aria-label={t('account.title')}
         >
           <Settings size={18} />
@@ -164,7 +164,7 @@ export default function ProjectsPage() {
         <div className="relative">
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="flex items-center gap-1.5 px-2.5 py-2 rounded-[12px] text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-[12px] text-text-muted hover:text-accent-primary hover:bg-bg-card transition-colors"
             aria-label={t('accessibility.toggleLanguage')}
           >
             <Globe size={16} />
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                     onClick={() => { setLanguage(lang); setShowLangMenu(false); }}
                     className={cn(
                       'w-full px-4 py-2 text-sm text-left hover:bg-bg-card-hover transition-colors',
-                      language === lang ? 'text-neon-lime' : 'text-text-secondary'
+                      language === lang ? 'text-accent-primary' : 'text-text-secondary'
                     )}
                   >
                     {langNames[lang]}
@@ -194,7 +194,7 @@ export default function ProjectsPage() {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded-[12px] text-text-muted hover:text-neon-red hover:bg-bg-card transition-colors"
+          className="p-2 rounded-[12px] text-text-muted hover:text-status-error hover:bg-bg-card transition-colors"
           aria-label={t('auth.logout')}
         >
           <LogOut size={18} />
@@ -204,7 +204,7 @@ export default function ProjectsPage() {
       <div className="w-full max-w-3xl relative pt-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-black text-neon-lime mb-4">VectorSurfer</h1>
+          <h1 className="text-3xl font-black text-accent-primary mb-4">VectorSurfer</h1>
           <h1 className="text-2xl font-bold text-text-primary">
             {user?.display_name ? `Welcome, ${user.display_name}` : t('projects.title')}
           </h1>
@@ -214,7 +214,7 @@ export default function ProjectsPage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-12">
-            <Loader2 size={28} className="animate-spin text-neon-lime" />
+            <Loader2 size={28} className="animate-spin text-accent-primary" />
           </div>
         )}
 
@@ -227,7 +227,7 @@ export default function ProjectsPage() {
             <p className="text-sm text-text-secondary mb-6">{t('projects.subtitle')}</p>
             <button
               onClick={() => setShowForm(true)}
-              className="px-6 py-3 bg-neon-lime text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] neon-glow"
+              className="px-6 py-3 bg-accent-primary text-text-inverse rounded-[14px] font-semibold text-sm hover:brightness-110 transition-[opacity,filter] accent-glow"
             >
               {t('projects.newConnection')}
             </button>
@@ -236,7 +236,7 @@ export default function ProjectsPage() {
 
         {/* Activate error */}
         {activateError && (
-          <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-[14px] bg-neon-red-dim text-neon-red text-sm">
+          <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-[14px] bg-status-error-dim text-status-error text-sm">
             <WifiOff size={16} />
             {activateError}
             <button onClick={() => setActivateError(null)} className="ml-auto p-0.5 hover:opacity-70">
@@ -256,7 +256,7 @@ export default function ProjectsPage() {
                 className={cn(
                   'w-full text-left bg-bg-card border rounded-[20px] p-5 transition-[border-color,background-color] duration-200 group',
                   conn.is_active
-                    ? 'border-neon-lime/40 neon-glow'
+                    ? 'border-accent-primary/40 accent-glow'
                     : 'border-border-default hover:border-border-hover hover:bg-bg-card-hover'
                 )}
               >
@@ -264,12 +264,12 @@ export default function ProjectsPage() {
                   {/* Icon */}
                   <div className={cn(
                     'w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0',
-                    conn.is_active ? 'bg-neon-lime-dim' : 'bg-bg-elevated'
+                    conn.is_active ? 'bg-accent-primary-dim' : 'bg-bg-elevated'
                   )}>
                     {conn.connection_type === 'wcs_cloud' ? (
-                      <Cloud size={20} className={conn.is_active ? 'text-neon-lime' : 'text-text-muted'} />
+                      <Cloud size={20} className={conn.is_active ? 'text-accent-primary' : 'text-text-muted'} />
                     ) : (
-                      <Server size={20} className={conn.is_active ? 'text-neon-lime' : 'text-text-muted'} />
+                      <Server size={20} className={conn.is_active ? 'text-accent-primary' : 'text-text-muted'} />
                     )}
                   </div>
 
@@ -278,21 +278,21 @@ export default function ProjectsPage() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-text-primary truncate">{conn.name}</h3>
                       {conn.is_active && (
-                        <span className="flex items-center gap-1 text-xs text-neon-lime">
+                        <span className="flex items-center gap-1 text-xs text-accent-primary">
                           <CheckCircle2 size={12} /> {t('projects.active')}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-text-muted mt-0.5">
                       {conn.host}:{conn.port} · {conn.connection_type === 'wcs_cloud' ? 'WCS Cloud' : 'Self Hosted'}
-                      {conn.has_openai_key && <span className="ml-2 text-neon-cyan">{t('projects.aiReady')}</span>}
+                      {conn.has_openai_key && <span className="ml-2 text-accent-secondary">{t('projects.aiReady')}</span>}
                     </p>
                   </div>
 
                   {/* Arrow */}
                   <ArrowRight
                     size={18}
-                    className="text-text-muted group-hover:text-neon-lime transition-colors shrink-0"
+                    className="text-text-muted group-hover:text-accent-primary transition-colors shrink-0"
                   />
                 </div>
               </button>
@@ -304,7 +304,7 @@ export default function ProjectsPage() {
         {!isLoading && connections.length > 0 && !showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="w-full flex items-center justify-center gap-2 py-4 border border-dashed border-border-default rounded-[20px] text-sm text-text-muted hover:text-neon-lime hover:border-neon-lime/30 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-4 border border-dashed border-border-default rounded-[20px] text-sm text-text-muted hover:text-accent-primary hover:border-accent-primary/30 transition-colors"
           >
             <Plus size={18} />
             {t('projects.newConnection')}
@@ -330,7 +330,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
                     formType === type
-                      ? 'bg-neon-lime text-text-inverse'
+                      ? 'bg-accent-primary text-text-inverse'
                       : 'bg-bg-elevated text-text-muted hover:text-text-primary'
                   )}
                 >
@@ -351,7 +351,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                    'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                   )}
                 />
               </div>
@@ -367,7 +367,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                    'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                   )}
                 />
               </div>
@@ -383,7 +383,7 @@ export default function ProjectsPage() {
                     className={cn(
                       'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                       'text-sm text-text-primary',
-                      'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                      'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                     )}
                   />
                 </div>
@@ -396,7 +396,7 @@ export default function ProjectsPage() {
                     className={cn(
                       'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                       'text-sm text-text-primary',
-                      'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                      'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                     )}
                   />
                 </div>
@@ -415,7 +415,7 @@ export default function ProjectsPage() {
                   className={cn(
                     'w-full px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                     'text-sm text-text-primary placeholder:text-text-muted',
-                    'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                    'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
                   )}
                 />
               </div>
@@ -425,8 +425,8 @@ export default function ProjectsPage() {
                 <div className={cn(
                   'flex items-center gap-2 px-4 py-3 rounded-[12px] text-sm',
                   testResult.success
-                    ? 'bg-neon-cyan-dim text-neon-cyan'
-                    : 'bg-neon-red-dim text-neon-red'
+                    ? 'bg-accent-secondary-dim text-accent-secondary'
+                    : 'bg-status-error-dim text-status-error'
                 )}>
                   {testResult.success ? <Wifi size={16} /> : <WifiOff size={16} />}
                   {testResult.message}
@@ -455,7 +455,7 @@ export default function ProjectsPage() {
                   disabled={createMutation.isPending || !formHost}
                   className={cn(
                     'flex-1 py-2.5 rounded-[14px] text-sm font-semibold transition-[opacity,filter]',
-                    'bg-neon-lime text-text-inverse hover:brightness-110',
+                    'bg-accent-primary text-text-inverse hover:brightness-110',
                     'disabled:opacity-50 disabled:cursor-not-allowed'
                   )}
                 >
@@ -479,14 +479,14 @@ export default function ProjectsPage() {
         >
           <div
             className="bg-bg-card border-2 rounded-[20px] card-shadow p-5 relative overflow-hidden pointer-events-auto"
-            style={{ animation: 'banner-pulse-border 3s ease-in-out infinite, banner-glow 3s ease-in-out infinite', borderColor: 'rgba(0, 255, 204, 0.3)' }}
+            style={{ animation: 'banner-pulse-border 3s ease-in-out infinite, banner-glow 3s ease-in-out infinite', borderColor: 'var(--theme-accent-secondary-dim)' }}
           >
             {/* Gradient accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, #00FFCC, #DFFF00, transparent)' }} />
+            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent, var(--theme-accent-secondary), var(--theme-accent-primary), transparent)' }} />
 
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[14px] bg-neon-cyan-dim flex items-center justify-center shrink-0">
-                <Rocket size={22} className="text-neon-cyan" />
+              <div className="w-12 h-12 rounded-[14px] bg-accent-secondary-dim flex items-center justify-center shrink-0">
+                <Rocket size={22} className="text-accent-secondary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-text-primary">{t('projects.quickStartBannerTitle')}</p>
@@ -495,7 +495,7 @@ export default function ProjectsPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href="/projects/quickstart"
-                  className="px-5 py-2 bg-neon-cyan text-text-inverse rounded-[12px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] neon-glow-cyan"
+                  className="px-5 py-2 bg-accent-secondary text-text-inverse rounded-[12px] text-sm font-semibold hover:brightness-110 transition-[opacity,filter] accent-glow-secondary"
                 >
                   {t('projects.quickStartBannerAction')}
                 </Link>

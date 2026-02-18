@@ -31,7 +31,7 @@ export function WidgetCard({
       className={cn(
         'bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow',
         'transition-[border-color,box-shadow] duration-200',
-        isEditing && 'ring-1 ring-neon-lime/20',
+        isEditing && 'ring-1 ring-accent-primary/20',
         SIZE_CLASSES[size]
       )}
     >
@@ -50,7 +50,7 @@ export function WidgetCard({
                     className={cn(
                       'w-6 h-6 rounded-md text-[10px] font-bold transition-colors',
                       size === s
-                        ? 'bg-neon-lime text-text-inverse'
+                        ? 'bg-accent-primary text-text-inverse'
                         : 'bg-bg-elevated text-text-muted hover:text-text-primary'
                     )}
                   >
@@ -62,7 +62,7 @@ export function WidgetCard({
             {onRemove && (
               <button
                 onClick={onRemove}
-                className="p-1 text-text-muted hover:text-neon-red transition-colors"
+                className="p-1 text-text-muted hover:text-status-error transition-colors"
               >
                 <X size={14} />
               </button>

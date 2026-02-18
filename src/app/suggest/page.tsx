@@ -21,9 +21,9 @@ import { cn } from '@/lib/utils';
 import type { Suggestion, SuggestionPriority, SuggestionType } from '@/types';
 
 const PRIORITY_STYLES: Record<SuggestionPriority, { bg: string; text: string }> = {
-  critical: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
-  high: { bg: 'bg-[rgba(255,159,67,0.15)]', text: 'text-neon-orange' },
-  medium: { bg: 'bg-neon-lime-dim', text: 'text-neon-lime' },
+  critical: { bg: 'bg-status-error-dim', text: 'text-status-error' },
+  high: { bg: 'bg-status-warning-dim', text: 'text-status-warning' },
+  medium: { bg: 'bg-accent-primary-dim', text: 'text-accent-primary' },
   low: { bg: 'bg-bg-elevated', text: 'text-text-muted' },
 };
 
@@ -107,7 +107,7 @@ export default function SuggestPage() {
               onClick={() => setPriorityFilter(priorityFilter === p ? 'all' : p)}
               className={cn(
                 'bg-bg-card border rounded-[14px] p-4 text-left transition-colors',
-                priorityFilter === p ? 'border-neon-lime' : 'border-border-default hover:border-border-hover'
+                priorityFilter === p ? 'border-accent-primary' : 'border-border-default hover:border-border-hover'
               )}
             >
               <p className="text-xs text-text-muted mb-1">{t(PRIORITY_I18N[p])}</p>
@@ -126,7 +126,7 @@ export default function SuggestPage() {
             onClick={() => setPriorityFilter('all')}
             className={cn(
               'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-              priorityFilter === 'all' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+              priorityFilter === 'all' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
             )}
           >
             {t('suggest.filterAll')}
@@ -137,7 +137,7 @@ export default function SuggestPage() {
               onClick={() => setPriorityFilter(priorityFilter === p ? 'all' : p)}
               className={cn(
                 'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors',
-                priorityFilter === p ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                priorityFilter === p ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
               )}
             >
               {t(PRIORITY_I18N[p])}
@@ -152,7 +152,7 @@ export default function SuggestPage() {
           className={cn(
             'px-3 py-2 bg-bg-card border border-border-default rounded-[12px]',
             'text-xs text-text-secondary outline-none cursor-pointer',
-            'focus-visible:border-neon-lime focus-visible:ring-1 focus-visible:ring-neon-lime/30 transition-colors'
+            'focus-visible:border-accent-primary focus-visible:ring-1 focus-visible:ring-accent-primary/30 transition-colors'
           )}
         >
           <option value="all">{t('suggest.filterAll')}</option>
@@ -177,8 +177,8 @@ export default function SuggestPage() {
           ))}
         </div>
       ) : isError ? (
-        <div className="bg-bg-card border border-dashed border-neon-red/30 rounded-[20px] p-12 text-center card-shadow">
-          <AlertTriangle size={28} className="mx-auto mb-3 text-neon-red opacity-60" />
+        <div className="bg-bg-card border border-dashed border-status-error/30 rounded-[20px] p-12 text-center card-shadow">
+          <AlertTriangle size={28} className="mx-auto mb-3 text-status-error opacity-60" />
           <p className="text-sm text-text-muted">{t('suggest.fetchError')}</p>
         </div>
       ) : filtered.length === 0 ? (
@@ -271,7 +271,7 @@ function SuggestionCard({ suggestion: s }: { suggestion: Suggestion }) {
           {/* Action link */}
           <Link
             href={actionLink}
-            className="inline-flex items-center gap-1 mt-3 text-xs text-neon-lime hover:underline"
+            className="inline-flex items-center gap-1 mt-3 text-xs text-accent-primary hover:underline"
           >
             {actionLabel}
             <ExternalLink size={10} />

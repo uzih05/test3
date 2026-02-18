@@ -10,9 +10,9 @@ import { cn } from '@/lib/utils';
 import type { SuggestionPriority } from '@/types';
 
 const PRIORITY_STYLES: Record<SuggestionPriority, { bg: string; text: string }> = {
-  critical: { bg: 'bg-neon-red-dim', text: 'text-neon-red' },
-  high: { bg: 'bg-[rgba(255,159,67,0.15)]', text: 'text-neon-orange' },
-  medium: { bg: 'bg-neon-lime-dim', text: 'text-neon-lime' },
+  critical: { bg: 'bg-status-error-dim', text: 'text-status-error' },
+  high: { bg: 'bg-status-warning-dim', text: 'text-status-warning' },
+  medium: { bg: 'bg-accent-primary-dim', text: 'text-accent-primary' },
   low: { bg: 'bg-bg-elevated', text: 'text-text-muted' },
 };
 
@@ -92,7 +92,7 @@ export function SuggestOverview() {
       {/* View all link */}
       <Link
         href="/suggest"
-        className="block text-center text-xs text-neon-lime hover:underline mt-3"
+        className="block text-center text-xs text-accent-primary hover:underline mt-3"
       >
         {t('dashboard.viewAll') || 'View All'}
       </Link>

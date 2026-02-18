@@ -66,7 +66,7 @@ export default function AccountPage() {
       <div className="fixed top-4 left-4 z-50">
         <button
           onClick={() => router.push('/projects')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm text-text-muted hover:text-neon-lime hover:bg-bg-card transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-sm text-text-muted hover:text-accent-primary hover:bg-bg-card transition-colors"
         >
           <ArrowLeft size={16} />
           {t('common.back')}
@@ -81,8 +81,8 @@ export default function AccountPage() {
         <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow mb-4">
           <h2 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-4">{t('account.profile')}</h2>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-neon-lime-dim flex items-center justify-center">
-              <span className="text-sm font-bold text-neon-lime">{initials}</span>
+            <div className="w-12 h-12 rounded-full bg-accent-primary-dim flex items-center justify-center">
+              <span className="text-sm font-bold text-accent-primary">{initials}</span>
             </div>
             <div>
               <p className="text-sm font-medium text-text-primary">{user?.display_name || '—'}</p>
@@ -102,7 +102,7 @@ export default function AccountPage() {
                 className={cn(
                   'flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
                   language === lang
-                    ? 'bg-neon-lime text-text-inverse'
+                    ? 'bg-accent-primary text-text-inverse'
                     : 'bg-bg-elevated text-text-muted hover:text-text-primary'
                 )}
               >
@@ -124,7 +124,7 @@ export default function AccountPage() {
               onClick={handleToggleQuickStart}
               className={cn(
                 'relative w-11 h-6 rounded-full transition-colors shrink-0',
-                showQuickStart ? 'bg-neon-lime' : 'bg-bg-elevated'
+                showQuickStart ? 'bg-accent-primary' : 'bg-bg-elevated'
               )}
             >
               <span
@@ -144,9 +144,9 @@ export default function AccountPage() {
             <div className="flex items-center gap-3">
               <div className={cn(
                 'p-2 rounded-xl',
-                user?.plan === 'pro' ? 'bg-neon-lime/10' : 'bg-bg-elevated'
+                user?.plan === 'pro' ? 'bg-accent-primary/10' : 'bg-bg-elevated'
               )}>
-                <Crown size={20} className={user?.plan === 'pro' ? 'text-neon-lime' : 'text-text-muted'} />
+                <Crown size={20} className={user?.plan === 'pro' ? 'text-accent-primary' : 'text-text-muted'} />
               </div>
               <div>
                 <p className="text-sm font-medium text-text-primary uppercase">{user?.plan || 'Free'}</p>
@@ -167,7 +167,7 @@ export default function AccountPage() {
                 'px-4 py-2 rounded-[12px] text-xs font-medium transition-colors',
                 user?.plan === 'pro'
                   ? 'bg-bg-elevated text-text-muted hover:text-text-primary'
-                  : 'bg-neon-lime text-text-inverse hover:brightness-110'
+                  : 'bg-accent-primary text-text-inverse hover:brightness-110'
               )}
             >
               {user?.plan === 'pro' ? t('plan.downgrade', 'Downgrade') : t('plan.upgrade', 'Upgrade to Pro')}
@@ -178,7 +178,7 @@ export default function AccountPage() {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 py-3.5 bg-bg-card border border-border-default rounded-[20px] text-sm text-neon-red hover:bg-bg-card-hover transition-colors card-shadow"
+          className="w-full flex items-center justify-center gap-2 py-3.5 bg-bg-card border border-border-default rounded-[20px] text-sm text-status-error hover:bg-bg-card-hover transition-colors card-shadow"
         >
           <LogOut size={16} />
           {t('account.logout')}

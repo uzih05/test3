@@ -36,15 +36,15 @@ export function FunctionDetail({ name, onClose }: FunctionDetailProps) {
         <div className="p-6 overflow-y-auto">
           {isLoading || !data ? (
             <div className="flex justify-center py-12">
-              <Loader2 size={24} className="animate-spin text-neon-lime" />
+              <Loader2 size={24} className="animate-spin text-accent-primary" />
             </div>
           ) : (
             <div className="space-y-5">
               {/* Stats */}
               <div className="grid grid-cols-3 gap-3">
-                <StatCard icon={Activity} label="Executions" value={formatNumber(data.execution_count || 0)} color="text-neon-lime" />
-                <StatCard icon={Clock} label="Avg Duration" value={formatDuration(data.avg_duration_ms || 0)} color="text-neon-cyan" />
-                <StatCard icon={AlertTriangle} label="Error Rate" value={formatPercentage(data.error_rate || 0)} color="text-neon-red" />
+                <StatCard icon={Activity} label="Executions" value={formatNumber(data.execution_count || 0)} color="text-accent-primary" />
+                <StatCard icon={Clock} label="Avg Duration" value={formatDuration(data.avg_duration_ms || 0)} color="text-accent-secondary" />
+                <StatCard icon={AlertTriangle} label="Error Rate" value={formatPercentage(data.error_rate || 0)} color="text-status-error" />
               </div>
 
               {/* Meta */}
@@ -78,7 +78,7 @@ export function FunctionDetail({ name, onClose }: FunctionDetailProps) {
               {data.source_code && (
                 <div>
                   <p className="text-xs text-text-muted mb-1.5">Source Code</p>
-                  <pre className="bg-bg-elevated rounded-[12px] p-4 text-xs text-neon-lime/80 whitespace-pre-wrap font-mono overflow-x-auto max-h-[300px] overflow-y-auto">
+                  <pre className="bg-bg-elevated rounded-[12px] p-4 text-xs text-accent-primary/80 whitespace-pre-wrap font-mono overflow-x-auto max-h-[300px] overflow-y-auto">
                     {data.source_code}
                   </pre>
                 </div>
@@ -88,14 +88,14 @@ export function FunctionDetail({ name, onClose }: FunctionDetailProps) {
               <div className="flex gap-3">
                 <Link
                   href={`/executions?function_name=${encodeURIComponent(name)}`}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-neon-lime hover:bg-bg-card-hover transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-accent-primary hover:bg-bg-card-hover transition-colors"
                 >
                   <Activity size={14} />
                   {t('functions.viewExecutions')}
                 </Link>
                 <Link
                   href={`/errors?function_name=${encodeURIComponent(name)}`}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-neon-red hover:bg-bg-card-hover transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[12px] bg-bg-elevated text-sm text-text-secondary hover:text-status-error hover:bg-bg-card-hover transition-colors"
                 >
                   <AlertTriangle size={14} />
                   {t('functions.viewErrors')}

@@ -108,7 +108,7 @@ export default function FunctionsPage() {
               className={cn(
                 'w-full pl-9 pr-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
                 'text-sm text-text-primary placeholder:text-text-muted',
-                'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+                'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
               )}
             />
           </div>
@@ -121,7 +121,7 @@ export default function FunctionsPage() {
                 onClick={() => setSearchMode(mode)}
                 className={cn(
                   'px-3 py-1.5 rounded-[8px] text-xs font-medium transition-colors capitalize',
-                  searchMode === mode ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                  searchMode === mode ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
                 )}
               >
                 {t(`functions.${mode}`)}
@@ -135,7 +135,7 @@ export default function FunctionsPage() {
               onClick={() => setViewMode('grid')}
               className={cn(
                 'p-1.5 rounded-[8px] transition-colors',
-                viewMode === 'grid' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                viewMode === 'grid' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
               )}
             >
               <LayoutGrid size={14} />
@@ -144,7 +144,7 @@ export default function FunctionsPage() {
               onClick={() => setViewMode('tree')}
               className={cn(
                 'p-1.5 rounded-[8px] transition-colors',
-                viewMode === 'tree' ? 'bg-neon-lime text-text-inverse' : 'text-text-muted hover:text-text-primary'
+                viewMode === 'tree' ? 'bg-accent-primary text-text-inverse' : 'text-text-muted hover:text-text-primary'
               )}
             >
               <TreePine size={14} />
@@ -161,10 +161,10 @@ export default function FunctionsPage() {
               min={0} max={1} step={0.1}
               value={alpha}
               onChange={(e) => setAlpha(parseFloat(e.target.value))}
-              className="flex-1 h-1 accent-neon-lime"
+              className="flex-1 h-1 accent-accent-primary"
             />
             <span className="text-xs text-text-muted">{t('functions.vector')}</span>
-            <span className="text-xs text-neon-lime font-mono w-8 text-right">{(alpha * 100).toFixed(0)}%</span>
+            <span className="text-xs text-accent-primary font-mono w-8 text-right">{(alpha * 100).toFixed(0)}%</span>
           </div>
         )}
 
@@ -182,7 +182,7 @@ export default function FunctionsPage() {
               onClick={() => setSortBy(s.key)}
               className={cn(
                 'px-2.5 py-1 rounded-[8px] text-xs transition-colors',
-                sortBy === s.key ? 'bg-neon-lime-dim text-neon-lime' : 'text-text-muted hover:text-text-primary'
+                sortBy === s.key ? 'bg-accent-primary-dim text-accent-primary' : 'text-text-muted hover:text-text-primary'
               )}
             >
               {s.label}
@@ -194,7 +194,7 @@ export default function FunctionsPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-neon-lime" />
+          <Loader2 size={28} className="animate-spin text-accent-primary" />
         </div>
       ) : viewMode === 'grid' ? (
         /* Grid view */
@@ -207,20 +207,20 @@ export default function FunctionsPage() {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Code2 size={14} className="text-neon-lime shrink-0" />
+                  <Code2 size={14} className="text-accent-primary shrink-0" />
                   <span className="text-sm font-medium text-text-primary truncate">{fn.function_name}</span>
                 </div>
-                <ChevronRight size={14} className="text-text-muted group-hover:text-neon-lime transition-colors shrink-0" />
+                <ChevronRight size={14} className="text-text-muted group-hover:text-accent-primary transition-colors shrink-0" />
               </div>
               {fn.description && (
                 <p className="text-xs text-text-muted mb-3 line-clamp-2">{fn.description}</p>
               )}
               <div className="flex items-center gap-4 text-xs">
                 <span className="text-text-secondary">
-                  <span className="text-neon-lime font-semibold">{formatNumber(fn.execution_count || 0)}</span> {t('functions.runs')}
+                  <span className="text-accent-primary font-semibold">{formatNumber(fn.execution_count || 0)}</span> {t('functions.runs')}
                 </span>
                 <span className="text-text-secondary">
-                  <span className="text-neon-cyan font-semibold">{formatDuration(fn.avg_duration_ms || 0)}</span> {t('functions.avg')}
+                  <span className="text-accent-secondary font-semibold">{formatDuration(fn.avg_duration_ms || 0)}</span> {t('functions.avg')}
                 </span>
                 {(fn.error_rate || 0) > 0 && (
                   <SeverityBadge severity={getErrorRateSeverity(fn.error_rate || 0)}>{formatPercentage(fn.error_rate || 0)} err</SeverityBadge>
@@ -255,7 +255,7 @@ export default function FunctionsPage() {
       {/* AI QnA */}
       <div className="mt-6 bg-bg-card border border-border-default rounded-[20px] p-5 card-shadow">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles size={14} className="text-neon-lime" />
+          <Sparkles size={14} className="text-accent-primary" />
           <h3 className="text-sm font-medium text-text-primary">{t('functions.ask')}</h3>
         </div>
         <form onSubmit={handleAsk} className="flex gap-2">
@@ -267,13 +267,13 @@ export default function FunctionsPage() {
             className={cn(
               'flex-1 px-4 py-2.5 bg-bg-input border border-border-default rounded-[12px]',
               'text-sm text-text-primary placeholder:text-text-muted',
-              'focus:border-neon-lime focus:ring-1 focus:ring-neon-lime/30 outline-none transition-colors'
+              'focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 outline-none transition-colors'
             )}
           />
           <button
             type="submit"
             disabled={!askQuery.trim() || asking}
-            className="px-4 py-2.5 bg-neon-lime text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
+            className="px-4 py-2.5 bg-accent-primary text-text-inverse rounded-[12px] text-sm font-medium hover:brightness-110 disabled:opacity-40 transition-[opacity,filter]"
           >
             {asking ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </button>
@@ -281,7 +281,7 @@ export default function FunctionsPage() {
         {showAsk && askData && (
           <div className="mt-4 bg-bg-elevated rounded-[14px] p-4">
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare size={12} className="text-neon-cyan" />
+              <MessageSquare size={12} className="text-accent-secondary" />
               <span className="text-xs text-text-muted">{askData.query}</span>
             </div>
             <p className="text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
@@ -382,14 +382,14 @@ function TreeNode({ node, onSelect, depth = 0 }: { node: TreeNodeData; onSelect:
         }}
       >
         {isLeaf ? (
-          <Code2 size={14} className="text-neon-lime shrink-0" />
+          <Code2 size={14} className="text-accent-primary shrink-0" />
         ) : (
-          <FolderOpen size={14} className={cn('shrink-0', open ? 'text-neon-lime' : 'text-text-muted')} />
+          <FolderOpen size={14} className={cn('shrink-0', open ? 'text-accent-primary' : 'text-text-muted')} />
         )}
         <span className="text-sm text-text-primary flex-1 truncate">{node.name}</span>
         <span className="text-[10px] text-text-muted">{formatNumber(node.totalExecutions)}</span>
         {node.avgErrorRate > 0 && (
-          <span className="text-[10px] text-neon-red">{formatPercentage(node.avgErrorRate)}</span>
+          <span className="text-[10px] text-status-error">{formatPercentage(node.avgErrorRate)}</span>
         )}
       </div>
 
@@ -405,7 +405,7 @@ function TreeNode({ node, onSelect, depth = 0 }: { node: TreeNodeData; onSelect:
               onClick={() => onSelect(fn.function_name)}
               className="flex items-center gap-2 py-1.5 px-2 rounded-[8px] hover:bg-bg-card-hover cursor-pointer transition-colors"
             >
-              <Code2 size={14} className="text-neon-lime shrink-0" />
+              <Code2 size={14} className="text-accent-primary shrink-0" />
               <span className="text-sm text-text-primary flex-1 truncate">{fn.function_name}</span>
               <span className="text-[10px] text-text-muted">{formatNumber(fn.execution_count || 0)}</span>
             </div>

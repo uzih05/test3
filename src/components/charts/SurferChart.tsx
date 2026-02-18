@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 interface SurferChartProps {
   data: { label: string; value: number; value2?: number; value3?: number }[];
@@ -31,6 +32,7 @@ export function SurferChart({
   legend,
 }: SurferChartProps) {
   const { fillMode } = useDashboardStore();
+  const chartColors = useChartColors();
 
   const getFill = (c: string) => {
     if (fillMode === 'stroke-only') return 'transparent';
@@ -64,16 +66,16 @@ export function SurferChart({
             ))}
           </defs>
           {showGrid && (
-            <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.borderDefault} vertical={false} />
           )}
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 10, fill: '#666' }}
-            axisLine={{ stroke: '#222' }}
+            tick={{ fontSize: 10, fill: chartColors.textMuted }}
+            axisLine={{ stroke: chartColors.borderDefault }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: '#666' }}
+            tick={{ fontSize: 10, fill: chartColors.textMuted }}
             axisLine={false}
             tickLine={false}
           />

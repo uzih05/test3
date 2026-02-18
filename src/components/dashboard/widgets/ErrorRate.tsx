@@ -31,7 +31,7 @@ export function ErrorRate() {
     <div className="flex flex-col items-center">
       <p className={cn(
         'text-4xl font-bold',
-        isHigh ? 'text-neon-red' : isMedium ? 'text-neon-orange' : 'text-neon-cyan'
+        isHigh ? 'text-status-error' : isMedium ? 'text-status-warning' : 'text-accent-secondary'
       )}>
         {formatPercentage(rate)}
       </p>
@@ -40,7 +40,7 @@ export function ErrorRate() {
         <div
           className={cn(
             'h-full rounded-full transition-[width] duration-700',
-            isHigh ? 'bg-neon-red' : isMedium ? 'bg-neon-orange' : 'bg-neon-cyan'
+            isHigh ? 'bg-status-error' : isMedium ? 'bg-status-warning' : 'bg-accent-secondary'
           )}
           style={{ width: `${Math.min(rate, 100)}%` }}
         />

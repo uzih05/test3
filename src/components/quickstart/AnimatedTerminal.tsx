@@ -106,9 +106,9 @@ export default function AnimatedTerminal({ lines, title = 'Terminal' }: Animated
       {/* Title bar */}
       <div className="bg-bg-elevated px-4 py-2.5 flex items-center gap-2 border-b border-border-default">
         <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-neon-red/60" />
-          <div className="w-2.5 h-2.5 rounded-full bg-neon-orange/60" />
-          <div className="w-2.5 h-2.5 rounded-full bg-neon-lime/60" />
+          <div className="w-2.5 h-2.5 rounded-full bg-status-error/60" />
+          <div className="w-2.5 h-2.5 rounded-full bg-status-warning/60" />
+          <div className="w-2.5 h-2.5 rounded-full bg-accent-primary/60" />
         </div>
         <span className="text-[10px] text-text-muted font-mono ml-2">{title}</span>
       </div>
@@ -123,9 +123,9 @@ export default function AnimatedTerminal({ lines, title = 'Terminal' }: Animated
             <span
               className={
                 vl.type === 'cmd'
-                  ? 'text-neon-lime'
+                  ? 'text-accent-primary'
                   : vl.type === 'success'
-                    ? 'text-neon-cyan'
+                    ? 'text-accent-secondary'
                     : vl.type === 'comment'
                       ? 'text-text-muted'
                       : 'text-text-secondary'
@@ -135,14 +135,14 @@ export default function AnimatedTerminal({ lines, title = 'Terminal' }: Animated
             </span>
             {/* Blinking cursor on current typing line */}
             {i === currentLineIdx && isTyping && !vl.done && (
-              <span className="inline-block w-[7px] h-[14px] bg-neon-lime/80 ml-[1px] align-middle animate-pulse" />
+              <span className="inline-block w-[7px] h-[14px] bg-accent-primary/80 ml-[1px] align-middle animate-pulse" />
             )}
           </div>
         ))}
         {/* Cursor on empty new line when waiting */}
         {isTyping && (visibleLines.length === 0 || visibleLines[visibleLines.length - 1]?.done) && (
           <div className="min-h-[1.4em]">
-            <span className="inline-block w-[7px] h-[14px] bg-neon-lime/80 animate-pulse" />
+            <span className="inline-block w-[7px] h-[14px] bg-accent-primary/80 animate-pulse" />
           </div>
         )}
       </div>

@@ -1,15 +1,20 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { analyticsService } from '@/services/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { formatNumber } from '@/lib/utils';
-
-const COLORS = ['#DFFF00', '#00FFCC', '#3B82F6', '#FF9F43', '#FF4D6A'];
+import { useChartColors } from '@/lib/hooks/useChartColors';
 
 export function TokenUsage() {
   const { t } = useTranslation();
+  const chartColors = useChartColors();
+  const COLORS = useMemo(
+    () => [chartColors.accentPrimary, chartColors.accentSecondary, chartColors.statusInfo, chartColors.statusWarning, chartColors.statusError],
+    [chartColors]
+  );
   const { data, isLoading } = useQuery({
     queryKey: ['tokens'],
     queryFn: () => analyticsService.tokens(),
@@ -28,7 +33,7 @@ export function TokenUsage() {
   return (
     <div>
       <div className="text-center mb-2">
-        <p className="text-2xl font-bold text-neon-lime">{formatNumber(data.total_tokens)}</p>
+        <p className="text-2xl font-bold text-accent-primary">{formatNumber(data.total_tokens)}</p>
         <p className="text-xs text-text-muted">{t('dashboard.totalTokens')}</p>
       </div>
       {chartData.length > 0 ? (
