@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'VectorSurfer Extream',
+  title: 'Cozymori VectorSurfer',
   description: 'AI-powered function execution monitoring dashboard',
   other: {
     'color-scheme': 'dark light',

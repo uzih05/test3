@@ -79,9 +79,12 @@ export default function ProjectsPage() {
 
   const activateMutation = useMutation({
     mutationFn: (id: string) => connectionsService.activate(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.removeQueries();
-      usePagePreferencesStore.getState().setProjectSelected(true);
+      const conn = connections.find((c) => c.id === id);
+      const prefs = usePagePreferencesStore.getState();
+      prefs.setProjectSelected(true);
+      prefs.setProjectName(conn?.name ?? null);
       router.push('/');
     },
     onError: (err) => {
@@ -133,7 +136,9 @@ export default function ProjectsPage() {
     setActivateError(null);
     if (conn.is_active) {
       queryClient.removeQueries();
-      usePagePreferencesStore.getState().setProjectSelected(true);
+      const prefs = usePagePreferencesStore.getState();
+      prefs.setProjectSelected(true);
+      prefs.setProjectName(conn.name);
       router.push('/');
     } else {
       setActivatingId(conn.id);

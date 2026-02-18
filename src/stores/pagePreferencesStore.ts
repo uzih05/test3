@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware';
 
 interface PagePreferencesState {
   projectSelected: boolean;
+  projectName: string | null;
   githubSelectedRepo: { owner: string; repo: string } | null;
   analysisActiveTab: string;
   goldenActiveTab: string;
@@ -17,6 +18,7 @@ interface PagePreferencesState {
   errorsSearchMode: 'filter' | 'semantic';
 
   setProjectSelected: (v: boolean) => void;
+  setProjectName: (v: string | null) => void;
   setGithubSelectedRepo: (v: { owner: string; repo: string } | null) => void;
   setAnalysisActiveTab: (v: string) => void;
   setGoldenActiveTab: (v: string) => void;
@@ -32,6 +34,7 @@ interface PagePreferencesState {
 
 const DEFAULTS = {
   projectSelected: false,
+  projectName: null as string | null,
   githubSelectedRepo: null,
   analysisActiveTab: 'overview',
   goldenActiveTab: 'records',
@@ -50,6 +53,7 @@ export const usePagePreferencesStore = create<PagePreferencesState>()(
       ...DEFAULTS,
 
       setProjectSelected: (v) => set({ projectSelected: v }),
+      setProjectName: (v) => set({ projectName: v }),
       setGithubSelectedRepo: (v) => set({ githubSelectedRepo: v }),
       setAnalysisActiveTab: (v) => set({ analysisActiveTab: v }),
       setGoldenActiveTab: (v) => set({ goldenActiveTab: v }),

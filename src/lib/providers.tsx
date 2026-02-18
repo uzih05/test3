@@ -6,6 +6,7 @@ import { I18nProvider } from '@/lib/i18n';
 import { AuthGuard } from '@/components/AuthGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ThemeInitializer } from '@/components/ThemeInitializer';
+import { DocumentTitle } from '@/components/DocumentTitle';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -26,6 +27,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <ThemeInitializer />
+        <DocumentTitle />
         <AuthGuard>
           <DashboardLayout>{children}</DashboardLayout>
         </AuthGuard>
