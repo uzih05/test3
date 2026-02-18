@@ -46,6 +46,12 @@ const AppearanceSection = memo(function AppearanceSection() {
       desc: t('settings.signatureColorDesc'),
       swatches: ['#A78BFA', '#F472B6'],
     },
+    {
+      key: 'grayscale' as const,
+      label: t('settings.colorThemeGrayscale'),
+      desc: t('settings.grayscaleColorDesc'),
+      swatches: ['#444444', '#B0B0B0'],
+    },
   ];
 
   const modes = [
@@ -59,7 +65,7 @@ const AppearanceSection = memo(function AppearanceSection() {
       {/* Color Theme */}
       <div className="bg-bg-card border border-border-default rounded-[20px] p-6 card-shadow">
         <h2 className="text-sm font-medium text-text-secondary mb-4">{t('settings.colorTheme')}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {colorThemes.map(({ key, label, desc, swatches }) => (
             <button
               key={key}

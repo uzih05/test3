@@ -322,6 +322,8 @@
     "colorThemeSignature": "Signature",
     "neonColorDesc": "Lime & cyan accents",
     "signatureColorDesc": "Purple & pink accents",
+    "colorThemeGrayscale": "Grayscale",
+    "grayscaleColorDesc": "Pure monochrome",
     "neonDarkDesc": "Neon dark mode",
     "cleanLightDesc": "Clean light mode",
     "followOsDesc": "Follow OS preference",
@@ -481,7 +483,8 @@
     "freeLimit": "Free plan: responses older than 24 hours are locked. Upgrade to Pro for unlimited access.",
     "sourceAll": "All",
     "sourceAskAi": "Ask AI",
-    "sourceHealer": "Healer"
+    "sourceHealer": "Healer",
+    "sourceTraceAnalysis": "Trace Analysis"
   },
   "plan": {
     "title": "Plan",

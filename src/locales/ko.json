@@ -322,6 +322,8 @@
     "colorThemeSignature": "시그니쳐",
     "neonColorDesc": "라임 & 시안 액센트",
     "signatureColorDesc": "보라 & 핑크 액센트",
+    "colorThemeGrayscale": "그레이스케일",
+    "grayscaleColorDesc": "순수 무채색",
     "neonDarkDesc": "네온 다크 모드",
     "cleanLightDesc": "클린 라이트 모드",
     "followOsDesc": "OS 설정 따르기",
@@ -481,7 +483,8 @@
     "freeLimit": "Free 플랜: 24시간이 지난 응답은 잠겨 있습니다. Pro로 업그레이드하면 무제한으로 열람할 수 있습니다.",
     "sourceAll": "전체",
     "sourceAskAi": "AI 질문",
-    "sourceHealer": "힐러"
+    "sourceHealer": "힐러",
+    "sourceTraceAnalysis": "트레이스 분석"
   },
   "plan": {
     "title": "요금제",

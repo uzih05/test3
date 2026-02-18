@@ -12,7 +12,7 @@ export const tracesService = {
     api.get<TraceTree>(`/api/v1/traces/${traceId}/tree`),
 
   analyze: (traceId: string, language?: string) =>
-    api.get<{ trace_id: string; analysis: string; language: string }>(
+    api.get<{ trace_id: string; analysis: string; language: string; saved_id?: string }>(
       `/api/v1/traces/${traceId}/analyze`, { language }
     ),
 };

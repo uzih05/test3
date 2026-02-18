@@ -13,21 +13,25 @@ import {
   Bookmark,
   Lock,
   Crown,
+  GitBranch,
 } from 'lucide-react';
 import { savedService } from '@/services/saved';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { timeAgo, cn } from '@/lib/utils';
 
 const SOURCE_OPTIONS = [
   { value: '', labelKey: 'sourceAll' },
   { value: 'ask_ai', labelKey: 'sourceAskAi' },
   { value: 'healer', labelKey: 'sourceHealer' },
+  { value: 'trace_analysis', labelKey: 'sourceTraceAnalysis' },
 ];
 
 const SOURCE_ICONS: Record<string, typeof MessageSquare> = {
   ask_ai: MessageSquare,
   healer: Sparkles,
+  trace_analysis: GitBranch,
 };
 
 type FilterTab = 'all' | 'bookmarked';
@@ -210,7 +214,7 @@ export default function SavedPage() {
                     <p className="text-sm text-text-primary truncate">{item.question}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] uppercase text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded">
-                        {t(`saved.source${item.source_type === 'ask_ai' ? 'AskAi' : item.source_type === 'healer' ? 'Healer' : 'All'}`)}
+                        {t(`saved.source${item.source_type === 'ask_ai' ? 'AskAi' : item.source_type === 'healer' ? 'Healer' : item.source_type === 'trace_analysis' ? 'TraceAnalysis' : 'All'}`)}
                       </span>
                       {item.function_name && (
                         <span className="text-xs text-text-muted">{item.function_name}</span>
@@ -237,9 +241,7 @@ export default function SavedPage() {
                 {isExpanded && !isLocked && (
                   <div className="border-t border-border-default">
                     <div className="px-5 py-4">
-                      <pre className="text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
-                        {item.answer}
-                      </pre>
+                      <MarkdownRenderer content={item.answer} />
                     </div>
                     <div className="px-5 py-3 border-t border-border-default flex justify-between">
                       <button

@@ -24,7 +24,6 @@ import { useDashboardStore } from '@/stores/dashboardStore';
 import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { useDebounce } from '@/lib/hooks/useDebounce';
-import { TimeRangeSelector } from '@/components/dashboard/TimeRangeSelector';
 import { formatNumber, formatDuration, formatPercentage, formatCost, cn } from '@/lib/utils';
 import { TruncatedText } from '@/components/TruncatedText';
 import { useChartColors } from '@/lib/hooks/useChartColors';
@@ -493,15 +492,17 @@ const BottleneckTab = memo(function BottleneckTab({
               <div className="w-20 text-xs text-text-muted shrink-0">
                 {t('analysis.cluster')} {cluster.cluster_id}
               </div>
-              <div className="flex-1 h-6 bg-bg-elevated rounded-[6px] overflow-hidden relative">
-                <div
-                  className={cn(
-                    'h-full rounded-[6px] transition-[width] duration-500',
-                    cluster.is_bottleneck ? 'bg-status-error' : 'bg-accent-secondary'
-                  )}
-                  style={{ width: `${(cluster.avg_duration_ms / maxDur) * 100}%` }}
-                />
-                <span className="absolute inset-0 flex items-center px-2 text-[10px] text-text-primary font-mono">
+              <div className="flex-1 flex items-center gap-2">
+                <div className="flex-1 h-7 bg-bg-elevated rounded-[6px] overflow-hidden">
+                  <div
+                    className={cn(
+                      'h-full rounded-[6px] transition-[width] duration-500',
+                      cluster.is_bottleneck ? 'bg-status-error' : 'bg-accent-secondary'
+                    )}
+                    style={{ width: `${(cluster.avg_duration_ms / maxDur) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[11px] text-text-secondary font-mono whitespace-nowrap shrink-0">
                   {formatDuration(cluster.avg_duration_ms)}
                 </span>
               </div>
@@ -951,7 +952,6 @@ export default function AnalysisPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-text-primary">{t('analysis.title')}</h1>
         <div className="flex items-center gap-2">
-          <TimeRangeSelector />
           <div className="flex gap-1 bg-bg-card rounded-[12px] p-1 border border-border-default">
             {tabs.map((tab) => (
               <button

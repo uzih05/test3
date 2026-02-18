@@ -180,6 +180,74 @@
   color-scheme: dark;
 }
 
+/* ============================================
+   GRAYSCALE LIGHT (:root[data-color-theme="grayscale"])
+   ============================================ */
+:root[data-color-theme="grayscale"] {
+  --theme-bg-primary: #F8F8F8;
+  --theme-bg-secondary: #EFEFEF;
+  --theme-bg-card: #FFFFFF;
+  --theme-bg-card-hover: #F5F5F5;
+  --theme-bg-elevated: #EEEEEE;
+  --theme-bg-input: #FFFFFF;
+
+  --theme-accent-primary: #444444;
+  --theme-accent-primary-dim: rgba(68, 68, 68, 0.1);
+  --theme-accent-primary-glow: rgba(68, 68, 68, 0.15);
+  --theme-accent-secondary: #888888;
+  --theme-accent-secondary-dim: rgba(136, 136, 136, 0.1);
+  --theme-status-error: #B91C1C;
+  --theme-status-error-dim: rgba(185, 28, 28, 0.1);
+  --theme-status-warning: #B45309;
+  --theme-status-warning-dim: rgba(180, 83, 9, 0.1);
+  --theme-status-info: #1E40AF;
+
+  --theme-text-primary: #1A1A1A;
+  --theme-text-secondary: #555555;
+  --theme-text-muted: #999999;
+  --theme-text-inverse: #FFFFFF;
+
+  --theme-border-default: #DDDDDD;
+  --theme-border-hover: #BBBBBB;
+  --theme-border-active: #444444;
+
+  color-scheme: light;
+}
+
+/* ============================================
+   GRAYSCALE DARK (:root.dark[data-color-theme="grayscale"])
+   ============================================ */
+:root.dark[data-color-theme="grayscale"] {
+  --theme-bg-primary: #0E0E0E;
+  --theme-bg-secondary: #161616;
+  --theme-bg-card: #1C1C1C;
+  --theme-bg-card-hover: #242424;
+  --theme-bg-elevated: #282828;
+  --theme-bg-input: #1A1A1A;
+
+  --theme-accent-primary: #D0D0D0;
+  --theme-accent-primary-dim: rgba(208, 208, 208, 0.12);
+  --theme-accent-primary-glow: rgba(208, 208, 208, 0.2);
+  --theme-accent-secondary: #808080;
+  --theme-accent-secondary-dim: rgba(128, 128, 128, 0.12);
+  --theme-status-error: #F87171;
+  --theme-status-error-dim: rgba(248, 113, 113, 0.15);
+  --theme-status-warning: #FBBF24;
+  --theme-status-warning-dim: rgba(251, 191, 36, 0.15);
+  --theme-status-info: #60A5FA;
+
+  --theme-text-primary: #F0F0F0;
+  --theme-text-secondary: #A0A0A0;
+  --theme-text-muted: #606060;
+  --theme-text-inverse: #0E0E0E;
+
+  --theme-border-default: #303030;
+  --theme-border-hover: #444444;
+  --theme-border-active: #D0D0D0;
+
+  color-scheme: dark;
+}
+
 /* === Base === */
 body {
   background: var(--color-bg-primary);
@@ -253,6 +321,26 @@ body {
 .transition-smooth {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* === Markdown prose === */
+.prose-surfer {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.prose-surfer h1, .prose-surfer h2, .prose-surfer h3 { color: var(--color-text-primary); font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; }
+.prose-surfer h1 { font-size: 1.25rem; }
+.prose-surfer h2 { font-size: 1.1rem; }
+.prose-surfer h3 { font-size: 1rem; }
+.prose-surfer p { margin-bottom: 0.75em; }
+.prose-surfer strong { color: var(--color-text-primary); font-weight: 600; }
+.prose-surfer code { background: var(--color-bg-elevated); color: var(--color-accent-primary); padding: 0.125em 0.375em; border-radius: 4px; font-size: 0.8em; }
+.prose-surfer pre { background: var(--color-bg-elevated); border: 1px solid var(--color-border-default); border-radius: 12px; padding: 1em; overflow-x: auto; margin-bottom: 0.75em; }
+.prose-surfer pre code { background: none; padding: 0; color: var(--color-text-secondary); }
+.prose-surfer ul, .prose-surfer ol { padding-left: 1.5em; margin-bottom: 0.75em; }
+.prose-surfer li { margin-bottom: 0.25em; }
+.prose-surfer ul li::marker { color: var(--color-accent-primary); }
+.prose-surfer blockquote { border-left: 3px solid var(--color-accent-primary); padding-left: 1em; color: var(--color-text-muted); margin-bottom: 0.75em; }
 
 /* === Onboarding animations === */
 @keyframes onboarding-float {

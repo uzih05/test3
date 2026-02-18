@@ -322,6 +322,8 @@
     "colorThemeSignature": "シグネチャー",
     "neonColorDesc": "ライム & シアンアクセント",
     "signatureColorDesc": "パープル & ピンクアクセント",
+    "colorThemeGrayscale": "グレースケール",
+    "grayscaleColorDesc": "モノクロ",
     "neonDarkDesc": "ネオンダークモード",
     "cleanLightDesc": "クリーンライトモード",
     "followOsDesc": "OS設定に従う",
@@ -481,7 +483,8 @@
     "freeLimit": "Freeプラン：24時間経過した応答はロックされています。Proにアップグレードすると無制限に閲覧できます。",
     "sourceAll": "全て",
     "sourceAskAi": "AI質問",
-    "sourceHealer": "ヒーラー"
+    "sourceHealer": "ヒーラー",
+    "sourceTraceAnalysis": "トレース分析"
   },
   "plan": {
     "title": "プラン",

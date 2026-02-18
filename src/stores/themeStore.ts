@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Mode = 'light' | 'dark' | 'system';
-export type ColorTheme = 'neon' | 'signature';
+export type ColorTheme = 'neon' | 'signature' | 'grayscale';
 
 interface ThemeState {
   mode: Mode;

@@ -10,12 +10,15 @@ import {
   Sparkles,
   TreePine,
   BarChart3,
+  Bookmark,
 } from 'lucide-react';
 import { tracesService } from '@/services/traces';
+import { savedService } from '@/services/saved';
 import { useTranslation } from '@/lib/i18n';
 import { StatusBadge } from '@/components/StatusBadge';
 import { formatDuration, timeAgo, cn } from '@/lib/utils';
 import { useChartColors } from '@/lib/hooks/useChartColors';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import type { Span } from '@/types';
 
 export default function TraceDetailPage() {
@@ -27,6 +30,7 @@ export default function TraceDetailPage() {
   const [viewMode, setViewMode] = useState<'tree' | 'waterfall'>('tree');
   const [language, setLanguage] = useState<'en' | 'ko'>('en');
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { data: traceData, isLoading } = useQuery({
     queryKey: ['trace', traceId],
@@ -146,6 +150,21 @@ export default function TraceDetailPage() {
           <div className="flex items-center gap-2 mb-3">
             <Sparkles size={14} className="text-accent-primary" />
             <h3 className="text-sm font-medium text-accent-primary">AI Analysis</h3>
+            {analysis?.saved_id && (
+              <button
+                onClick={async () => {
+                  if (!analysis.saved_id) return;
+                  await savedService.toggleBookmark(analysis.saved_id);
+                  setIsBookmarked(!isBookmarked);
+                }}
+                className={cn(
+                  'ml-auto p-1.5 rounded-lg transition-colors',
+                  isBookmarked ? 'text-accent-primary' : 'text-text-muted hover:text-accent-primary'
+                )}
+              >
+                <Bookmark size={14} fill={isBookmarked ? 'currentColor' : 'none'} />
+              </button>
+            )}
           </div>
           {analyzing ? (
             <div className="flex items-center gap-2 text-sm text-text-muted">
@@ -153,9 +172,7 @@ export default function TraceDetailPage() {
               Analyzing...
             </div>
           ) : analysis ? (
-            <p className="text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
-              {analysis.analysis}
-            </p>
+            <MarkdownRenderer content={analysis.analysis} />
           ) : null}
         </div>
       )}

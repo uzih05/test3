@@ -18,6 +18,7 @@ import { functionsService } from '@/services/functions';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import type { AskAiResponse } from '@/types';
 
 export default function AskAiPage() {
@@ -194,9 +195,7 @@ export default function AskAiPage() {
 
           {/* Answer */}
           <div className="px-6 py-4">
-            <pre className="text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
-              {result.answer}
-            </pre>
+            <MarkdownRenderer content={result.answer} />
           </div>
 
           {/* Actions */}

@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { usePagePreferencesStore } from '@/stores/pagePreferencesStore';
 import { useTranslation } from '@/lib/i18n';
 import { timeAgo, cn } from '@/lib/utils';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import type { DiagnosisResult, HealableFunction } from '@/types';
 
 const TIME_RANGE_OPTIONS = [
@@ -253,7 +254,7 @@ export default function HealerPage() {
                   </div>
 
                   {/* Diagnosis result */}
-                  {diagnosis && <DiagnosisCard result={diagnosis} onCopy={handleCopy} isPro={user?.plan === 'pro'} />}
+                  {diagnosis && <DiagnosisCard result={diagnosis} onCopy={handleCopy} />}
                 </div>
               )}
 
@@ -325,7 +326,7 @@ export default function HealerPage() {
                       </button>
                       {expandedBatch === result.function_name && (
                         <div className="px-5 pb-4">
-                          <DiagnosisCard result={result} onCopy={handleCopy} isPro={user?.plan === 'pro'} />
+                          <DiagnosisCard result={result} onCopy={handleCopy} />
                         </div>
                       )}
                     </div>
@@ -397,31 +398,17 @@ function FunctionItem({
 function DiagnosisCard({
   result,
   onCopy,
-  isPro,
 }: {
   result: DiagnosisResult;
   onCopy: (text: string) => void;
-  isPro?: boolean;
 }) {
   const { t } = useTranslation();
-  const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await savedService.save({
-        question: `[Healer] ${result.function_name} (${result.lookback_minutes}min)`,
-        answer: [result.diagnosis, result.suggested_fix].filter(Boolean).join('\n\n--- Suggested Fix ---\n\n'),
-        source_type: 'healer',
-        function_name: result.function_name,
-      });
-      setSaved(true);
-    } catch {
-      // ignore
-    } finally {
-      setSaving(false);
-    }
+  const handleBookmark = async () => {
+    if (!result.saved_id) return;
+    await savedService.toggleBookmark(result.saved_id);
+    setIsBookmarked(!isBookmarked);
   };
 
   return (
@@ -436,8 +423,8 @@ function DiagnosisCard({
           {/* Diagnosis */}
           <div>
             <p className="text-xs text-text-muted mb-1.5">{t('healer.diagnosis')}</p>
-            <div className="bg-bg-elevated rounded-[12px] p-4 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed h-full max-h-[350px] overflow-y-auto">
-              {result.diagnosis}
+            <div className="bg-bg-elevated rounded-[12px] p-4 h-full max-h-[350px] overflow-y-auto">
+              <MarkdownRenderer content={result.diagnosis} />
             </div>
           </div>
 
@@ -447,20 +434,16 @@ function DiagnosisCard({
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-xs text-text-muted">{t('healer.suggestedFix')}</p>
                 <div className="flex items-center gap-2">
-                  {isPro ? (
+                  {result.saved_id && (
                     <button
-                      onClick={handleSave}
-                      disabled={saved || saving}
+                      onClick={handleBookmark}
                       className={cn(
                         'flex items-center gap-1 text-xs transition-colors',
-                        saved ? 'text-accent-primary' : 'text-text-muted hover:text-accent-primary'
+                        isBookmarked ? 'text-accent-primary' : 'text-text-muted hover:text-accent-primary'
                       )}
                     >
-                      <Bookmark size={12} />
-                      {saved ? 'Saved' : 'Save'}
+                      <Bookmark size={12} fill={isBookmarked ? 'currentColor' : 'none'} />
                     </button>
-                  ) : (
-                    <span className="text-[9px] text-text-muted bg-bg-secondary px-1.5 py-0.5 rounded uppercase">Pro</span>
                   )}
                   <button
                     onClick={() => onCopy(result.suggested_fix!)}

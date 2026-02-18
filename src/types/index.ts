@@ -167,6 +167,7 @@ export interface DiagnosisResult {
   suggested_fix: string | null;
   lookback_minutes: number;
   status: 'success' | 'error' | 'no_errors';
+  saved_id?: string;
 }
 
 // === GitHub ===
