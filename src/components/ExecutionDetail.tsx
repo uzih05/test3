@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { X, ExternalLink, Loader2 } from 'lucide-react';
+import { X, ExternalLink, Loader2, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { executionsService } from '@/services/executions';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -14,10 +14,12 @@ interface ExecutionDetailProps {
 }
 
 export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['execution', spanId],
     queryFn: () => executionsService.get(spanId),
   });
+
+  const hasValidData = data && !('error' in data) && data.function_name;
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
@@ -33,9 +35,15 @@ export function ExecutionDetail({ spanId, onClose }: ExecutionDetailProps) {
 
         {/* Body */}
         <div className="p-6 overflow-y-auto">
-          {isLoading || !data ? (
+          {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 size={24} className="animate-spin text-neon-lime" />
+            </div>
+          ) : isError || !hasValidData ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <AlertTriangle size={24} className="text-neon-orange" />
+              <p className="text-sm text-text-muted">Execution not found</p>
+              <p className="text-xs text-text-muted/60 font-mono">{spanId}</p>
             </div>
           ) : (
             <div className="space-y-4">

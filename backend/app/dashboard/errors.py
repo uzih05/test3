@@ -268,23 +268,34 @@ class ErrorService:
                 })
             by_team.sort(key=lambda x: x["count"], reverse=True)
             
+            most_common_errors = [
+                {
+                    "error_code": item["error_code"],
+                    "count": item["count"],
+                    "percentage": round((item["count"] / max(total_errors, 1)) * 100, 1),
+                }
+                for item in by_error_code[:10]
+            ]
+
             return {
                 "total_errors": total_errors,
-                "by_error_code": by_error_code,
+                "unique_error_codes": len(by_error_code),
+                "most_common_errors": most_common_errors,
                 "by_function": by_function,
                 "by_team": by_team,
-                "time_range_minutes": time_range_minutes
+                "time_range_minutes": time_range_minutes,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to get error summary: {e}")
             return {
                 "total_errors": 0,
-                "by_error_code": [],
+                "unique_error_codes": 0,
+                "most_common_errors": [],
                 "by_function": [],
                 "by_team": [],
                 "time_range_minutes": time_range_minutes,
-                "error": str(e)
+                "error": str(e),
             }
 
     def get_error_trends(
