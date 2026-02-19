@@ -20,6 +20,7 @@ import {
   LogOut,
   X,
   Lightbulb,
+  Archive,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useTranslation } from '@/lib/i18n';
@@ -39,6 +40,7 @@ const NAV_ITEMS_TOP = [
   { key: 'golden', path: '/golden', icon: Star },
   { key: 'github', path: '/github', icon: GitPullRequest },
   { key: 'suggest', path: '/suggest', icon: Lightbulb },
+  { key: 'archive', path: '/archive', icon: Archive },
 ];
 
 const NAV_ITEMS_BOTTOM = [

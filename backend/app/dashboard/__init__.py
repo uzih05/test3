@@ -17,6 +17,7 @@ from .drift import DriftService
 from .semantic_analysis import SemanticAnalysisService
 from .ask_ai import AskAiService
 from .suggest import SuggestService
+from .archiver import ArchiverService
 
 __all__ = [
     'DashboardOverviewService',
@@ -31,4 +32,5 @@ __all__ = [
     'SemanticAnalysisService',
     'AskAiService',
     'SuggestService',
+    'ArchiverService',
 ]

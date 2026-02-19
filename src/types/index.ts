@@ -378,3 +378,15 @@ export interface SuggestResponse {
   time_range_minutes: number;
   summary: { critical: number; high: number; medium: number; low: number };
 }
+
+// === Archive ===
+export interface ArchivePreview {
+  total_records: number;
+  execution_count: number;
+  golden_count: number;
+  unique_functions: number;
+  function_names: string[];
+  samples: Array<{
+    messages: Array<{ role: string; content: string }>;
+  }>;
+}

@@ -14,7 +14,8 @@
     "settings": "설정",
     "ask": "AI 질문",
     "saved": "저장됨",
-    "suggest": "제안"
+    "suggest": "제안",
+    "archive": "아카이브"
   },
   "auth": {
     "login": "로그인",
@@ -520,6 +521,21 @@
     "viewGolden": "골든 데이터 보기",
     "filterByType": "타입별 필터",
     "fetchError": "제안을 불러오지 못했습니다"
+  },
+  "archive": {
+    "title": "파인튜닝 아카이브",
+    "description": "실행 로그를 LLM 파인튜닝용 JSONL로 내보내기",
+    "allFunctions": "전체 함수",
+    "includeGolden": "골든 데이터 포함",
+    "preview": "JSONL 미리보기",
+    "exportJsonl": "JSONL 내보내기",
+    "exporting": "내보내는 중...",
+    "totalRecords": "총 레코드",
+    "executions": "실행 로그",
+    "goldenData": "골든 데이터",
+    "functions": "함수",
+    "noData": "실행 데이터가 없습니다",
+    "sampleEntry": "샘플 항목"
   },
   "accessibility": {
     "close": "닫기",

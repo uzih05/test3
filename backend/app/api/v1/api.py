@@ -22,6 +22,7 @@ from app.api.v1.endpoints import (
     ask_ai,
     saved_responses,
     suggest,
+    archive,
 )
 
 api_router = APIRouter()
@@ -116,4 +117,10 @@ api_router.include_router(
     suggest.router,
     prefix="/suggest",
     tags=["Suggest"]
+)
+
+api_router.include_router(
+    archive.router,
+    prefix="/archive",
+    tags=["Archive"]
 )

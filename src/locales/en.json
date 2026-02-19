@@ -14,7 +14,8 @@
     "settings": "Settings",
     "ask": "Ask AI",
     "saved": "Saved",
-    "suggest": "Suggest"
+    "suggest": "Suggest",
+    "archive": "Archive"
   },
   "auth": {
     "login": "Log In",
@@ -520,6 +521,21 @@
     "viewGolden": "View Golden Data",
     "filterByType": "Filter by type",
     "fetchError": "Failed to load suggestions"
+  },
+  "archive": {
+    "title": "Fine-tune Archive",
+    "description": "Export execution logs as JSONL for LLM fine-tuning",
+    "allFunctions": "All Functions",
+    "includeGolden": "Include Golden Data",
+    "preview": "JSONL Preview",
+    "exportJsonl": "Export JSONL",
+    "exporting": "Exporting...",
+    "totalRecords": "Total Records",
+    "executions": "Executions",
+    "goldenData": "Golden Data",
+    "functions": "Functions",
+    "noData": "No execution data available",
+    "sampleEntry": "Sample Entry"
   },
   "accessibility": {
     "close": "Close",

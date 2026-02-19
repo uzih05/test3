@@ -14,7 +14,8 @@
     "settings": "設定",
     "ask": "AI質問",
     "saved": "保存済み",
-    "suggest": "提案"
+    "suggest": "提案",
+    "archive": "アーカイブ"
   },
   "auth": {
     "login": "ログイン",
@@ -520,6 +521,21 @@
     "viewGolden": "ゴールデンデータを見る",
     "filterByType": "タイプで絞り込み",
     "fetchError": "提案の読み込みに失敗しました"
+  },
+  "archive": {
+    "title": "ファインチューニングアーカイブ",
+    "description": "実行ログをLLMファインチューニング用JSONLでエクスポート",
+    "allFunctions": "全関数",
+    "includeGolden": "ゴールデンデータを含む",
+    "preview": "JSONLプレビュー",
+    "exportJsonl": "JSONLエクスポート",
+    "exporting": "エクスポート中...",
+    "totalRecords": "合計レコード",
+    "executions": "実行ログ",
+    "goldenData": "ゴールデンデータ",
+    "functions": "関数",
+    "noData": "実行データがありません",
+    "sampleEntry": "サンプル項目"
   },
   "accessibility": {
     "close": "閉じる",
